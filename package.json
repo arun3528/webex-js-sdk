@@ -125,7 +125,7 @@
     "es6-promise": "^4.2.8",
     "es6-promise-series": "^0.2.2",
     "eslint": "^5.16.0",
-    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-mocha": "^6.0.0",
     "exifr": "^5.0.3",
     "express": "^4.17.1",
