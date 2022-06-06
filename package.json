@@ -228,7 +228,7 @@
     "webdriverio": "^6.12.1",
     "webpack": "^4.46.0",
     "webpack-cli": "^4.8.0",
-    "webpack-dev-server": "^4.3.1"
+    "webpack-dev-server": "^4.9.1"
   },
   "resolutions": {
     "set-value": "3.0.2",
