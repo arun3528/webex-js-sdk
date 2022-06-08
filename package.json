@@ -57,6 +57,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
+    "@webex-connect/video-web-sdk": "^2.4.0",
     "ampersand-collection": "^2.0.2",
     "ampersand-collection-lodash-mixin": "^4.0.0",
     "ampersand-events": "^2.0.2",

@@ -78,6 +78,12 @@
                   </div>
                 </fieldset>
             </form>
+            <legend>Join Cpaas Session</legend>
+            <div class="u-mv">
+                <input id="session-token" name="sessionToken" placeholder="Session Token" value="" type="text" required>
+                <input id="session-id" name="sessionId" placeholder="Session ID" value="" type="text" required>
+                <button id="join-session" class="btn-code" onclick="joinSessions()">Join session</button>
+            </div>
           </div>
         </section>
 
@@ -495,8 +501,9 @@
               </fieldset>
 
               <fieldset>
-                <legend>Remote Screenshare</legend>
+                <legend>Remote Cpaas</legend>
                 <video id="remote-screenshare" autoplay playsinline></video>
+                <audio id="remote-audio-cpaas" autoplay></audio>
               </fieldset>
             </div>
         </section>

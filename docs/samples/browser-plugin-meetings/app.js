@@ -14,9 +14,11 @@
 let webex;
 let receiveTranscriptionOption;
 
+const meetingStreamsRemoteShare = document.querySelector('#remote-screenshare');
 const credentialsFormElm = document.querySelector('#credentials');
 const tokenElm = document.querySelector('#access-token');
 const saveElm = document.querySelector('#access-token-save');
+const joinSession = document.querySelector('#join-session');
 const authStatusElm = document.querySelector('#access-token-status');
 const registerElm = document.querySelector('#registration-register');
 const unregisterElm = document.querySelector('#registration-unregister');
@@ -145,7 +147,27 @@ function register() {
       newMeeting.acknowledge(type);
     }
   });
+
+  webex.meetings.on('CPAAS_REMOTE_VIDEO', (event) => {
+    console.log('got remote cpaas steams');
+    meetingStreamsRemoteShare.srcObject = event.remoteStream;
+  });
+  webex.meetings.on('CPAAS_REMOTE_AUDIO', (event) => {
+    console.log('got remote cpaas steams');
+    const remoteAudio = document.querySelector('#remote-audio-cpaas');
+
+    remoteAudio.srcObject = event.remoteStream;
+  });
 }
+function joinSessions() {
+  const sessionId = document.getElementById('session-id').value;
+  const sessionToken = document.getElementById('session-token').value;
+
+  webex.meetings.connectCpaasSession(sessionId, sessionToken, 'meetings-SDK');
+}
+
+// joinSession.onclick = () => { joinSessions(); };
+
 
 function unregister() {
   console.log('Authentication#unregister()');
@@ -363,7 +385,7 @@ const meetingStreamsLocalVideo = document.querySelector('#local-video');
 const meetingStreamsRemotelVideo = document.querySelector('#remote-video');
 const meetingStreamsRemoteAudio = document.querySelector('#remote-audio');
 const meetingStreamsLocalShare = document.querySelector('#local-screenshare');
-const meetingStreamsRemoteShare = document.querySelector('#remote-screenshare');
+
 
 const toggleSourcesMediaDirection = document.querySelectorAll('[name=ts-media-direction]');
 const toggleSourcesSendAudioStatus = document.querySelector('#ts-toggle-audio-status');
