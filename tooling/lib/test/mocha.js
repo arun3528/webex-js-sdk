@@ -2,12 +2,18 @@
  * Copyright (c) 2015-2020 Cisco Systems, Inc. See LICENSE file.
  */
 const debug = require('debug')('*');
+
+// process.env.TS_NODE_PROJECT = './tsconfig.json';
+// require('ts-mocha');
+
 const Mocha = require('mocha');
 
 require('@babel/register')({
   only: [
     './packages/node_modules/**/*.js',
+    './packages/node_modules/**/*.ts'
   ],
+  extensions: ['.js', '.ts'],
   sourceMaps: true
 });
 

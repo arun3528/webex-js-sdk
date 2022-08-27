@@ -5,12 +5,12 @@
 
 // eslint-disable-next-line strict
 
-
 const path = require('path');
 
 const uuidv4 = require('uuid/v4');
 const {flatten} = require('lodash');
 
+const babelConfig = require('./babel.config.json');
 const makeBrowsers = require('./browsers-ng');
 /* eslint-disable global-require */
 
@@ -38,7 +38,8 @@ function makeConfig(packageName, argv) {
   const unitTestPath = path.join('packages', 'node_modules', packageName, 'test', 'unit', 'spec', '**', '*.js');
 
   const preprocessors = {
-    'packages/**': ['browserify']
+    'packages/**': ['browserify'],
+    // 'packages/**/*.ts': ['tsify', 'browserify']
   };
 
   const files = [
@@ -68,8 +69,14 @@ function makeConfig(packageName, argv) {
     browserify: {
       debug: true,
       watch: argv && argv.karmaDebug,
+      extensions: ['.ts', '.js', '.json'],
+      // plugin: ['tsify'],
       transform: [
-        'babelify',
+        ['babelify', {
+          extensions: ['.ts', '.js', '.json'],
+          global: true,
+          ignore: ['node_modules'],
+        }],
         'envify'
       ]
     },
@@ -95,7 +102,7 @@ function makeConfig(packageName, argv) {
     frameworks: [
       'browserify',
       'mocha',
-      'chai'
+      'chai',
     ],
 
     hostname: 'localhost',
