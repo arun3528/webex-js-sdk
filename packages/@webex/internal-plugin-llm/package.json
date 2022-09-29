@@ -10,8 +10,8 @@
     "node": ">=8"
   },
   "dependencies": {
-    "@webex/internal-plugin-mercury": "^2.21.0",
-    "@webex/webex-core": "^2.21.0"
+    "@webex/internal-plugin-mercury": "workspace:^",
+    "@webex/webex-core": "workspace:^"
   },
   "browserify": {
     "transform": [

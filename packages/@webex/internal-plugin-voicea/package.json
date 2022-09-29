@@ -10,10 +10,10 @@
     "node": ">=8"
   },
   "dependencies": {
-    "@webex/internal-plugin-mercury": "^2.21.0",
-    "@webex/internal-plugin-llm": "^2.21.0",
-    "@webex/plugin-meetings": "^2.21.0",
-    "@webex/webex-core": "^2.21.0"
+    "@webex/internal-plugin-llm": "workspace:^",
+    "@webex/internal-plugin-mercury": "workspace:^",
+    "@webex/plugin-meetings": "workspace:^",
+    "@webex/webex-core": "workspace:^"
   },
   "browserify": {
     "transform": [
