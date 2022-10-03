@@ -23,6 +23,7 @@
         "@webex/common": "workspace:^",
         "@webex/storage-adapter-local-forage": "workspace:^",
         "@webex/storage-adapter-spec": "workspace:^",
-        "@webex/webex-core": "workspace:^"
+        "@webex/webex-core": "workspace:^",
+        "localforage": "^1.7.3"
     }
 }
