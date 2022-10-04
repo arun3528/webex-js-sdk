@@ -5,6 +5,7 @@
 import 'jsdom-global/register';
 import sinon from 'sinon';
 import uuid from 'uuid';
+import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import {Credentials} from '@webex/webex-core';
 import Support from '@webex/internal-plugin-support';
@@ -118,19 +119,16 @@ describe('plugin-meetings', () => {
     });
 
     describe('#addMembers', () => {
-      it(
-        'should invoke isInvalidInvitee and generateAddMemberOptions from MembersUtil when addMember is called with valid params',
-        async () => {
-          sandbox.spy(MembersUtil, 'isInvalidInvitee');
-          sandbox.spy(MembersUtil, 'generateAddMemberOptions');
+      it('should invoke isInvalidInvitee and generateAddMemberOptions from MembersUtil when addMember is called with valid params', async () => {
+        sandbox.spy(MembersUtil, 'isInvalidInvitee');
+        sandbox.spy(MembersUtil, 'generateAddMemberOptions');
 
-          const members = createMembers({url: url1});
+        const members = createMembers({url: url1});
 
-          await members.addMember({phoneNumber: '+18578675309'});
-          assert.calledOnce(MembersUtil.isInvalidInvitee);
-          assert.calledOnce(MembersUtil.generateAddMemberOptions);
-        }
-      );
+        await members.addMember({phoneNumber: '+18578675309'});
+        assert.calledOnce(MembersUtil.isInvalidInvitee);
+        assert.calledOnce(MembersUtil.generateAddMemberOptions);
+      });
 
       it('should throw a rejection if there is no locus url', async () => {
         const members = createMembers({url: false});
@@ -140,67 +138,52 @@ describe('plugin-meetings', () => {
     });
 
     describe('#sendDialPadKey', () => {
-      it(
-        'should throw a rejection when calling sendDialPadKey with no tones',
-        async () => {
-          const members = createMembers({url: url1});
+      it('should throw a rejection when calling sendDialPadKey with no tones', async () => {
+        const members = createMembers({url: url1});
 
-          assert.isRejected(members.sendDialPadKey());
-        }
-      );
+        assert.isRejected(members.sendDialPadKey());
+      });
 
-      it(
-        'should throw a rejection when calling sendDialPadKey with no member is found',
-        async () => {
-          const members = createMembers({url: url1});
+      it('should throw a rejection when calling sendDialPadKey with no member is found', async () => {
+        const members = createMembers({url: url1});
 
-          assert.isRejected(members.sendDialPadKey('1', '1234'));
-        }
-      );
+        assert.isRejected(members.sendDialPadKey('1', '1234'));
+      });
 
-      it(
-        'should call genderateSendDTMFOptions with proper options on Members util if we the member is valid',
-        async () => {
-          sandbox.spy(MembersUtil, 'genderateSendDTMFOptions');
-          const members = createMembers({url: url1});
+      it('should call genderateSendDTMFOptions with proper options on Members util if we the member is valid', async () => {
+        sandbox.spy(MembersUtil, 'genderateSendDTMFOptions');
+        const members = createMembers({url: url1});
 
-          members.membersCollection.setAll(fakeMembersCollection);
-          await members.sendDialPadKey('1', 'test1');
-          assert.calledWith(MembersUtil.genderateSendDTMFOptions, 'https://fakeURL.com', '1', 'test1', url1);
-        }
-      );
+        members.membersCollection.setAll(fakeMembersCollection);
+        await members.sendDialPadKey('1', 'test1');
+        assert.calledWith(MembersUtil.genderateSendDTMFOptions, 'https://fakeURL.com', '1', 'test1', url1);
+      });
 
-      it(
-        'should call the sendDialPadKey method on membersRequest if the member is valid',
-        async () => {
-          const members = createMembers({url: url1});
+      it('should call the sendDialPadKey method on membersRequest if the member is valid', async () => {
+        const members = createMembers({url: url1});
 
-          const {membersRequest} = members;
+        const {membersRequest} = members;
 
-          assert.exists(membersRequest);
-          const sendDialPadKeyspy = sandbox.spy(membersRequest, 'sendDialPadKey');
+        assert.exists(membersRequest);
+        const sendDialPadKeyspy = sandbox.spy(membersRequest, 'sendDialPadKey');
 
-          members.membersCollection.setAll(fakeMembersCollection);
-          await members.sendDialPadKey('1', 'test1');
-          assert.calledOnce(sendDialPadKeyspy);
-        }
-      );
+        members.membersCollection.setAll(fakeMembersCollection);
+        await members.sendDialPadKey('1', 'test1');
+        assert.calledOnce(sendDialPadKeyspy);
+      });
     });
 
     describe('#cancelPhoneInvite', () => {
-      it(
-        'should invoke isInvalidInvitee and generateAddMemberOptions from MembersUtil when addMember is called with valid params',
-        async () => {
-          sandbox.spy(MembersUtil, 'isInvalidInvitee');
-          sandbox.spy(MembersUtil, 'cancelPhoneInviteOptions');
+      it('should invoke isInvalidInvitee and generateAddMemberOptions from MembersUtil when addMember is called with valid params', async () => {
+        sandbox.spy(MembersUtil, 'isInvalidInvitee');
+        sandbox.spy(MembersUtil, 'cancelPhoneInviteOptions');
 
-          const members = createMembers({url: url1});
+        const members = createMembers({url: url1});
 
-          await members.cancelPhoneInvite({phoneNumber: '+18578675309'});
-          assert.calledOnce(MembersUtil.isInvalidInvitee);
-          assert.calledOnce(MembersUtil.cancelPhoneInviteOptions);
-        }
-      );
+        await members.cancelPhoneInvite({phoneNumber: '+18578675309'});
+        assert.calledOnce(MembersUtil.isInvalidInvitee);
+        assert.calledOnce(MembersUtil.cancelPhoneInviteOptions);
+      });
 
       it('should throw a rejection if there is no locus url', async () => {
         const members = createMembers({url: false});
@@ -250,41 +233,32 @@ describe('plugin-meetings', () => {
         await checkInvalid(resultPromise, 'The associated locus url for this meetings members object must be defined.', spies);
       });
 
-      it(
-        'should make the correct request when called with raise as true',
-        async () => {
-          const memberId = uuid.v4();
-          const {members, spies} = setup(url1);
+      it('should make the correct request when called with raise as true', async () => {
+        const memberId = uuid.v4();
+        const {members, spies} = setup(url1);
 
-          const resultPromise = members.raiseOrLowerHand(memberId, true);
+        const resultPromise = members.raiseOrLowerHand(memberId, true);
 
-          await checkValid(resultPromise, spies, memberId, true, url1);
-        }
-      );
+        await checkValid(resultPromise, spies, memberId, true, url1);
+      });
 
-      it(
-        'should make the correct request when called with raise as false',
-        async () => {
-          const memberId = uuid.v4();
-          const {members, spies} = setup(url1);
+      it('should make the correct request when called with raise as false', async () => {
+        const memberId = uuid.v4();
+        const {members, spies} = setup(url1);
 
-          const resultPromise = members.raiseOrLowerHand(memberId, false);
+        const resultPromise = members.raiseOrLowerHand(memberId, false);
 
-          await checkValid(resultPromise, spies, memberId, false, url1);
-        }
-      );
+        await checkValid(resultPromise, spies, memberId, false, url1);
+      });
 
-      it(
-        'should make the correct request when called with raise as default',
-        async () => {
-          const memberId = uuid.v4();
-          const {members, spies} = setup(url1);
+      it('should make the correct request when called with raise as default', async () => {
+        const memberId = uuid.v4();
+        const {members, spies} = setup(url1);
 
-          const resultPromise = members.raiseOrLowerHand(memberId);
+        const resultPromise = members.raiseOrLowerHand(memberId);
 
-          await checkValid(resultPromise, spies, memberId, true, url1);
-        }
-      );
+        await checkValid(resultPromise, spies, memberId, true, url1);
+      });
     });
 
     describe('#lowerAllHands', () => {
@@ -312,16 +286,13 @@ describe('plugin-meetings', () => {
         assert.strictEqual(resultPromise, spies.lowerAllHandsMember.getCall(0).returnValue);
       };
 
-      it(
-        'should not make a request if there is no requestingMemberId',
-        async () => {
-          const {members, spies} = setup(url1);
+      it('should not make a request if there is no requestingMemberId', async () => {
+        const {members, spies} = setup(url1);
 
-          const resultPromise = members.lowerAllHands();
+        const resultPromise = members.lowerAllHands();
 
-          await checkInvalid(resultPromise, 'The requestingMemberId must be defined to lower all hands in a meeting.', spies);
-        }
-      );
+        await checkInvalid(resultPromise, 'The requestingMemberId must be defined to lower all hands in a meeting.', spies);
+      });
 
       it('should not make a request if there is no locus url', async () => {
         const {members, spies} = setup();
@@ -331,17 +302,14 @@ describe('plugin-meetings', () => {
         await checkInvalid(resultPromise, 'The associated locus url for this meetings members object must be defined.', spies);
       });
 
-      it(
-        'should make the correct request when called with requestingMemberId',
-        async () => {
-          const requestingMemberId = uuid.v4();
-          const {members, spies} = setup(url1);
+      it('should make the correct request when called with requestingMemberId', async () => {
+        const requestingMemberId = uuid.v4();
+        const {members, spies} = setup(url1);
 
-          const resultPromise = members.lowerAllHands(requestingMemberId);
+        const resultPromise = members.lowerAllHands(requestingMemberId);
 
-          await checkValid(resultPromise, spies, requestingMemberId, url1);
-        }
-      );
+        await checkValid(resultPromise, spies, requestingMemberId, url1);
+      });
     });
   });
 });

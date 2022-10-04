@@ -39,43 +39,34 @@ describe('plugin-meetings', () => {
   });
 
   describe('mute state library', () => {
-    it(
-      'does not create an audio instance if we are not sending audio',
-      async () => {
-        assert.isNull(createMuteState(AUDIO, meeting, {sendAudio: false}));
-        assert.isNull(createMuteState(AUDIO, meeting, {}));
-      }
-    );
+    it('does not create an audio instance if we are not sending audio', async () => {
+      assert.isNull(createMuteState(AUDIO, meeting, {sendAudio: false}));
+      assert.isNull(createMuteState(AUDIO, meeting, {}));
+    });
 
-    it(
-      'does not create a video instance if we are not sending video',
-      async () => {
-        assert.isNull(createMuteState(VIDEO, meeting, {sendVideo: false}));
-        assert.isNull(createMuteState(VIDEO, meeting, {}));
-      }
-    );
+    it('does not create a video instance if we are not sending video', async () => {
+      assert.isNull(createMuteState(VIDEO, meeting, {sendVideo: false}));
+      assert.isNull(createMuteState(VIDEO, meeting, {}));
+    });
 
-    it(
-      'takes into account current remote mute status when instantiated',
-      async () => {
-        // simulate being already remote muted
-        meeting.remoteMuted = true;
-        // create a new MuteState intance
-        audio = createMuteState(AUDIO, meeting, {sendAudio: true});
+    it('takes into account current remote mute status when instantiated', async () => {
+      // simulate being already remote muted
+      meeting.remoteMuted = true;
+      // create a new MuteState intance
+      audio = createMuteState(AUDIO, meeting, {sendAudio: true});
 
-        assert.isTrue(audio.isMuted());
-        assert.isFalse(audio.isSelf());
+      assert.isTrue(audio.isMuted());
+      assert.isFalse(audio.isSelf());
 
-        // now check the opposite case
-        meeting.remoteMuted = false;
+      // now check the opposite case
+      meeting.remoteMuted = false;
 
-        // create a new MuteState intance
-        audio = createMuteState(AUDIO, meeting, {sendAudio: true});
+      // create a new MuteState intance
+      audio = createMuteState(AUDIO, meeting, {sendAudio: true});
 
-        assert.isFalse(audio.isMuted());
-        assert.isFalse(audio.isSelf());
-      }
-    );
+      assert.isFalse(audio.isMuted());
+      assert.isFalse(audio.isSelf());
+    });
 
     it('initialises correctly for video', async () => {
       // setup fields related to audio remote state
@@ -89,18 +80,15 @@ describe('plugin-meetings', () => {
       assert.isTrue(video.state.server.unmuteAllowed);
     });
 
-    it(
-      'takes remote mute into account when reporting current state',
-      async () => {
-        assert.isFalse(audio.isMuted());
+    it('takes remote mute into account when reporting current state', async () => {
+      assert.isFalse(audio.isMuted());
 
-        // simulate remote mute
-        audio.handleServerRemoteMuteUpdate(true, true);
+      // simulate remote mute
+      audio.handleServerRemoteMuteUpdate(true, true);
 
-        assert.isTrue(audio.isMuted());
-        assert.isFalse(audio.isSelf());
-      }
-    );
+      assert.isTrue(audio.isMuted());
+      assert.isFalse(audio.isSelf());
+    });
 
     it('does local unmute if localAudioUnmuteRequired is received', async () => {
       // first we need to mute
@@ -126,112 +114,100 @@ describe('plugin-meetings', () => {
       assert.isFalse(audio.isSelf());
     });
 
-    it(
-      'rejects client request in progress if localAudioUnmuteRequired is received',
-      async () => {
-        let clientPromiseResolved = false;
-        let clientPromiseRejected = false;
+    it('rejects client request in progress if localAudioUnmuteRequired is received', async () => {
+      let clientPromiseResolved = false;
+      let clientPromiseRejected = false;
 
-        // first we need to mute and make that request last forever
-        let serverResponseResolve;
+      // first we need to mute and make that request last forever
+      let serverResponseResolve;
 
-        MeetingUtil.remoteUpdateAudioVideo = sinon.stub().returns(new Promise((resolve) => {
-          serverResponseResolve = resolve;
-        }));
+      MeetingUtil.remoteUpdateAudioVideo = sinon.stub().returns(new Promise((resolve) => {
+        serverResponseResolve = resolve;
+      }));
 
-        audio.handleClientRequest(meeting, true)
-          .then(() => {
-            clientPromiseResolved = true;
-          })
-          .catch(() => {
-            clientPromiseRejected = true;
-          });
+      audio.handleClientRequest(meeting, true)
+        .then(() => {
+          clientPromiseResolved = true;
+        })
+        .catch(() => {
+          clientPromiseRejected = true;
+        });
 
-        MeetingUtil.remoteUpdateAudioVideo.resetHistory();
+      MeetingUtil.remoteUpdateAudioVideo.resetHistory();
 
-        // now simulate server requiring us to locally unmute
-        audio.handleServerLocalUnmuteRequired(meeting);
-        await testUtils.flushPromises();
+      // now simulate server requiring us to locally unmute
+      audio.handleServerLocalUnmuteRequired(meeting);
+      await testUtils.flushPromises();
 
-        // the original client request should have been rejected by now
-        assert.isTrue(clientPromiseRejected);
-        assert.isFalse(clientPromiseResolved);
+      // the original client request should have been rejected by now
+      assert.isTrue(clientPromiseRejected);
+      assert.isFalse(clientPromiseResolved);
 
-        // now make the server respond to the original mute request
-        serverResponseResolve();
-        await testUtils.flushPromises();
+      // now make the server respond to the original mute request
+      serverResponseResolve();
+      await testUtils.flushPromises();
 
-        // local unmute should be sent to server
-        assert.calledOnce(MeetingUtil.remoteUpdateAudioVideo);
-        assert.calledWith(MeetingUtil.remoteUpdateAudioVideo, false, undefined, meeting);
+      // local unmute should be sent to server
+      assert.calledOnce(MeetingUtil.remoteUpdateAudioVideo);
+      assert.calledWith(MeetingUtil.remoteUpdateAudioVideo, false, undefined, meeting);
 
-        // and local track should be enabled
+      // and local track should be enabled
+      assert.calledWith(Media.setLocalTrack, true, meeting.mediaProperties.audioTrack);
+
+      assert.isFalse(audio.isMuted());
+      assert.isFalse(audio.isSelf());
+    });
+
+    describe('#handleClientRequest', () => {
+      it('disables/enables the local audio track when audio is muted/unmuted', async () => {
+        // mute
+        audio.handleClientRequest(meeting, true);
+        assert.calledWith(Media.setLocalTrack, false, meeting.mediaProperties.audioTrack);
+
+        // even when calling mute when it's already muted should still call setLocalTrack
+        audio.handleClientRequest(meeting, true);
+        assert.calledWith(Media.setLocalTrack, false, meeting.mediaProperties.audioTrack);
+
+        // unmute
+        audio.handleClientRequest(meeting, false);
         assert.calledWith(Media.setLocalTrack, true, meeting.mediaProperties.audioTrack);
+
+        // even when calling unmute when it's already unmuted should still call setLocalTrack
+        audio.handleClientRequest(meeting, false);
+        assert.calledWith(Media.setLocalTrack, true, meeting.mediaProperties.audioTrack);
+      });
+
+      it('disables/enables the local video track when video is muted/unmuted', async () => {
+        // mute
+        video.handleClientRequest(meeting, true);
+        assert.calledWith(Media.setLocalTrack, false, meeting.mediaProperties.videoTrack);
+
+        // even when calling mute when it's already muted should still call setLocalTrack
+        video.handleClientRequest(meeting, false);
+        assert.calledWith(Media.setLocalTrack, false, meeting.mediaProperties.videoTrack);
+
+        // unmute
+        video.handleClientRequest(meeting, false);
+        assert.calledWith(Media.setLocalTrack, true, meeting.mediaProperties.videoTrack);
+
+        // even when calling unmute when it's already unmuted should still call setLocalTrack
+        video.handleClientRequest(meeting, false);
+        assert.calledWith(Media.setLocalTrack, true, meeting.mediaProperties.videoTrack);
+      });
+
+      it('returns correct value in isMuted()/isSelf() methods after client mute/unmute requests', async () => {
+        // mute
+        audio.handleClientRequest(meeting, true);
+
+        assert.isTrue(audio.isMuted());
+        assert.isTrue(audio.isSelf());
+
+        // unmute
+        audio.handleClientRequest(meeting, false);
 
         assert.isFalse(audio.isMuted());
         assert.isFalse(audio.isSelf());
-      }
-    );
-
-    describe('#handleClientRequest', () => {
-      it(
-        'disables/enables the local audio track when audio is muted/unmuted',
-        async () => {
-          // mute
-          audio.handleClientRequest(meeting, true);
-          assert.calledWith(Media.setLocalTrack, false, meeting.mediaProperties.audioTrack);
-
-          // even when calling mute when it's already muted should still call setLocalTrack
-          audio.handleClientRequest(meeting, true);
-          assert.calledWith(Media.setLocalTrack, false, meeting.mediaProperties.audioTrack);
-
-          // unmute
-          audio.handleClientRequest(meeting, false);
-          assert.calledWith(Media.setLocalTrack, true, meeting.mediaProperties.audioTrack);
-
-          // even when calling unmute when it's already unmuted should still call setLocalTrack
-          audio.handleClientRequest(meeting, false);
-          assert.calledWith(Media.setLocalTrack, true, meeting.mediaProperties.audioTrack);
-        }
-      );
-
-      it(
-        'disables/enables the local video track when video is muted/unmuted',
-        async () => {
-          // mute
-          video.handleClientRequest(meeting, true);
-          assert.calledWith(Media.setLocalTrack, false, meeting.mediaProperties.videoTrack);
-
-          // even when calling mute when it's already muted should still call setLocalTrack
-          video.handleClientRequest(meeting, false);
-          assert.calledWith(Media.setLocalTrack, false, meeting.mediaProperties.videoTrack);
-
-          // unmute
-          video.handleClientRequest(meeting, false);
-          assert.calledWith(Media.setLocalTrack, true, meeting.mediaProperties.videoTrack);
-
-          // even when calling unmute when it's already unmuted should still call setLocalTrack
-          video.handleClientRequest(meeting, false);
-          assert.calledWith(Media.setLocalTrack, true, meeting.mediaProperties.videoTrack);
-        }
-      );
-
-      it(
-        'returns correct value in isMuted()/isSelf() methods after client mute/unmute requests',
-        async () => {
-          // mute
-          audio.handleClientRequest(meeting, true);
-
-          assert.isTrue(audio.isMuted());
-          assert.isTrue(audio.isSelf());
-
-          // unmute
-          audio.handleClientRequest(meeting, false);
-
-          assert.isFalse(audio.isMuted());
-          assert.isFalse(audio.isSelf());
-        }
-      );
+      });
 
       it('does remote unmute when unmuting and remote mute is on', async () => {
         // simulate remote mute
@@ -248,137 +224,122 @@ describe('plugin-meetings', () => {
         assert.isFalse(audio.isSelf());
       });
 
-      it(
-        'resolves client request promise once the server is updated',
-        async () => {
-          let clientPromiseResolved = false;
+      it('resolves client request promise once the server is updated', async () => {
+        let clientPromiseResolved = false;
 
-          let serverResponseResolve;
+        let serverResponseResolve;
 
-          MeetingUtil.remoteUpdateAudioVideo = sinon.stub().returns(new Promise((resolve) => {
-            serverResponseResolve = resolve;
-          }));
+        MeetingUtil.remoteUpdateAudioVideo = sinon.stub().returns(new Promise((resolve) => {
+          serverResponseResolve = resolve;
+        }));
 
-          audio.handleClientRequest(meeting, true)
-            .then(() => {
-              clientPromiseResolved = true;
-            });
+        audio.handleClientRequest(meeting, true)
+          .then(() => {
+            clientPromiseResolved = true;
+          });
 
-          // do a small delay to make sure that the client promise doesn't resolve in that time
-          await testUtils.waitUntil(200);
-          assert.isFalse(clientPromiseResolved);
+        // do a small delay to make sure that the client promise doesn't resolve in that time
+        await testUtils.waitUntil(200);
+        assert.isFalse(clientPromiseResolved);
 
-          // now allow the server response to arrive, this should trigger the client promise to get resolved
-          serverResponseResolve();
-          await testUtils.flushPromises();
+        // now allow the server response to arrive, this should trigger the client promise to get resolved
+        serverResponseResolve();
+        await testUtils.flushPromises();
 
-          assert.isTrue(clientPromiseResolved);
-        }
-      );
+        assert.isTrue(clientPromiseResolved);
+      });
 
-      it(
-        'rejects client request promise if server request for local mute fails',
-        async () => {
-          MeetingUtil.remoteUpdateAudioVideo = sinon.stub().returns(new Promise((resolve, reject) => {
-            reject();
-          }));
+      it('rejects client request promise if server request for local mute fails', async () => {
+        MeetingUtil.remoteUpdateAudioVideo = sinon.stub().returns(new Promise((resolve, reject) => {
+          reject();
+        }));
 
-          assert.isRejected(audio.handleClientRequest(meeting, true));
-        }
-      );
+        assert.isRejected(audio.handleClientRequest(meeting, true));
+      });
 
-      it(
-        'rejects client request promise if server request for remote mute fails',
-        async () => {
-          // we only send remote mute requests when we're unmuting, so first we need to do a remote mute
-          audio.handleServerRemoteMuteUpdate(true, true);
+      it('rejects client request promise if server request for remote mute fails', async () => {
+        // we only send remote mute requests when we're unmuting, so first we need to do a remote mute
+        audio.handleServerRemoteMuteUpdate(true, true);
 
-          // setup the stub to simulate server error response
-          meeting.members.muteMember = sinon.stub().rejects();
+        // setup the stub to simulate server error response
+        meeting.members.muteMember = sinon.stub().rejects();
 
-          // try to unmute - it should fail
-          await assert.isRejected(audio.handleClientRequest(meeting, false));
+        // try to unmute - it should fail
+        await assert.isRejected(audio.handleClientRequest(meeting, false));
 
-          // even though remote mute update in the server failed, isMuted() should still return true,
-          // because of local mute
-          assert.isTrue(audio.isMuted());
-        }
-      );
+        // even though remote mute update in the server failed, isMuted() should still return true,
+        // because of local mute
+        assert.isTrue(audio.isMuted());
+      });
 
-      it(
-        'does not send a server request if client state matches the server',
-        async () => {
-          let serverResponseResolve;
+      it('does not send a server request if client state matches the server', async () => {
+        let serverResponseResolve;
 
-          MeetingUtil.remoteUpdateAudioVideo = sinon.stub().returns(new Promise((resolve) => {
-            serverResponseResolve = resolve;
-          }));
+        MeetingUtil.remoteUpdateAudioVideo = sinon.stub().returns(new Promise((resolve) => {
+          serverResponseResolve = resolve;
+        }));
 
-          // simulate many client requests, with the last one matching the initial one
-          audio.handleClientRequest(meeting, true);
-          audio.handleClientRequest(meeting, false);
-          audio.handleClientRequest(meeting, true);
-          audio.handleClientRequest(meeting, false);
-          audio.handleClientRequest(meeting, true);
+        // simulate many client requests, with the last one matching the initial one
+        audio.handleClientRequest(meeting, true);
+        audio.handleClientRequest(meeting, false);
+        audio.handleClientRequest(meeting, true);
+        audio.handleClientRequest(meeting, false);
+        audio.handleClientRequest(meeting, true);
 
-          // so far there should have been only 1 request to server (because our stub hasn't resolved yet
-          // and MuteState sends only 1 server request at a time)
-          assert.calledOnce(MeetingUtil.remoteUpdateAudioVideo);
-          MeetingUtil.remoteUpdateAudioVideo.resetHistory();
+        // so far there should have been only 1 request to server (because our stub hasn't resolved yet
+        // and MuteState sends only 1 server request at a time)
+        assert.calledOnce(MeetingUtil.remoteUpdateAudioVideo);
+        MeetingUtil.remoteUpdateAudioVideo.resetHistory();
 
-          // now allow the server response to arrive for that initial request
-          serverResponseResolve();
-          await testUtils.flushPromises();
+        // now allow the server response to arrive for that initial request
+        serverResponseResolve();
+        await testUtils.flushPromises();
 
-          // there should have not been any more server requests, because client state already matches the server state
-          assert.notCalled(MeetingUtil.remoteUpdateAudioVideo);
-        }
-      );
+        // there should have not been any more server requests, because client state already matches the server state
+        assert.notCalled(MeetingUtil.remoteUpdateAudioVideo);
+      });
 
-      it(
-        'queues up server requests when multiple client requests are received',
-        async () => {
-          let serverResponseResolve;
+      it('queues up server requests when multiple client requests are received', async () => {
+        let serverResponseResolve;
 
-          MeetingUtil.remoteUpdateAudioVideo = sinon.stub().returns(new Promise((resolve) => {
-            serverResponseResolve = resolve;
-          }));
+        MeetingUtil.remoteUpdateAudioVideo = sinon.stub().returns(new Promise((resolve) => {
+          serverResponseResolve = resolve;
+        }));
 
-          let firstClientPromiseResolved = false;
-          let secondClientPromiseResolved = false;
+        let firstClientPromiseResolved = false;
+        let secondClientPromiseResolved = false;
 
-          // 2 client requests, one after another without waiting for first one to resolve
-          audio.handleClientRequest(meeting, true)
-            .then(() => {
-              firstClientPromiseResolved = true;
-            });
-          audio.handleClientRequest(meeting, false)
-            .then(() => {
-              secondClientPromiseResolved = true;
-            });
+        // 2 client requests, one after another without waiting for first one to resolve
+        audio.handleClientRequest(meeting, true)
+          .then(() => {
+            firstClientPromiseResolved = true;
+          });
+        audio.handleClientRequest(meeting, false)
+          .then(() => {
+            secondClientPromiseResolved = true;
+          });
 
-          await testUtils.flushPromises();
+        await testUtils.flushPromises();
 
-          assert.calledOnce(MeetingUtil.remoteUpdateAudioVideo);
-          assert.calledWith(MeetingUtil.remoteUpdateAudioVideo, true, undefined, meeting);
+        assert.calledOnce(MeetingUtil.remoteUpdateAudioVideo);
+        assert.calledWith(MeetingUtil.remoteUpdateAudioVideo, true, undefined, meeting);
 
-          // now allow the first request to complete
-          serverResponseResolve();
-          await testUtils.flushPromises();
-          assert.isTrue(firstClientPromiseResolved);
+        // now allow the first request to complete
+        serverResponseResolve();
+        await testUtils.flushPromises();
+        assert.isTrue(firstClientPromiseResolved);
 
-          // that should trigger the second server request to be sent
-          assert.calledTwice(MeetingUtil.remoteUpdateAudioVideo);
-          assert.strictEqual(false, MeetingUtil.remoteUpdateAudioVideo.getCall(1).args[0]);
-          assert.strictEqual(undefined, MeetingUtil.remoteUpdateAudioVideo.getCall(1).args[1]);
-          assert.strictEqual(meeting, MeetingUtil.remoteUpdateAudioVideo.getCall(1).args[2]);
+        // that should trigger the second server request to be sent
+        assert.calledTwice(MeetingUtil.remoteUpdateAudioVideo);
+        assert.strictEqual(false, MeetingUtil.remoteUpdateAudioVideo.getCall(1).args[0]);
+        assert.strictEqual(undefined, MeetingUtil.remoteUpdateAudioVideo.getCall(1).args[1]);
+        assert.strictEqual(meeting, MeetingUtil.remoteUpdateAudioVideo.getCall(1).args[2]);
 
-          serverResponseResolve();
-          await testUtils.flushPromises();
+        serverResponseResolve();
+        await testUtils.flushPromises();
 
-          assert.isTrue(secondClientPromiseResolved);
-        }
-      );
+        assert.isTrue(secondClientPromiseResolved);
+      });
 
       it('rejects client request to unmute if hard mute is used', (done) => {
         audio.handleServerRemoteMuteUpdate(true, false);
@@ -420,33 +381,30 @@ describe('plugin-meetings', () => {
         assert.notCalled(meeting.members.muteMember);
       });
 
-      it(
-        'sends correct audio value when sending local mute for video',
-        async () => {
-          // make sure the meeting object has mute state machines for both audio and video
-          meeting.audio = audio;
-          meeting.video = video;
+      it('sends correct audio value when sending local mute for video', async () => {
+        // make sure the meeting object has mute state machines for both audio and video
+        meeting.audio = audio;
+        meeting.video = video;
 
-          // mute audio -> request sent to server should have video unmuted
-          await audio.handleClientRequest(meeting, true);
-          assert.calledWith(MeetingUtil.remoteUpdateAudioVideo, true, false, meeting);
-          MeetingUtil.remoteUpdateAudioVideo.resetHistory();
+        // mute audio -> request sent to server should have video unmuted
+        await audio.handleClientRequest(meeting, true);
+        assert.calledWith(MeetingUtil.remoteUpdateAudioVideo, true, false, meeting);
+        MeetingUtil.remoteUpdateAudioVideo.resetHistory();
 
-          // now mute video -> request sent to server should have mute for both audio and video
-          await video.handleClientRequest(meeting, true);
-          assert.calledWith(MeetingUtil.remoteUpdateAudioVideo, true, true, meeting);
-          MeetingUtil.remoteUpdateAudioVideo.resetHistory();
+        // now mute video -> request sent to server should have mute for both audio and video
+        await video.handleClientRequest(meeting, true);
+        assert.calledWith(MeetingUtil.remoteUpdateAudioVideo, true, true, meeting);
+        MeetingUtil.remoteUpdateAudioVideo.resetHistory();
 
-          // now unmute the audio -> request sent to server should still have video muted
-          await audio.handleClientRequest(meeting, false);
-          assert.calledWith(MeetingUtil.remoteUpdateAudioVideo, false, true, meeting);
-          MeetingUtil.remoteUpdateAudioVideo.resetHistory();
+        // now unmute the audio -> request sent to server should still have video muted
+        await audio.handleClientRequest(meeting, false);
+        assert.calledWith(MeetingUtil.remoteUpdateAudioVideo, false, true, meeting);
+        MeetingUtil.remoteUpdateAudioVideo.resetHistory();
 
-          // unmute video -> request sent to server should have both audio and video unmuted
-          await video.handleClientRequest(meeting, false);
-          assert.calledWith(MeetingUtil.remoteUpdateAudioVideo, false, false, meeting);
-        }
-      );
+        // unmute video -> request sent to server should have both audio and video unmuted
+        await video.handleClientRequest(meeting, false);
+        assert.calledWith(MeetingUtil.remoteUpdateAudioVideo, false, false, meeting);
+      });
     });
   });
 });

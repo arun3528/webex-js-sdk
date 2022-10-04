@@ -30,57 +30,51 @@ describe('plugin-meetings', () => {
     });
 
     describe('parse', () => {
-      it(
-        'only gives includes display hints when user has the correct role',
-        () => {
-          assert.deepEqual(InfoUtils.parse(info, ['MODERATOR']), {
-            policy: {HINT_3: true},
-            moderator: {HINT_1: true, HINT_2: true, LOWER_SOMEONE_ELSES_HAND: true},
-            coHost: {HINT_4: true, LOWER_SOMEONE_ELSES_HAND: true},
-            userDisplayHints: ['HINT_3', 'HINT_1', 'HINT_2', 'LOWER_SOMEONE_ELSES_HAND']
-          });
+      it('only gives includes display hints when user has the correct role', () => {
+        assert.deepEqual(InfoUtils.parse(info, ['MODERATOR']), {
+          policy: {HINT_3: true},
+          moderator: {HINT_1: true, HINT_2: true, LOWER_SOMEONE_ELSES_HAND: true},
+          coHost: {HINT_4: true, LOWER_SOMEONE_ELSES_HAND: true},
+          userDisplayHints: ['HINT_3', 'HINT_1', 'HINT_2', 'LOWER_SOMEONE_ELSES_HAND']
+        });
 
-          assert.deepEqual(InfoUtils.parse(info, ['MODERATOR', 'COHOST']), {
-            policy: {HINT_3: true},
-            moderator: {HINT_1: true, HINT_2: true, LOWER_SOMEONE_ELSES_HAND: true},
-            coHost: {HINT_4: true, LOWER_SOMEONE_ELSES_HAND: true},
-            userDisplayHints: ['HINT_3', 'HINT_4', 'LOWER_SOMEONE_ELSES_HAND', 'HINT_1', 'HINT_2']
-          });
+        assert.deepEqual(InfoUtils.parse(info, ['MODERATOR', 'COHOST']), {
+          policy: {HINT_3: true},
+          moderator: {HINT_1: true, HINT_2: true, LOWER_SOMEONE_ELSES_HAND: true},
+          coHost: {HINT_4: true, LOWER_SOMEONE_ELSES_HAND: true},
+          userDisplayHints: ['HINT_3', 'HINT_4', 'LOWER_SOMEONE_ELSES_HAND', 'HINT_1', 'HINT_2']
+        });
 
-          assert.deepEqual(InfoUtils.parse(info, ['COHOST']), {
-            policy: {HINT_3: true},
-            moderator: {HINT_1: true, HINT_2: true, LOWER_SOMEONE_ELSES_HAND: true},
-            coHost: {HINT_4: true, LOWER_SOMEONE_ELSES_HAND: true},
-            userDisplayHints: ['HINT_3', 'HINT_4', 'LOWER_SOMEONE_ELSES_HAND']
-          });
+        assert.deepEqual(InfoUtils.parse(info, ['COHOST']), {
+          policy: {HINT_3: true},
+          moderator: {HINT_1: true, HINT_2: true, LOWER_SOMEONE_ELSES_HAND: true},
+          coHost: {HINT_4: true, LOWER_SOMEONE_ELSES_HAND: true},
+          userDisplayHints: ['HINT_3', 'HINT_4', 'LOWER_SOMEONE_ELSES_HAND']
+        });
 
-          assert.deepEqual(InfoUtils.parse(info, []), {
-            policy: {HINT_3: true},
-            moderator: {HINT_1: true, HINT_2: true, LOWER_SOMEONE_ELSES_HAND: true},
-            coHost: {HINT_4: true, LOWER_SOMEONE_ELSES_HAND: true},
-            userDisplayHints: ['HINT_3']
-          });
-        }
-      );
+        assert.deepEqual(InfoUtils.parse(info, []), {
+          policy: {HINT_3: true},
+          moderator: {HINT_1: true, HINT_2: true, LOWER_SOMEONE_ELSES_HAND: true},
+          coHost: {HINT_4: true, LOWER_SOMEONE_ELSES_HAND: true},
+          userDisplayHints: ['HINT_3']
+        });
+      });
 
-      it(
-        'only gives includes display hints when user has joined the meeting role',
-        () => {
-          assert.deepEqual(InfoUtils.parse(info, ['MODERATOR'], false), {
-            policy: {HINT_3: true},
-            moderator: {HINT_1: true, HINT_2: true, LOWER_SOMEONE_ELSES_HAND: true},
-            coHost: {HINT_4: true, LOWER_SOMEONE_ELSES_HAND: true},
-            userDisplayHints: ['HINT_1', 'HINT_2', 'LOWER_SOMEONE_ELSES_HAND']
-          });
+      it('only gives includes display hints when user has joined the meeting role', () => {
+        assert.deepEqual(InfoUtils.parse(info, ['MODERATOR'], false), {
+          policy: {HINT_3: true},
+          moderator: {HINT_1: true, HINT_2: true, LOWER_SOMEONE_ELSES_HAND: true},
+          coHost: {HINT_4: true, LOWER_SOMEONE_ELSES_HAND: true},
+          userDisplayHints: ['HINT_1', 'HINT_2', 'LOWER_SOMEONE_ELSES_HAND']
+        });
 
-          assert.deepEqual(InfoUtils.parse(info, ['MODERATOR'], true), {
-            policy: {HINT_3: true},
-            moderator: {HINT_1: true, HINT_2: true, LOWER_SOMEONE_ELSES_HAND: true},
-            coHost: {HINT_4: true, LOWER_SOMEONE_ELSES_HAND: true},
-            userDisplayHints: ['HINT_3', 'HINT_1', 'HINT_2', 'LOWER_SOMEONE_ELSES_HAND']
-          });
-        }
-      );
+        assert.deepEqual(InfoUtils.parse(info, ['MODERATOR'], true), {
+          policy: {HINT_3: true},
+          moderator: {HINT_1: true, HINT_2: true, LOWER_SOMEONE_ELSES_HAND: true},
+          coHost: {HINT_4: true, LOWER_SOMEONE_ELSES_HAND: true},
+          userDisplayHints: ['HINT_3', 'HINT_1', 'HINT_2', 'LOWER_SOMEONE_ELSES_HAND']
+        });
+      });
     });
 
     describe('parseDisplayHintsSection', () => {
@@ -123,38 +117,29 @@ describe('plugin-meetings', () => {
         parseDisplayHintSectionSpy.restore();
       });
 
-      it(
-        'parseModerator calls parseDisplayHintSection correctly and returns the result',
-        () => {
-          const result = InfoUtils.parseModerator(info);
+      it('parseModerator calls parseDisplayHintSection correctly and returns the result', () => {
+        const result = InfoUtils.parseModerator(info);
 
-          assert.calledWith(parseDisplayHintSectionSpy, info, 'moderator');
+        assert.calledWith(parseDisplayHintSectionSpy, info, 'moderator');
 
-          assert.deepEqual(result, {...parseDisplayHintSectionSpy.firstCall.returnValue, LOWER_SOMEONE_ELSES_HAND: true});
-        }
-      );
+        assert.deepEqual(result, {...parseDisplayHintSectionSpy.firstCall.returnValue, LOWER_SOMEONE_ELSES_HAND: true});
+      });
 
-      it(
-        'parsePolicy calls parseDisplayHintSection correctly and returns the result',
-        () => {
-          const result = InfoUtils.parsePolicy(info);
+      it('parsePolicy calls parseDisplayHintSection correctly and returns the result', () => {
+        const result = InfoUtils.parsePolicy(info);
 
-          assert.calledWith(parseDisplayHintSectionSpy, info, 'joined');
+        assert.calledWith(parseDisplayHintSectionSpy, info, 'joined');
 
-          assert.deepEqual(result, parseDisplayHintSectionSpy.firstCall.returnValue);
-        }
-      );
+        assert.deepEqual(result, parseDisplayHintSectionSpy.firstCall.returnValue);
+      });
 
-      it(
-        'parseCoHost calls parseDisplayHintSection correctly and returns the result',
-        () => {
-          const result = InfoUtils.parseCoHost(info);
+      it('parseCoHost calls parseDisplayHintSection correctly and returns the result', () => {
+        const result = InfoUtils.parseCoHost(info);
 
-          assert.calledWith(parseDisplayHintSectionSpy, info, 'coHost');
+        assert.calledWith(parseDisplayHintSectionSpy, info, 'coHost');
 
-          assert.deepEqual(result, {...parseDisplayHintSectionSpy.firstCall.returnValue, LOWER_SOMEONE_ELSES_HAND: true});
-        }
-      );
+        assert.deepEqual(result, {...parseDisplayHintSectionSpy.firstCall.returnValue, LOWER_SOMEONE_ELSES_HAND: true});
+      });
     });
   });
 });

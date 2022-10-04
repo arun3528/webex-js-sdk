@@ -1,9 +1,10 @@
 import 'jsdom-global/register';
 import {assert} from '@webex/test-helper-chai';
 import sinon from 'sinon';
+
 import PeerConnectionManager from '@webex/plugin-meetings/src/peer-connection-manager/index';
 import StaticConfig from '@webex/plugin-meetings/src/common/config';
-import {IceGatheringFailed, InvalidSdpError} from '@webex/plugin-meetings/src/common/errors/webex-errors';
+import {InvalidSdpError} from '@webex/plugin-meetings/src/common/errors/webex-errors';
 
 describe('Peerconnection Manager', () => {
   describe('Methods', () => {
@@ -62,32 +63,68 @@ describe('Peerconnection Manager', () => {
         assert.equal(result.sdp, resultSdp);
       });
 
-      it(
-        'dont change the start bitrate on remoteSDP if default value is 0',
-        async () => {
-          StaticConfig.set({bandwidth: {audio: 50, video: 500, startBitrate: 0}});
-          let result = null;
-          const setRemoteDescription = sinon.stub().callsFake((args) => {
-            result = args;
+      it('dont change the start bitrate on remoteSDP if default value is 0', async () => {
+        StaticConfig.set({bandwidth: {audio: 50, video: 500, startBitrate: 0}});
+        let result = null;
+        const setRemoteDescription = sinon.stub().callsFake((args) => {
+          result = args;
 
-            return Promise.resolve();
-          });
-          const remoteSdp = 'v=0\r\n' +
-          'm=video 5004 UDP/TLS/RTP/SAVPF 102 127 97 99\r\n' +
-          'a=fmtp:102 profile-level-id=42e016;packetization-mode=1;max-mbps=244800;max-fs=8160;max-fps=3000;max-dpb=12240;max-rcmd-nalu-size=196608;level-asymmetry-allowed=1\r\n' +
-          'a=rtpmap:127 H264/90000\r\n' +
-          'a=fmtp:127 profile-level-id=42e016;max-mbps=244800;max-fs=8160;max-fps=3000;max-dpb=12240;max-rcmd-nalu-size=196608;level-asymmetry-allowed=1\r\n';
+          return Promise.resolve();
+        });
+        const remoteSdp = 'v=0\r\n' +
+        'm=video 5004 UDP/TLS/RTP/SAVPF 102 127 97 99\r\n' +
+        'a=fmtp:102 profile-level-id=42e016;packetization-mode=1;max-mbps=244800;max-fs=8160;max-fps=3000;max-dpb=12240;max-rcmd-nalu-size=196608;level-asymmetry-allowed=1\r\n' +
+        'a=rtpmap:127 H264/90000\r\n' +
+        'a=fmtp:127 profile-level-id=42e016;max-mbps=244800;max-fs=8160;max-fps=3000;max-dpb=12240;max-rcmd-nalu-size=196608;level-asymmetry-allowed=1\r\n';
 
-          const peerConnection = {
-            signalingState: 'have-local-offer',
-            setRemoteDescription
-          };
+        const peerConnection = {
+          signalingState: 'have-local-offer',
+          setRemoteDescription
+        };
 
-          await PeerConnectionManager.setRemoteSessionDetails(peerConnection, 'answer', remoteSdp, {});
+        await PeerConnectionManager.setRemoteSessionDetails(peerConnection, 'answer', remoteSdp, {});
 
-          assert.equal(result.sdp, remoteSdp);
-        }
-      );
+        assert.equal(result.sdp, remoteSdp);
+      });
+
+      it('removes xTLS candidates from the remote sdp', async () => {
+        StaticConfig.set({bandwidth: {}});
+
+        const remoteSdpWithXtlsCandidates = 'v=0\r\n' +
+        'm=video 5004 UDP/TLS/RTP/SAVPF 102 127 97 99\r\n' +
+        'a=candidate:1 1 UDP 2130706175 18.206.82.54 9000 typ host\r\n' +
+        'a=candidate:2 1 TCP 1962934271 18.206.82.54 5004 typ host tcptype passive\r\n' +
+        'a=candidate:3 1 TCP 1962934015 18.206.82.54 9000 typ host tcptype passive\r\n' +
+        'a=candidate:4 1 xTLS 1795162111 external-media2.aintm-a-6.int.infra.webex.com 443 typ host tcptype passive fingerprint sha-1;55:B8:1D:94:BC:9D:B2:A5:5E:82:E7:84:C6:C8:10:AC:D3:FD:96:26\r\n' +
+        'a=rtpmap:127 H264/90000\r\n' +
+        'a=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01\r\n' +
+        'm=video 9000 UDP/TLS/RTP/SAVPF 102 127 97 99\r\n' +
+        'a=candidate:1 1 xTLS 1795162111 external-media2.aintm-a-6.int.infra.webex.com 443 typ host tcptype passive fingerprint sha-1;55:B8:1D:94:BC:9D:B2:A5:5E:82:E7:84:C6:C8:10:AC:D3:FD:96:26\r\n' +
+        'a=candidate:2 1 TCP 1962934271 18.206.82.54 5004 typ host tcptype passive\r\n' +
+        'a=fmtp:127 profile-level-id=42e016;max-mbps=244800;max-fs=8160;max-fps=3000;max-dpb=12240;max-rcmd-nalu-size=196608;level-asymmetry-allowed=1\r\n';
+
+        // same as remoteSdpWithXtlsCandidates but without the xtls candidates
+        const resultSdp = 'v=0\r\n' +
+        'm=video 5004 UDP/TLS/RTP/SAVPF 102 127 97 99\r\n' +
+        'a=candidate:1 1 UDP 2130706175 18.206.82.54 9000 typ host\r\n' +
+        'a=candidate:2 1 TCP 1962934271 18.206.82.54 5004 typ host tcptype passive\r\n' +
+        'a=candidate:3 1 TCP 1962934015 18.206.82.54 9000 typ host tcptype passive\r\n' +
+        'a=rtpmap:127 H264/90000\r\n' +
+        'a=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01\r\n' +
+        'm=video 9000 UDP/TLS/RTP/SAVPF 102 127 97 99\r\n' +
+        'a=candidate:2 1 TCP 1962934271 18.206.82.54 5004 typ host tcptype passive\r\n' +
+        'a=fmtp:127 profile-level-id=42e016;max-mbps=244800;max-fs=8160;max-fps=3000;max-dpb=12240;max-rcmd-nalu-size=196608;level-asymmetry-allowed=1\r\n';
+
+        const peerConnection = {
+          signalingState: 'have-local-offer',
+          setRemoteDescription: sinon.stub().resolves(),
+          enableExtmap: true
+        };
+
+        await PeerConnectionManager.setRemoteSessionDetails(peerConnection, 'answer', remoteSdpWithXtlsCandidates, '');
+
+        assert.calledWith(peerConnection.setRemoteDescription, new global.window.RTCSessionDescription({sdp: resultSdp, type: 'answer'}));
+      });
     });
 
     describe('iceCandidate', () => {
@@ -103,19 +140,16 @@ describe('Peerconnection Manager', () => {
         assert(peerConnection.sdp.search('max-fs:8192'), true);
       });
 
-      it(
-        'listen onIceCandidate,onicecandidateerror and onIceGatheringStateChange',
-        async () => {
-          peerConnection.iceGatheringState = 'none';
-          setTimeout(() => {
-            peerConnection.onicecandidate({candidate: null});
-          }, 1000);
-          await PeerConnectionManager.iceCandidate(peerConnection, {remoteQualityLevel: 'HIGH'});
-          assert.isFunction(peerConnection.onIceGatheringStateChange);
-          assert.isFunction(peerConnection.onicecandidate);
-          assert.isFunction(peerConnection.onicecandidateerror);
-        }
-      );
+      it('listen onIceCandidate,onicecandidateerror and onIceGatheringStateChange', async () => {
+        peerConnection.iceGatheringState = 'none';
+        setTimeout(() => {
+          peerConnection.onicecandidate({candidate: null});
+        }, 1000);
+        await PeerConnectionManager.iceCandidate(peerConnection, {remoteQualityLevel: 'HIGH'});
+        assert.isFunction(peerConnection.onIceGatheringStateChange);
+        assert.isFunction(peerConnection.onicecandidate);
+        assert.isFunction(peerConnection.onicecandidateerror);
+      });
 
       it('generate sdp with iceGatheringstate is `complet`', async () => {
         peerConnection.iceGatheringState = 'none';
@@ -129,17 +163,17 @@ describe('Peerconnection Manager', () => {
           });
       });
 
-      it(
-        'should not generate sdp if onicecandidateerror errors out ',
-        async () => {
-          peerConnection.iceGatheringState = 'none';
-          setTimeout(() => {
-            peerConnection.onicecandidateerror();
-          }, 1000);
-          await assert.isRejected(PeerConnectionManager.iceCandidate(peerConnection, {remoteQualityLevel: 'HIGH'}), IceGatheringFailed);
-          assert.equal(peerConnection.sdp, null);
-        }
-      );
+      it('should still generate sdp even if onicecandidateerror is called ', async () => {
+        peerConnection.iceGatheringState = 'none';
+        setTimeout(() => {
+          peerConnection.onicecandidateerror();
+          peerConnection.onicecandidate({candidate: null});
+        }, 1000);
+        await PeerConnectionManager.iceCandidate(peerConnection, {remoteQualityLevel: 'HIGH'})
+          .then(() => {
+            assert(peerConnection.sdp.search('max-fs:8192'), true);
+          });
+      });
 
       it('should throw generated SDP does not have candidates ', async () => {
         peerConnection.iceGatheringState = 'none';

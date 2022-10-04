@@ -20,7 +20,7 @@ let userSet, alice, bob, chris, enumerateSpy, channelUrlA, channelUrlB;
 
 skipInNode(describe)('plugin-meetings', () => {
   describe('journey', () => {
-    beforeAll(() => webexTestUsers.generateTestUsers({
+    before(() => webexTestUsers.generateTestUsers({
       count: 3,
       whistler: process.env.WHISTLER || process.env.JENKINS
     })
@@ -44,7 +44,7 @@ skipInNode(describe)('plugin-meetings', () => {
         throw error;
       }));
 
-    beforeAll(() => {
+    before(() => {
       enumerateSpy = sinon.spy(navigator.mediaDevices, 'enumerateDevices');
     });
 
@@ -63,7 +63,7 @@ skipInNode(describe)('plugin-meetings', () => {
 
     // Alice calls bob and bob rejects it
     xdescribe('End outgoing Call', () => {
-      afterAll(() => {
+      after(() => {
         alice.meeting = null;
         bob.meeting = null;
       });
@@ -170,46 +170,40 @@ skipInNode(describe)('plugin-meetings', () => {
     // Enabled when config.enableUnifiedMeetings = true
     xdescribe('Conversation URL', () => {
       describe('Successful 1:1 meeting', () => {
-        it(
-          'Fetch meeting information with a conversation URL for a 1:1 space',
-          async () => {
-            assert.equal(Object.keys(bob.webex.meetings.getAllMeetings()), 0);
-            assert.equal(Object.keys(chris.webex.meetings.getAllMeetings()), 0);
+        it('Fetch meeting information with a conversation URL for a 1:1 space', async () => {
+          assert.equal(Object.keys(bob.webex.meetings.getAllMeetings()), 0);
+          assert.equal(Object.keys(chris.webex.meetings.getAllMeetings()), 0);
 
-            const conversation = await chris.webex.internal.conversation.create({participants: [bob]});
+          const conversation = await chris.webex.internal.conversation.create({participants: [bob]});
 
-            await chris.webex.internal.conversation.post(conversation, {displayName: 'hello world how are you '});
+          await chris.webex.internal.conversation.post(conversation, {displayName: 'hello world how are you '});
 
-            await Promise.all([
-              testUtils.delayedPromise(chris.webex.meetings.create(conversation.url, 'CONVERSATION_URL')),
-              testUtils.waitForEvents([{scope: chris.webex.meetings, event: 'meeting:added', user: chris}])
-            ])
-              .then(function chrisJoinsMeeting() {
-                return Promise.all([
-                  testUtils.delayedPromise(chris.meeting.join()),
-                  testUtils.waitForEvents([{scope: bob.webex.meetings, event: 'meeting:added', user: bob},
-                    {scope: chris.meeting, event: 'meeting:stateChange', user: chris}])
-                    .then((response) => {
-                      assert.equal(response[0].result.payload.currentState, 'ACTIVE');
-                    })
-                ]);
-              });
-          }
-        );
-
-        it(
-          'Fetch meeting information with invalid conversation URL and throws error',
-          () => {
-            chris.webex.meetings.meetingInfo.fetchMeetingInfo('http://some-invalid.com', 'CONVERSATION_URL').then((response) => {
-              assert(response.result === '404');
+          await Promise.all([
+            testUtils.delayedPromise(chris.webex.meetings.create(conversation.url, 'CONVERSATION_URL')),
+            testUtils.waitForEvents([{scope: chris.webex.meetings, event: 'meeting:added', user: chris}])
+          ])
+            .then(function chrisJoinsMeeting() {
+              return Promise.all([
+                testUtils.delayedPromise(chris.meeting.join()),
+                testUtils.waitForEvents([{scope: bob.webex.meetings, event: 'meeting:added', user: bob},
+                  {scope: chris.meeting, event: 'meeting:stateChange', user: chris}])
+                  .then((response) => {
+                    assert.equal(response[0].result.payload.currentState, 'ACTIVE');
+                  })
+              ]);
             });
-          }
-        );
+        });
+
+        it('Fetch meeting information with invalid conversation URL and throws error', () => {
+          chris.webex.meetings.meetingInfo.fetchMeetingInfo('http://some-invalid.com', 'CONVERSATION_URL').then((response) => {
+            assert(response.result === '404');
+          });
+        });
       });
     });
 
-    describe('Successful 1:1 meeting (including Guest)', () => {
-      beforeAll(() => {
+    describe('Successful 1:1 meeting (including Guest)', function () {
+      before(() => {
         // Workaround since getDisplayMedia requires a user gesture to be activated, and this is a integration tests
         // https://bugzilla.mozilla.org/show_bug.cgi?id=1580944
         if (isBrowser('firefox') || isBrowser('safari')) {

@@ -214,50 +214,44 @@ describe('plugin-meetings', () => {
         assert.equal(effects.state.bnr.enabled, BNR_STATUS.ENABLED);
       });
 
-      it(
-        'if called twice, does bnr effect enable on audio track for the first request and resolves second',
-        async () => {
-          Promise.all([effects.handleClientRequest(true, meeting), effects.handleClientRequest(true, meeting)])
-            .then((resolveFirst, resolveSecond) => {
-              assert.isTrue(resolveFirst);
-              assert.isTrue(resolveSecond);
-              assert.calledOnce(MediaUtil.createMediaStream);
-            });
-        }
-      );
-
-      it(
-        'should throw error for inappropriate sample rate and send error metrics',
-        async () => {
-          const fakeMediaTrack1 = () => ({
-            id: Date.now().toString(),
-            stop: () => {},
-            readyState: 'live',
-            getSettings: () => ({
-              sampleRate: 49000
-            })
+      it('if called twice, does bnr effect enable on audio track for the first request and resolves second', async () => {
+        Promise.all([effects.handleClientRequest(true, meeting), effects.handleClientRequest(true, meeting)])
+          .then((resolveFirst, resolveSecond) => {
+            assert.isTrue(resolveFirst);
+            assert.isTrue(resolveSecond);
+            assert.calledOnce(MediaUtil.createMediaStream);
           });
+      });
 
-          sinon.stub(meeting.mediaProperties, 'audioTrack').value(fakeMediaTrack1());
+      it('should throw error for inappropriate sample rate and send error metrics', async () => {
+        const fakeMediaTrack1 = () => ({
+          id: Date.now().toString(),
+          stop: () => {},
+          readyState: 'live',
+          getSettings: () => ({
+            sampleRate: 49000
+          })
+        });
 
-          // eslint-disable-next-line no-undef
-          MediaUtil.createMediaStream = sinon.stub().returns(new MediaStream([fakeMediaTrack1()]));
-          try {
-            await effects.handleClientRequest(true, meeting);
-          }
-          catch (err) {
-            assert(Metrics.sendBehavioralMetric.calledOnce);
-            assert.calledWith(
-              Metrics.sendBehavioralMetric,
-              BEHAVIORAL_METRICS.ENABLE_BNR_FAILURE, {
-                reason: err.message,
-                stack: err.stack
-              }
-            );
-            assert.equal(err.message, 'Sample rate of 49000 is not supported.');
-          }
+        sinon.stub(meeting.mediaProperties, 'audioTrack').value(fakeMediaTrack1());
+
+        // eslint-disable-next-line no-undef
+        MediaUtil.createMediaStream = sinon.stub().returns(new MediaStream([fakeMediaTrack1()]));
+        try {
+          await effects.handleClientRequest(true, meeting);
         }
-      );
+        catch (err) {
+          assert(Metrics.sendBehavioralMetric.calledOnce);
+          assert.calledWith(
+            Metrics.sendBehavioralMetric,
+            BEHAVIORAL_METRICS.ENABLE_BNR_FAILURE, {
+              reason: err.message,
+              stack: err.stack
+            }
+          );
+          assert.equal(err.message, 'Sample rate of 49000 is not supported.');
+        }
+      });
     });
 
     describe('#disableBNR', () => {

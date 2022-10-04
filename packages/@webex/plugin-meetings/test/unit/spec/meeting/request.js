@@ -141,51 +141,45 @@ describe('plugin-meetings', () => {
         assert.equal(requestParams.body.device.regionCode, 'WEST-COAST');
       });
 
-      it(
-        'sends /call with meetingNumber if inviteeAddress does not exist',
-        async () => {
-          const deviceUrl = 'deviceUrl';
-          const correlationId = 'random-uuid';
-          const roapMessage = 'roap-message';
-          const meetingNumber = 'meetingNumber';
+      it('sends /call with meetingNumber if inviteeAddress does not exist', async () => {
+        const deviceUrl = 'deviceUrl';
+        const correlationId = 'random-uuid';
+        const roapMessage = 'roap-message';
+        const meetingNumber = 'meetingNumber';
 
-          await meetingsRequest.joinMeeting({
-            deviceUrl,
-            correlationId,
-            roapMessage,
-            meetingNumber
-          });
-          const requestParams = meetingsRequest.request.getCall(0).args[0];
+        await meetingsRequest.joinMeeting({
+          deviceUrl,
+          correlationId,
+          roapMessage,
+          meetingNumber
+        });
+        const requestParams = meetingsRequest.request.getCall(0).args[0];
 
-          assert.equal(requestParams.method, 'POST');
-          assert.equal(requestParams.uri, 'locusUrl/loci/call?alternateRedirect=true');
-          assert.equal(requestParams.body.invitee.address, 'wbxmn:meetingNumber');
-        }
-      );
+        assert.equal(requestParams.method, 'POST');
+        assert.equal(requestParams.uri, 'locusUrl/loci/call?alternateRedirect=true');
+        assert.equal(requestParams.body.invitee.address, 'wbxmn:meetingNumber');
+      });
 
-      it(
-        'sends /call with inviteeAddress over meetingNumber as preference',
-        async () => {
-          const deviceUrl = 'deviceUrl';
-          const correlationId = 'random-uuid';
-          const roapMessage = 'roap-message';
-          const meetingNumber = 'meetingNumber';
-          const inviteeAddress = 'sipUrl';
+      it('sends /call with inviteeAddress over meetingNumber as preference', async () => {
+        const deviceUrl = 'deviceUrl';
+        const correlationId = 'random-uuid';
+        const roapMessage = 'roap-message';
+        const meetingNumber = 'meetingNumber';
+        const inviteeAddress = 'sipUrl';
 
-          await meetingsRequest.joinMeeting({
-            deviceUrl,
-            correlationId,
-            roapMessage,
-            meetingNumber,
-            inviteeAddress
-          });
-          const requestParams = meetingsRequest.request.getCall(0).args[0];
+        await meetingsRequest.joinMeeting({
+          deviceUrl,
+          correlationId,
+          roapMessage,
+          meetingNumber,
+          inviteeAddress
+        });
+        const requestParams = meetingsRequest.request.getCall(0).args[0];
 
-          assert.equal(requestParams.method, 'POST');
-          assert.equal(requestParams.uri, 'locusUrl/loci/call?alternateRedirect=true');
-          assert.equal(requestParams.body.invitee.address, 'sipUrl');
-        }
-      );
+        assert.equal(requestParams.method, 'POST');
+        assert.equal(requestParams.uri, 'locusUrl/loci/call?alternateRedirect=true');
+        assert.equal(requestParams.body.invitee.address, 'sipUrl');
+      });
     });
 
     describe('#pstn', () => {
