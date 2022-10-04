@@ -94,22 +94,25 @@ describe('plugin-meetings', () => {
 
         };
 
-        it('should return a userID and orgID without passing a destination', async () => {
-          const res = await MeetingInfoUtil.getDestinationType({
-            type: _PERSONAL_ROOM_,
-            webex: {
-              internal: {
-                device: {
-                  userId: '01824b9b-adef-4b10-b5c1-8a2fe2fb7c0e',
-                  orgId: '1eb65fdf-9643-417f-9974-ad72cae0e10f'
+        it(
+          'should return a userID and orgID without passing a destination',
+          async () => {
+            const res = await MeetingInfoUtil.getDestinationType({
+              type: _PERSONAL_ROOM_,
+              webex: {
+                internal: {
+                  device: {
+                    userId: '01824b9b-adef-4b10-b5c1-8a2fe2fb7c0e',
+                    orgId: '1eb65fdf-9643-417f-9974-ad72cae0e10f'
+                  }
                 }
               }
-            }
-          });
+            });
 
-          expect(res.destination.userId).to.equal('01824b9b-adef-4b10-b5c1-8a2fe2fb7c0e');
-          expect(res.destination.orgId).to.equal('1eb65fdf-9643-417f-9974-ad72cae0e10f');
-        });
+            expect(res.destination.userId).to.equal('01824b9b-adef-4b10-b5c1-8a2fe2fb7c0e');
+            expect(res.destination.orgId).to.equal('1eb65fdf-9643-417f-9974-ad72cae0e10f');
+          }
+        );
 
         it('should return a userID and orgID when passing an email', async () => {
           const res = await MeetingInfoUtil.getDestinationType({

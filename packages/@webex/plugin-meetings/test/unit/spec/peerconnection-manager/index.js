@@ -62,29 +62,32 @@ describe('Peerconnection Manager', () => {
         assert.equal(result.sdp, resultSdp);
       });
 
-      it('dont change the start bitrate on remoteSDP if default value is 0', async () => {
-        StaticConfig.set({bandwidth: {audio: 50, video: 500, startBitrate: 0}});
-        let result = null;
-        const setRemoteDescription = sinon.stub().callsFake((args) => {
-          result = args;
+      it(
+        'dont change the start bitrate on remoteSDP if default value is 0',
+        async () => {
+          StaticConfig.set({bandwidth: {audio: 50, video: 500, startBitrate: 0}});
+          let result = null;
+          const setRemoteDescription = sinon.stub().callsFake((args) => {
+            result = args;
 
-          return Promise.resolve();
-        });
-        const remoteSdp = 'v=0\r\n' +
-        'm=video 5004 UDP/TLS/RTP/SAVPF 102 127 97 99\r\n' +
-        'a=fmtp:102 profile-level-id=42e016;packetization-mode=1;max-mbps=244800;max-fs=8160;max-fps=3000;max-dpb=12240;max-rcmd-nalu-size=196608;level-asymmetry-allowed=1\r\n' +
-        'a=rtpmap:127 H264/90000\r\n' +
-        'a=fmtp:127 profile-level-id=42e016;max-mbps=244800;max-fs=8160;max-fps=3000;max-dpb=12240;max-rcmd-nalu-size=196608;level-asymmetry-allowed=1\r\n';
+            return Promise.resolve();
+          });
+          const remoteSdp = 'v=0\r\n' +
+          'm=video 5004 UDP/TLS/RTP/SAVPF 102 127 97 99\r\n' +
+          'a=fmtp:102 profile-level-id=42e016;packetization-mode=1;max-mbps=244800;max-fs=8160;max-fps=3000;max-dpb=12240;max-rcmd-nalu-size=196608;level-asymmetry-allowed=1\r\n' +
+          'a=rtpmap:127 H264/90000\r\n' +
+          'a=fmtp:127 profile-level-id=42e016;max-mbps=244800;max-fs=8160;max-fps=3000;max-dpb=12240;max-rcmd-nalu-size=196608;level-asymmetry-allowed=1\r\n';
 
-        const peerConnection = {
-          signalingState: 'have-local-offer',
-          setRemoteDescription
-        };
+          const peerConnection = {
+            signalingState: 'have-local-offer',
+            setRemoteDescription
+          };
 
-        await PeerConnectionManager.setRemoteSessionDetails(peerConnection, 'answer', remoteSdp, {});
+          await PeerConnectionManager.setRemoteSessionDetails(peerConnection, 'answer', remoteSdp, {});
 
-        assert.equal(result.sdp, remoteSdp);
-      });
+          assert.equal(result.sdp, remoteSdp);
+        }
+      );
     });
 
     describe('iceCandidate', () => {
@@ -100,16 +103,19 @@ describe('Peerconnection Manager', () => {
         assert(peerConnection.sdp.search('max-fs:8192'), true);
       });
 
-      it('listen onIceCandidate,onicecandidateerror and onIceGatheringStateChange', async () => {
-        peerConnection.iceGatheringState = 'none';
-        setTimeout(() => {
-          peerConnection.onicecandidate({candidate: null});
-        }, 1000);
-        await PeerConnectionManager.iceCandidate(peerConnection, {remoteQualityLevel: 'HIGH'});
-        assert.isFunction(peerConnection.onIceGatheringStateChange);
-        assert.isFunction(peerConnection.onicecandidate);
-        assert.isFunction(peerConnection.onicecandidateerror);
-      });
+      it(
+        'listen onIceCandidate,onicecandidateerror and onIceGatheringStateChange',
+        async () => {
+          peerConnection.iceGatheringState = 'none';
+          setTimeout(() => {
+            peerConnection.onicecandidate({candidate: null});
+          }, 1000);
+          await PeerConnectionManager.iceCandidate(peerConnection, {remoteQualityLevel: 'HIGH'});
+          assert.isFunction(peerConnection.onIceGatheringStateChange);
+          assert.isFunction(peerConnection.onicecandidate);
+          assert.isFunction(peerConnection.onicecandidateerror);
+        }
+      );
 
       it('generate sdp with iceGatheringstate is `complet`', async () => {
         peerConnection.iceGatheringState = 'none';
@@ -123,14 +129,17 @@ describe('Peerconnection Manager', () => {
           });
       });
 
-      it('should not generate sdp if onicecandidateerror errors out ', async () => {
-        peerConnection.iceGatheringState = 'none';
-        setTimeout(() => {
-          peerConnection.onicecandidateerror();
-        }, 1000);
-        await assert.isRejected(PeerConnectionManager.iceCandidate(peerConnection, {remoteQualityLevel: 'HIGH'}), IceGatheringFailed);
-        assert.equal(peerConnection.sdp, null);
-      });
+      it(
+        'should not generate sdp if onicecandidateerror errors out ',
+        async () => {
+          peerConnection.iceGatheringState = 'none';
+          setTimeout(() => {
+            peerConnection.onicecandidateerror();
+          }, 1000);
+          await assert.isRejected(PeerConnectionManager.iceCandidate(peerConnection, {remoteQualityLevel: 'HIGH'}), IceGatheringFailed);
+          assert.equal(peerConnection.sdp, null);
+        }
+      );
 
       it('should throw generated SDP does not have candidates ', async () => {
         peerConnection.iceGatheringState = 'none';

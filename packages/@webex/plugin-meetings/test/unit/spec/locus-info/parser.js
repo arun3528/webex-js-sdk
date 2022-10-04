@@ -11,6 +11,12 @@ import sequenceComparisons from './lib/SeqCmp';
 
 
 describe('locus-info/parser', () => {
+  let testContext;
+
+  beforeEach(() => {
+    testContext = {};
+  });
+
   describe('Locus Sequence Comparison Algorithm', () => {
     describe('basic sequence comparisons', () => {
       Object.keys(basicSequenceComparisons.comparisons).forEach((key) => {
@@ -109,13 +115,13 @@ describe('locus-info/parser', () => {
 
       parser.onDeltaAction = true;
       parser.processDeltaEvent = function () {
-        const fakeLoci = this.queue.dequeue();
+        const fakeLoci = testContext.queue.dequeue();
 
         // nothing to do, queue is empty
         if (!fakeLoci) return;
 
         output.push(fakeLoci);
-        this.nextEvent();
+        testContext.nextEvent();
       };
 
       const generate = new Promise((resolve) => {

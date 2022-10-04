@@ -5,25 +5,28 @@ import MeetingInfoUtil from '@webex/plugin-meetings/src/meeting-info/util';
 describe('plugin-meetings', () => {
   describe('meeting-info#util', () => {
     describe('#generateOptions()', () => {
-      it('should resolve with a \'wasHydraPerson\' key:value when provided a hydra person Id', () => {
-        const getSipUriFromHydraPersonId = sinon
-          .stub(MeetingInfoUtil, 'getSipUriFromHydraPersonId')
-          .resolves('example-destination');
+      it(
+        'should resolve with a \'wasHydraPerson\' key:value when provided a hydra person Id',
+        () => {
+          const getSipUriFromHydraPersonId = sinon
+            .stub(MeetingInfoUtil, 'getSipUriFromHydraPersonId')
+            .resolves('example-destination');
 
-        const isConversationUrl = sinon
-          .stub(MeetingInfoUtil, 'isConversationUrl')
-          .returns(false);
+          const isConversationUrl = sinon
+            .stub(MeetingInfoUtil, 'isConversationUrl')
+            .returns(false);
 
-        return MeetingInfoUtil.generateOptions({
-          destination: 'Y2lzY29zcGFyazovL3VzL1BFT1BMRS81NTU1NTU1NS01NTU1LTU1NTUtODU1NS01NTU1NTU1NTU1NTU='
-        })
-          .then(({wasHydraPerson}) => {
-            assert.isTrue(wasHydraPerson);
+          return MeetingInfoUtil.generateOptions({
+            destination: 'Y2lzY29zcGFyazovL3VzL1BFT1BMRS81NTU1NTU1NS01NTU1LTU1NTUtODU1NS01NTU1NTU1NTU1NTU='
+          })
+            .then(({wasHydraPerson}) => {
+              assert.isTrue(wasHydraPerson);
 
-            getSipUriFromHydraPersonId.restore();
-            isConversationUrl.restore();
-          });
-      });
+              getSipUriFromHydraPersonId.restore();
+              isConversationUrl.restore();
+            });
+        }
+      );
     });
 
     describe('#getHydraId()', () => {

@@ -84,7 +84,7 @@ describe('plugin-meetings', () => {
     sinon.restore();
   });
 
-  before(() => {
+  beforeAll(() => {
     const MediaStream = {
       getVideoTracks: () => [{
         applyConstraints: () => { }
@@ -272,14 +272,17 @@ describe('plugin-meetings', () => {
         beforeEach(() => {
           meeting.members.cancelPhoneInvite = sinon.stub().returns(Promise.resolve(test1));
         });
-        it('should proxy members #cancelPhoneInvite and return a promise', async () => {
-          const cancel = meeting.cancelPhoneInvite(uuid1);
+        it(
+          'should proxy members #cancelPhoneInvite and return a promise',
+          async () => {
+            const cancel = meeting.cancelPhoneInvite(uuid1);
 
-          assert.exists(cancel.then);
-          await cancel;
-          assert.calledOnce(meeting.members.cancelPhoneInvite);
-          assert.calledWith(meeting.members.cancelPhoneInvite, uuid1);
-        });
+            assert.exists(cancel.then);
+            await cancel;
+            assert.calledOnce(meeting.members.cancelPhoneInvite);
+            assert.calledWith(meeting.members.cancelPhoneInvite, uuid1);
+          }
+        );
       });
       describe('#admit', () => {
         it('should have #admit', () => {
@@ -301,11 +304,14 @@ describe('plugin-meetings', () => {
         it('should have #getMembers', () => {
           assert.exists(meeting.getMembers);
         });
-        it('should get the members object as an instance and return Members', async () => {
-          const members = meeting.getMembers();
+        it(
+          'should get the members object as an instance and return Members',
+          async () => {
+            const members = meeting.getMembers();
 
-          assert.instanceOf(members, Members);
-        });
+            assert.instanceOf(members, Members);
+          }
+        );
       });
       describe('#isAudioMuted', () => {
         it('should have #isAudioMuted', () => {
@@ -711,11 +717,14 @@ describe('plugin-meetings', () => {
         });
       });
       describe('#isTranscriptionSupported', () => {
-        it('should return false if the feature is not supported for the meeting', () => {
-          meeting.locusInfo.controls = {transcribe: {transcribing: false}};
+        it(
+          'should return false if the feature is not supported for the meeting',
+          () => {
+            meeting.locusInfo.controls = {transcribe: {transcribing: false}};
 
-          assert.equal(meeting.isTranscriptionSupported(), false);
-        });
+            assert.equal(meeting.isTranscriptionSupported(), false);
+          }
+        );
         it('should return true if webex assitant is enabled', () => {
           meeting.locusInfo.controls = {transcribe: {transcribing: true}};
 
@@ -788,18 +797,24 @@ describe('plugin-meetings', () => {
             assert.calledOnce(MeetingUtil.joinMeeting);
             assert.calledOnce(meeting.setLocus);
           });
-          it('should invoke `receiveTranscription()` if receiveTranscription is set to true', async () => {
-            meeting.isTranscriptionSupported = sinon.stub().returns(true);
-            meeting.receiveTranscription = sinon.stub().returns(Promise.resolve());
+          it(
+            'should invoke `receiveTranscription()` if receiveTranscription is set to true',
+            async () => {
+              meeting.isTranscriptionSupported = sinon.stub().returns(true);
+              meeting.receiveTranscription = sinon.stub().returns(Promise.resolve());
 
-            await meeting.join({receiveTranscription: true});
-            assert.calledOnce(meeting.receiveTranscription);
-          });
+              await meeting.join({receiveTranscription: true});
+              assert.calledOnce(meeting.receiveTranscription);
+            }
+          );
 
-          it('should not create new correlation ID on join immediately after create', async () => {
-            await meeting.join();
-            sinon.assert.notCalled(meeting.setCorrelationId);
-          });
+          it(
+            'should not create new correlation ID on join immediately after create',
+            async () => {
+              await meeting.join();
+              sinon.assert.notCalled(meeting.setCorrelationId);
+            }
+          );
 
           it('should create new correlation ID when already joined', async () => {
             meeting.hasJoinedOnce = true;
@@ -818,29 +833,35 @@ describe('plugin-meetings', () => {
               MeetingUtil.isPinOrGuest = sinon.stub().returns(true);
               MeetingUtil.hasOwner = sinon.stub().returns(false);
             });
-            it('should try to join the meeting and return intent failure promise', async () => {
-              await meeting.join().catch(() => {
-                assert.calledOnce(MeetingUtil.joinMeeting);
-              });
-            });
-            it('should succeed when called again after IntentToJoinError error', async () => {
-              let joinSucceeded = false;
-
-              try {
-                await meeting.join();
-                joinSucceeded = true;
+            it(
+              'should try to join the meeting and return intent failure promise',
+              async () => {
+                await meeting.join().catch(() => {
+                  assert.calledOnce(MeetingUtil.joinMeeting);
+                });
               }
-              catch (e) {
-                assert.instanceOf(e, IntentToJoinError);
-              }
-              assert.isFalse(joinSucceeded);
+            );
+            it(
+              'should succeed when called again after IntentToJoinError error',
+              async () => {
+                let joinSucceeded = false;
 
-              // IntentToJoinError means that client should call join() again
-              // with moderator and pin explicitly set
-              MeetingUtil.joinMeeting = sinon.stub().returns(Promise.resolve());
-              await meeting.join({pin: '1234', moderator: false});
-              assert.calledWith(MeetingUtil.joinMeeting, meeting, {moderator: false, pin: '1234'});
-            });
+                try {
+                  await meeting.join();
+                  joinSucceeded = true;
+                }
+                catch (e) {
+                  assert.instanceOf(e, IntentToJoinError);
+                }
+                assert.isFalse(joinSucceeded);
+
+                // IntentToJoinError means that client should call join() again
+                // with moderator and pin explicitly set
+                MeetingUtil.joinMeeting = sinon.stub().returns(Promise.resolve());
+                await meeting.join({pin: '1234', moderator: false});
+                assert.calledWith(MeetingUtil.joinMeeting, meeting, {moderator: false, pin: '1234'});
+              }
+            );
           });
 
           it('should throw error if device is not registered', async () => {
@@ -927,84 +948,99 @@ describe('plugin-meetings', () => {
           }
         });
 
-        it('should reset the statsAnalyzer to null if addMedia throws an error', async () => {
-          meeting.meetingState = 'ACTIVE';
-          meeting.statsAnalyzer = true;
-          await meeting.addMedia().catch((err) => {
-            assert.exists(err);
-            assert.isNull(meeting.statsAnalyzer);
-          });
-        });
-
-        it('should reset the peerConnection to null if addMedia throws an error', async () => {
-          meeting.meetingState = 'ACTIVE';
-          meeting.mediaProperties.peerConnection = true;
-          await meeting.addMedia().catch((err) => {
-            assert.exists(err);
-            assert.isNull(meeting.mediaProperties.peerConnection);
-          });
-        });
-
-        it('should work the second time addMedia is called in case the first time fails', async () => {
-          meeting.meetingState = 'ACTIVE';
-
-          try {
-            await meeting.addMedia();
-            assert.fail('addMedia should have thrown an exception.');
-          }
-          catch (err) {
-            assert.exists(err);
-          }
-
-          try {
-            await meeting.addMedia({
-              mediaSettings: {}
+        it(
+          'should reset the statsAnalyzer to null if addMedia throws an error',
+          async () => {
+            meeting.meetingState = 'ACTIVE';
+            meeting.statsAnalyzer = true;
+            await meeting.addMedia().catch((err) => {
+              assert.exists(err);
+              assert.isNull(meeting.statsAnalyzer);
             });
           }
-          catch (err) {
-            assert.fail('should not throw an error');
+        );
+
+        it(
+          'should reset the peerConnection to null if addMedia throws an error',
+          async () => {
+            meeting.meetingState = 'ACTIVE';
+            meeting.mediaProperties.peerConnection = true;
+            await meeting.addMedia().catch((err) => {
+              assert.exists(err);
+              assert.isNull(meeting.mediaProperties.peerConnection);
+            });
           }
-        });
+        );
 
-        it('if an error occurs after media request has already been sent, and the user waits until the server kicks them out, a UserNotJoinedError should be thrown when attempting to addMedia again', async () => {
-          meeting.meetingState = 'ACTIVE';
-          meeting.roap.sendRoapMediaRequest = sinon.stub().returns(new Promise((resolve) => {
-            meeting.mediaProperties.peerConnection.connectionState = CONSTANTS.CONNECTION_STATE.CONNECTED;
-            resolve();
-          }).then(() => {
-            throw new Error('sample error thrown');
-          }));
-          await meeting.addMedia().catch((err) => {
-            assert.exists(err);
-          });
-          // After a couple seconds, server kicks user out
-          meeting.locusInfo.parsedLocus = {self: {state: 'LEFT'}};
-          await meeting.addMedia().catch((err) => {
-            assert.instanceOf(err, UserNotJoinedError);
-          });
-        });
+        it(
+          'should work the second time addMedia is called in case the first time fails',
+          async () => {
+            meeting.meetingState = 'ACTIVE';
 
-        it('if an error occurs after media request has already been sent, and the user does NOT wait until the server kicks them out, the user should be able to addMedia successfully', async () => {
-          meeting.meetingState = 'ACTIVE';
-          meeting.roap.sendRoapMediaRequest = sinon.stub().returns(new Promise((resolve) => {
-            meeting.mediaProperties.peerConnection.connectionState = CONSTANTS.CONNECTION_STATE.CONNECTED;
-            resolve();
-          }).then(() => {
-            throw new Error('sample error thrown');
-          }));
-          await meeting.addMedia().catch((err) => {
-            assert.exists(err);
-          });
+            try {
+              await meeting.addMedia();
+              assert.fail('addMedia should have thrown an exception.');
+            }
+            catch (err) {
+              assert.exists(err);
+            }
 
-          meeting.mediaProperties.peerConnection = {};
-          meeting.roap.sendRoapMediaRequest = sinon.stub().returns(new Promise((resolve) => {
-            meeting.mediaProperties.peerConnection.connectionState = CONSTANTS.CONNECTION_STATE.CONNECTED;
-            resolve();
-          }));
-          await meeting.addMedia().catch((err) => {
-            assert.fail('No error should appear: ', err);
-          });
-        });
+            try {
+              await meeting.addMedia({
+                mediaSettings: {}
+              });
+            }
+            catch (err) {
+              assert.fail('should not throw an error');
+            }
+          }
+        );
+
+        it(
+          'if an error occurs after media request has already been sent, and the user waits until the server kicks them out, a UserNotJoinedError should be thrown when attempting to addMedia again',
+          async () => {
+            meeting.meetingState = 'ACTIVE';
+            meeting.roap.sendRoapMediaRequest = sinon.stub().returns(new Promise((resolve) => {
+              meeting.mediaProperties.peerConnection.connectionState = CONSTANTS.CONNECTION_STATE.CONNECTED;
+              resolve();
+            }).then(() => {
+              throw new Error('sample error thrown');
+            }));
+            await meeting.addMedia().catch((err) => {
+              assert.exists(err);
+            });
+            // After a couple seconds, server kicks user out
+            meeting.locusInfo.parsedLocus = {self: {state: 'LEFT'}};
+            await meeting.addMedia().catch((err) => {
+              assert.instanceOf(err, UserNotJoinedError);
+            });
+          }
+        );
+
+        it(
+          'if an error occurs after media request has already been sent, and the user does NOT wait until the server kicks them out, the user should be able to addMedia successfully',
+          async () => {
+            meeting.meetingState = 'ACTIVE';
+            meeting.roap.sendRoapMediaRequest = sinon.stub().returns(new Promise((resolve) => {
+              meeting.mediaProperties.peerConnection.connectionState = CONSTANTS.CONNECTION_STATE.CONNECTED;
+              resolve();
+            }).then(() => {
+              throw new Error('sample error thrown');
+            }));
+            await meeting.addMedia().catch((err) => {
+              assert.exists(err);
+            });
+
+            meeting.mediaProperties.peerConnection = {};
+            meeting.roap.sendRoapMediaRequest = sinon.stub().returns(new Promise((resolve) => {
+              meeting.mediaProperties.peerConnection.connectionState = CONSTANTS.CONNECTION_STATE.CONNECTED;
+              resolve();
+            }));
+            await meeting.addMedia().catch((err) => {
+              assert.fail('No error should appear: ', err);
+            });
+          }
+        );
 
         it('should attach the media and return promise', async () => {
           meeting.meetingState = 'ACTIVE';
@@ -1060,23 +1096,26 @@ describe('plugin-meetings', () => {
             meeting.config.stats.enableStatsAnalyzer = prevConfigValue;
           });
 
-          it('LOCAL_MEDIA_STARTED triggers "meeting:media:local:start" event and sends metrics', async () => {
-            statsAnalyzerStub.emit({file: 'test', function: 'test'}, StatsAnalyzerModule.EVENTS.LOCAL_MEDIA_STARTED, {type: 'audio'});
+          it(
+            'LOCAL_MEDIA_STARTED triggers "meeting:media:local:start" event and sends metrics',
+            async () => {
+              statsAnalyzerStub.emit({file: 'test', function: 'test'}, StatsAnalyzerModule.EVENTS.LOCAL_MEDIA_STARTED, {type: 'audio'});
 
-            assert.calledWith(
-              TriggerProxy.trigger,
-              sinon.match.instanceOf(Meeting),
-              {
-                file: 'meeting/index',
-                function: 'addMedia'
-              },
-              EVENT_TRIGGERS.MEETING_MEDIA_LOCAL_STARTED,
-              {
-                type: 'audio'
-              }
-            );
-            assert.calledWithMatch(Metrics.postEvent, {event: eventType.SENDING_MEDIA_START, data: {mediaType: 'audio'}});
-          });
+              assert.calledWith(
+                TriggerProxy.trigger,
+                sinon.match.instanceOf(Meeting),
+                {
+                  file: 'meeting/index',
+                  function: 'addMedia'
+                },
+                EVENT_TRIGGERS.MEETING_MEDIA_LOCAL_STARTED,
+                {
+                  type: 'audio'
+                }
+              );
+              assert.calledWithMatch(Metrics.postEvent, {event: eventType.SENDING_MEDIA_START, data: {mediaType: 'audio'}});
+            }
+          );
 
           it('LOCAL_MEDIA_STOPPED triggers the right metrics', async () => {
             statsAnalyzerStub.emit({file: 'test', function: 'test'}, StatsAnalyzerModule.EVENTS.LOCAL_MEDIA_STOPPED, {type: 'video'});
@@ -1084,23 +1123,26 @@ describe('plugin-meetings', () => {
             assert.calledWithMatch(Metrics.postEvent, {event: eventType.SENDING_MEDIA_STOP, data: {mediaType: 'video'}});
           });
 
-          it('REMOTE_MEDIA_STARTED triggers "meeting:media:remote:start" event and sends metrics', async () => {
-            statsAnalyzerStub.emit({file: 'test', function: 'test'}, StatsAnalyzerModule.EVENTS.REMOTE_MEDIA_STARTED, {type: 'video'});
+          it(
+            'REMOTE_MEDIA_STARTED triggers "meeting:media:remote:start" event and sends metrics',
+            async () => {
+              statsAnalyzerStub.emit({file: 'test', function: 'test'}, StatsAnalyzerModule.EVENTS.REMOTE_MEDIA_STARTED, {type: 'video'});
 
-            assert.calledWith(
-              TriggerProxy.trigger,
-              sinon.match.instanceOf(Meeting),
-              {
-                file: 'meeting/index',
-                function: 'addMedia'
-              },
-              EVENT_TRIGGERS.MEETING_MEDIA_REMOTE_STARTED,
-              {
-                type: 'video'
-              }
-            );
-            assert.calledWithMatch(Metrics.postEvent, {event: eventType.RECEIVING_MEDIA_START, data: {mediaType: 'video'}});
-          });
+              assert.calledWith(
+                TriggerProxy.trigger,
+                sinon.match.instanceOf(Meeting),
+                {
+                  file: 'meeting/index',
+                  function: 'addMedia'
+                },
+                EVENT_TRIGGERS.MEETING_MEDIA_REMOTE_STARTED,
+                {
+                  type: 'video'
+                }
+              );
+              assert.calledWithMatch(Metrics.postEvent, {event: eventType.RECEIVING_MEDIA_START, data: {mediaType: 'video'}});
+            }
+          );
 
           it('REMOTE_MEDIA_STOPPED triggers the right metrics', async () => {
             statsAnalyzerStub.emit({file: 'test', function: 'test'}, StatsAnalyzerModule.EVENTS.REMOTE_MEDIA_STOPPED, {type: 'audio'});
@@ -1151,10 +1193,13 @@ describe('plugin-meetings', () => {
           meeting.meetingRequest.declineMeeting = sinon.stub().returns(Promise.resolve());
           meeting.meetingFiniteStateMachine.ring();
         });
-        it('should decline the meeting and trigger meeting destroy for 1:1', async () => {
-          await meeting.decline();
-          assert.calledOnce(meeting.meetingRequest.declineMeeting);
-        });
+        it(
+          'should decline the meeting and trigger meeting destroy for 1:1',
+          async () => {
+            await meeting.decline();
+            assert.calledOnce(meeting.meetingRequest.declineMeeting);
+          }
+        );
       });
       describe('#leave', () => {
         let sandbox;
@@ -1231,15 +1276,18 @@ describe('plugin-meetings', () => {
             meeting.video = {handleClientRequest};
           });
 
-          it('should delete audio and video state machines when leaving the meeting', async () => {
-            const leave = meeting.leave();
+          it(
+            'should delete audio and video state machines when leaving the meeting',
+            async () => {
+              const leave = meeting.leave();
 
-            assert.exists(leave.then);
-            await leave;
+              assert.exists(leave.then);
+              await leave;
 
-            assert.isNull(meeting.audio);
-            assert.isNull(meeting.video);
-          });
+              assert.isNull(meeting.audio);
+              assert.isNull(meeting.video);
+            }
+          );
         });
         it('should leave the meeting without leaving resource', async () => {
           const leave = meeting.leave({resourceId: null});
@@ -1379,12 +1427,15 @@ describe('plugin-meetings', () => {
             assert.isFalse(meeting.isLocalShareLive);
           });
 
-          it('sets isLocalShareLive to false when track is live but share direction is recv only', () => {
-            _direction = RECVONLY;
-            _trackReadyState = LIVE;
+          it(
+            'sets isLocalShareLive to false when track is live but share direction is recv only',
+            () => {
+              _direction = RECVONLY;
+              _trackReadyState = LIVE;
 
-            assert.isFalse(meeting.isLocalShareLive);
-          });
+              assert.isFalse(meeting.isLocalShareLive);
+            }
+          );
         });
 
         describe('stops share immediately', () => {
@@ -1566,7 +1617,7 @@ describe('plugin-meetings', () => {
           return value[key] || value[defaultKey];
         };
 
-        before(() => {
+        beforeAll(() => {
           meeting.updateShare = sinon.stub().returns(Promise.resolve());
 
           if (!global.navigator) {
@@ -1587,7 +1638,7 @@ describe('plugin-meetings', () => {
           );
         });
 
-        after(() => {
+        afterAll(() => {
           // clean up for browser
           Object.defineProperty(
             global.navigator.mediaDevices,
@@ -1630,121 +1681,133 @@ describe('plugin-meetings', () => {
         });
 
         // eslint-disable-next-line max-len
-        it('will use default resolution if shareConstraints is undefined and highFrameRate is defined', () => {
-          // If highFrameRate is defined it ignores default SDK config settings
-          getDisplayMedia({
-            ...shareOptions,
-            sharePreferences: {
-              highFrameRate: true
-            }
-          }, config);
+        it(
+          'will use default resolution if shareConstraints is undefined and highFrameRate is defined',
+          () => {
+            // If highFrameRate is defined it ignores default SDK config settings
+            getDisplayMedia({
+              ...shareOptions,
+              sharePreferences: {
+                highFrameRate: true
+              }
+            }, config);
 
-          // eslint-disable-next-line no-undef
-          assert.calledWith(navigator.mediaDevices.getDisplayMedia,
-            browserConditionalValue({
-              default: {
-                video: {
-                  ...MediaConstraint,
-                  frameRate: config.videoShareFrameRate,
-                  width: resolution.idealWidth,
-                  height: resolution.idealHeight,
-                  maxWidth: resolution.maxWidth,
-                  maxHeight: resolution.maxHeight,
-                  idealWidth: resolution.idealWidth,
-                  idealHeight: resolution.idealHeight
-                }
-              },
-              firefox: fireFoxOptions
-            }));
-        });
+            // eslint-disable-next-line no-undef
+            assert.calledWith(navigator.mediaDevices.getDisplayMedia,
+              browserConditionalValue({
+                default: {
+                  video: {
+                    ...MediaConstraint,
+                    frameRate: config.videoShareFrameRate,
+                    width: resolution.idealWidth,
+                    height: resolution.idealHeight,
+                    maxWidth: resolution.maxWidth,
+                    maxHeight: resolution.maxHeight,
+                    idealWidth: resolution.idealWidth,
+                    idealHeight: resolution.idealHeight
+                  }
+                },
+                firefox: fireFoxOptions
+              }));
+          }
+        );
 
         // eslint-disable-next-line max-len
-        it('will use default screenResolution if shareConstraints, highFrameRate, and SDK defaults is undefined', () => {
-          getDisplayMedia(shareOptions);
-          const {screenResolution} = config;
+        it(
+          'will use default screenResolution if shareConstraints, highFrameRate, and SDK defaults is undefined',
+          () => {
+            getDisplayMedia(shareOptions);
+            const {screenResolution} = config;
 
-          // eslint-disable-next-line no-undef
-          assert.calledWith(navigator.mediaDevices.getDisplayMedia,
-            browserConditionalValue({
-              default: {
-                video: {
-                  ...MediaConstraint,
-                  width: screenResolution.idealWidth,
-                  height: screenResolution.idealHeight
-                }
-              },
-              firefox: fireFoxOptions
-            }));
-        });
+            // eslint-disable-next-line no-undef
+            assert.calledWith(navigator.mediaDevices.getDisplayMedia,
+              browserConditionalValue({
+                default: {
+                  video: {
+                    ...MediaConstraint,
+                    width: screenResolution.idealWidth,
+                    height: screenResolution.idealHeight
+                  }
+                },
+                firefox: fireFoxOptions
+              }));
+          }
+        );
 
         // Test screenResolution
         // eslint-disable-next-line max-len
-        it('will use SDK config screenResolution if set, with shareConstraints and highFrameRate being undefined', () => {
-          const SHARE_WIDTH = 800;
-          const SHARE_HEIGHT = 600;
-          const customConfig = {
-            screenResolution: {
-              maxWidth: SHARE_WIDTH,
-              maxHeight: SHARE_HEIGHT,
-              idealWidth: SHARE_WIDTH,
-              idealHeight: SHARE_HEIGHT
-            }
-          };
+        it(
+          'will use SDK config screenResolution if set, with shareConstraints and highFrameRate being undefined',
+          () => {
+            const SHARE_WIDTH = 800;
+            const SHARE_HEIGHT = 600;
+            const customConfig = {
+              screenResolution: {
+                maxWidth: SHARE_WIDTH,
+                maxHeight: SHARE_HEIGHT,
+                idealWidth: SHARE_WIDTH,
+                idealHeight: SHARE_HEIGHT
+              }
+            };
 
-          getDisplayMedia(shareOptions, customConfig);
+            getDisplayMedia(shareOptions, customConfig);
 
-          // eslint-disable-next-line no-undef
-          assert.calledWith(navigator.mediaDevices.getDisplayMedia,
-            browserConditionalValue({
-              default: {
-                video: {
-                  ...MediaConstraint,
-                  width: SHARE_WIDTH,
-                  height: SHARE_HEIGHT,
-                  maxWidth: SHARE_WIDTH,
-                  maxHeight: SHARE_HEIGHT,
-                  idealWidth: SHARE_WIDTH,
-                  idealHeight: SHARE_HEIGHT
-                }
-              },
-              firefox: fireFoxOptions
-            }));
-        });
+            // eslint-disable-next-line no-undef
+            assert.calledWith(navigator.mediaDevices.getDisplayMedia,
+              browserConditionalValue({
+                default: {
+                  video: {
+                    ...MediaConstraint,
+                    width: SHARE_WIDTH,
+                    height: SHARE_HEIGHT,
+                    maxWidth: SHARE_WIDTH,
+                    maxHeight: SHARE_HEIGHT,
+                    idealWidth: SHARE_WIDTH,
+                    idealHeight: SHARE_HEIGHT
+                  }
+                },
+                firefox: fireFoxOptions
+              }));
+          }
+        );
 
         // Test screenFrameRate
-        it('will use SDK config screenFrameRate if set, with shareConstraints and highFrameRate being undefined', () => {
-          const SHARE_WIDTH = 800;
-          const SHARE_HEIGHT = 600;
-          const customConfig = {
-            screenFrameRate: 999,
-            screenResolution: {
-              maxWidth: SHARE_WIDTH,
-              maxHeight: SHARE_HEIGHT,
-              idealWidth: SHARE_WIDTH,
-              idealHeight: SHARE_HEIGHT
-            }
-          };
+        it(
+          'will use SDK config screenFrameRate if set, with shareConstraints and highFrameRate being undefined',
+          () => {
+            const SHARE_WIDTH = 800;
+            const SHARE_HEIGHT = 600;
+            const customConfig = {
+              screenFrameRate: 999,
+              screenResolution: {
+                maxWidth: SHARE_WIDTH,
+                maxHeight: SHARE_HEIGHT,
+                idealWidth: SHARE_WIDTH,
+                idealHeight: SHARE_HEIGHT
+              }
+            };
 
-          getDisplayMedia(shareOptions, customConfig);
+            getDisplayMedia(shareOptions, customConfig);
 
-          // eslint-disable-next-line no-undef
-          assert.calledWith(navigator.mediaDevices.getDisplayMedia,
-            browserConditionalValue({
-              default: {
-                video: {
-                  ...MediaConstraint,
-                  frameRate: customConfig.screenFrameRate,
-                  width: SHARE_WIDTH,
-                  height: SHARE_HEIGHT,
-                  maxWidth: SHARE_WIDTH,
-                  maxHeight: SHARE_HEIGHT,
-                  idealWidth: SHARE_WIDTH,
-                  idealHeight: SHARE_HEIGHT
-                }
-              },
-              firefox: fireFoxOptions
-            }));
-        });
+            // eslint-disable-next-line no-undef
+            assert.calledWith(navigator.mediaDevices.getDisplayMedia,
+              browserConditionalValue({
+                default: {
+                  video: {
+                    ...MediaConstraint,
+                    frameRate: customConfig.screenFrameRate,
+                    width: SHARE_WIDTH,
+                    height: SHARE_HEIGHT,
+                    maxWidth: SHARE_WIDTH,
+                    maxHeight: SHARE_HEIGHT,
+                    idealWidth: SHARE_WIDTH,
+                    idealHeight: SHARE_HEIGHT
+                  }
+                },
+                firefox: fireFoxOptions
+              }));
+          }
+        );
       });
 
       describe('#stopShare', () => {
@@ -1779,12 +1842,15 @@ describe('plugin-meetings', () => {
                 MeetingUtil.updateTransceiver = sinon.stub();
               });
 
-              it('sets previousMediaDirection to an empty object', () => meeting.updateAudio({
-                sendAudio: true,
-                receiveAudio: true
-              }).then(() => {
-                assert.calledOnce(MeetingUtil.updateTransceiver);
-              }));
+              it(
+                'sets previousMediaDirection to an empty object',
+                () => meeting.updateAudio({
+                  sendAudio: true,
+                  receiveAudio: true
+                }).then(() => {
+                  assert.calledOnce(MeetingUtil.updateTransceiver);
+                })
+              );
             });
           });
         });
@@ -1922,141 +1988,162 @@ describe('plugin-meetings', () => {
             assert.calledWith(spy, LOCUSINFO.EVENTS.CONTROLS_MEETING_LAYOUT_UPDATED);
           });
 
-          it('should have receiveVideo true and remote video track should exist', () => {
-            assert.equal(meeting.mediaProperties.mediaDirection.receiveVideo, true);
-            assert.exists(meeting.mediaProperties.remoteVideoTrack);
-          });
+          it(
+            'should have receiveVideo true and remote video track should exist',
+            () => {
+              assert.equal(meeting.mediaProperties.mediaDirection.receiveVideo, true);
+              assert.exists(meeting.mediaProperties.remoteVideoTrack);
+            }
+          );
 
-          it('has layoutType which exists in the list of allowed layoutTypes and should call meetingRequest changeVideoLayoutDebounced method', async () => {
-            const layoutType = 'Equal';
+          it(
+            'has layoutType which exists in the list of allowed layoutTypes and should call meetingRequest changeVideoLayoutDebounced method',
+            async () => {
+              const layoutType = 'Equal';
 
-            await meeting.changeVideoLayout(layoutType);
+              await meeting.changeVideoLayout(layoutType);
 
-            assert(CONSTANTS.LAYOUT_TYPES.includes(layoutType));
-            assert.calledWith(meeting.meetingRequest.changeVideoLayoutDebounced, {
-              locusUrl: meeting.locusInfo.self.url,
-              deviceUrl: meeting.deviceUrl,
-              layoutType,
-              main: undefined,
-              content: undefined
-            });
-          });
+              assert(CONSTANTS.LAYOUT_TYPES.includes(layoutType));
+              assert.calledWith(meeting.meetingRequest.changeVideoLayoutDebounced, {
+                locusUrl: meeting.locusInfo.self.url,
+                deviceUrl: meeting.deviceUrl,
+                layoutType,
+                main: undefined,
+                content: undefined
+              });
+            }
+          );
 
-          it('doesn\'t have layoutType which exists in the list of allowed layoutTypes should throw an error', async () => {
-            const layoutType = 'Invalid Layout';
+          it(
+            'doesn\'t have layoutType which exists in the list of allowed layoutTypes should throw an error',
+            async () => {
+              const layoutType = 'Invalid Layout';
 
-            assert.isRejected(meeting.changeVideoLayout(layoutType));
-          });
+              assert.isRejected(meeting.changeVideoLayout(layoutType));
+            }
+          );
 
-          it('throws if trying to send renderInfo for content when not receiving content', async () => {
-            assert.isRejected(meeting.changeVideoLayout(layoutTypeSingle, {content: {width: 1280, height: 720}}));
-          });
+          it(
+            'throws if trying to send renderInfo for content when not receiving content',
+            async () => {
+              assert.isRejected(meeting.changeVideoLayout(layoutTypeSingle, {content: {width: 1280, height: 720}}));
+            }
+          );
 
-          it('calls changeVideoLayoutDebounced with renderInfo for main and content', async () => {
-            // first set only the main renderInfo
-            await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 100, height: 200}});
+          it(
+            'calls changeVideoLayoutDebounced with renderInfo for main and content',
+            async () => {
+              // first set only the main renderInfo
+              await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 100, height: 200}});
 
-            assert.calledWith(meeting.meetingRequest.changeVideoLayoutDebounced, {
-              locusUrl: meeting.locusInfo.self.url,
-              deviceUrl: meeting.deviceUrl,
-              layoutType: layoutTypeSingle,
-              main: {width: 100, height: 200},
-              content: undefined
-            });
+              assert.calledWith(meeting.meetingRequest.changeVideoLayoutDebounced, {
+                locusUrl: meeting.locusInfo.self.url,
+                deviceUrl: meeting.deviceUrl,
+                layoutType: layoutTypeSingle,
+                main: {width: 100, height: 200},
+                content: undefined
+              });
 
-            meeting.mediaProperties.mediaDirection.receiveShare = true;
-            meeting.mediaProperties.remoteShare = sinon.stub().returns({mockTrack: 'mockTrack'});
+              meeting.mediaProperties.mediaDirection.receiveShare = true;
+              meeting.mediaProperties.remoteShare = sinon.stub().returns({mockTrack: 'mockTrack'});
 
-            // now call it again with just content
-            await meeting.changeVideoLayout(layoutTypeSingle, {content: {width: 500, height: 600}});
-            // it should call changeVideoLayoutDebounced with content and previous main value
-            assert.calledWith(meeting.meetingRequest.changeVideoLayoutDebounced, {
-              locusUrl: meeting.locusInfo.self.url,
-              deviceUrl: meeting.deviceUrl,
-              layoutType: layoutTypeSingle,
-              main: {width: 100, height: 200},
-              content: {width: 500, height: 600}
-            });
+              // now call it again with just content
+              await meeting.changeVideoLayout(layoutTypeSingle, {content: {width: 500, height: 600}});
+              // it should call changeVideoLayoutDebounced with content and previous main value
+              assert.calledWith(meeting.meetingRequest.changeVideoLayoutDebounced, {
+                locusUrl: meeting.locusInfo.self.url,
+                deviceUrl: meeting.deviceUrl,
+                layoutType: layoutTypeSingle,
+                main: {width: 100, height: 200},
+                content: {width: 500, height: 600}
+              });
 
-            // and now call with both
-            await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 300, height: 400}, content: {width: 700, height: 800}});
+              // and now call with both
+              await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 300, height: 400}, content: {width: 700, height: 800}});
 
-            assert.calledWith(meeting.meetingRequest.changeVideoLayoutDebounced, {
-              locusUrl: meeting.locusInfo.self.url,
-              deviceUrl: meeting.deviceUrl,
-              layoutType: layoutTypeSingle,
-              main: {width: 300, height: 400},
-              content: {width: 700, height: 800}
-            });
+              assert.calledWith(meeting.meetingRequest.changeVideoLayoutDebounced, {
+                locusUrl: meeting.locusInfo.self.url,
+                deviceUrl: meeting.deviceUrl,
+                layoutType: layoutTypeSingle,
+                main: {width: 300, height: 400},
+                content: {width: 700, height: 800}
+              });
 
-            // and now set just the layoutType, the previous main and content values should be used
-            const layoutType = 'Equal';
+              // and now set just the layoutType, the previous main and content values should be used
+              const layoutType = 'Equal';
 
-            await meeting.changeVideoLayout(layoutType);
+              await meeting.changeVideoLayout(layoutType);
 
-            assert.calledWith(meeting.meetingRequest.changeVideoLayoutDebounced, {
-              locusUrl: meeting.locusInfo.self.url,
-              deviceUrl: meeting.deviceUrl,
-              layoutType,
-              main: {width: 300, height: 400},
-              content: {width: 700, height: 800}
-            });
-          });
+              assert.calledWith(meeting.meetingRequest.changeVideoLayoutDebounced, {
+                locusUrl: meeting.locusInfo.self.url,
+                deviceUrl: meeting.deviceUrl,
+                layoutType,
+                main: {width: 300, height: 400},
+                content: {width: 700, height: 800}
+              });
+            }
+          );
 
-          it('does not call changeVideoLayoutDebounced if renderInfo main changes only very slightly', async () => {
-            await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 1024, height: 768}});
+          it(
+            'does not call changeVideoLayoutDebounced if renderInfo main changes only very slightly',
+            async () => {
+              await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 1024, height: 768}});
 
-            assert.calledWith(meeting.meetingRequest.changeVideoLayoutDebounced, {
-              locusUrl: meeting.locusInfo.self.url,
-              deviceUrl: meeting.deviceUrl,
-              layoutType: layoutTypeSingle,
-              main: {width: 1024, height: 768},
-              content: undefined
-            });
-            meeting.meetingRequest.changeVideoLayoutDebounced.resetHistory();
+              assert.calledWith(meeting.meetingRequest.changeVideoLayoutDebounced, {
+                locusUrl: meeting.locusInfo.self.url,
+                deviceUrl: meeting.deviceUrl,
+                layoutType: layoutTypeSingle,
+                main: {width: 1024, height: 768},
+                content: undefined
+              });
+              meeting.meetingRequest.changeVideoLayoutDebounced.resetHistory();
 
-            // now send main with width/height different by just 2px - it should be ignored
-            await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 1026, height: 768}});
-            assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
+              // now send main with width/height different by just 2px - it should be ignored
+              await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 1026, height: 768}});
+              assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
 
-            await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 1022, height: 768}});
-            assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
+              await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 1022, height: 768}});
+              assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
 
-            await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 1024, height: 770}});
-            assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
+              await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 1024, height: 770}});
+              assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
 
-            await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 1024, height: 766}});
-            assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
-          });
+              await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 1024, height: 766}});
+              assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
+            }
+          );
 
-          it('does not call changeVideoLayoutDebounced if renderInfo content changes only very slightly', async () => {
-            meeting.mediaProperties.mediaDirection.receiveShare = true;
-            meeting.mediaProperties.remoteShare = sinon.stub().returns({mockTrack: 'mockTrack'});
+          it(
+            'does not call changeVideoLayoutDebounced if renderInfo content changes only very slightly',
+            async () => {
+              meeting.mediaProperties.mediaDirection.receiveShare = true;
+              meeting.mediaProperties.remoteShare = sinon.stub().returns({mockTrack: 'mockTrack'});
 
-            await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 500, height: 510}, content: {width: 1024, height: 768}});
+              await meeting.changeVideoLayout(layoutTypeSingle, {main: {width: 500, height: 510}, content: {width: 1024, height: 768}});
 
-            assert.calledWith(meeting.meetingRequest.changeVideoLayoutDebounced, {
-              locusUrl: meeting.locusInfo.self.url,
-              deviceUrl: meeting.deviceUrl,
-              layoutType: layoutTypeSingle,
-              main: {width: 500, height: 510},
-              content: {width: 1024, height: 768}
-            });
-            meeting.meetingRequest.changeVideoLayoutDebounced.resetHistory();
+              assert.calledWith(meeting.meetingRequest.changeVideoLayoutDebounced, {
+                locusUrl: meeting.locusInfo.self.url,
+                deviceUrl: meeting.deviceUrl,
+                layoutType: layoutTypeSingle,
+                main: {width: 500, height: 510},
+                content: {width: 1024, height: 768}
+              });
+              meeting.meetingRequest.changeVideoLayoutDebounced.resetHistory();
 
-            // now send main with width/height different by just 2px - it should be ignored
-            await meeting.changeVideoLayout(layoutTypeSingle, {content: {width: 1026, height: 768}});
-            assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
+              // now send main with width/height different by just 2px - it should be ignored
+              await meeting.changeVideoLayout(layoutTypeSingle, {content: {width: 1026, height: 768}});
+              assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
 
-            await meeting.changeVideoLayout(layoutTypeSingle, {content: {width: 1022, height: 768}});
-            assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
+              await meeting.changeVideoLayout(layoutTypeSingle, {content: {width: 1022, height: 768}});
+              assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
 
-            await meeting.changeVideoLayout(layoutTypeSingle, {content: {width: 1024, height: 770}});
-            assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
+              await meeting.changeVideoLayout(layoutTypeSingle, {content: {width: 1024, height: 770}});
+              assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
 
-            await meeting.changeVideoLayout(layoutTypeSingle, {content: {width: 1024, height: 766}});
-            assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
-          });
+              await meeting.changeVideoLayout(layoutTypeSingle, {content: {width: 1024, height: 766}});
+              assert.notCalled(meeting.meetingRequest.changeVideoLayoutDebounced);
+            }
+          );
 
           it('rounds the width and height values to nearest integers', async () => {
             meeting.mediaProperties.mediaDirection.receiveShare = true;
@@ -2118,15 +2205,21 @@ describe('plugin-meetings', () => {
           assert.exists(meeting.setLocalVideoQuality);
         });
 
-        it('should call getMediaStreams with the proper level', () => meeting.setLocalVideoQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
-          assert.calledWith(meeting.getMediaStreams,
-            mediaDirection,
-            CONSTANTS.VIDEO_RESOLUTIONS[CONSTANTS.QUALITY_LEVELS.LOW]);
-        }));
+        it(
+          'should call getMediaStreams with the proper level',
+          () => meeting.setLocalVideoQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
+            assert.calledWith(meeting.getMediaStreams,
+              mediaDirection,
+              CONSTANTS.VIDEO_RESOLUTIONS[CONSTANTS.QUALITY_LEVELS.LOW]);
+          })
+        );
 
-        it('should set mediaProperty with the proper level', () => meeting.setLocalVideoQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
-          assert.equal(meeting.mediaProperties.localQualityLevel, CONSTANTS.QUALITY_LEVELS.LOW);
-        }));
+        it(
+          'should set mediaProperty with the proper level',
+          () => meeting.setLocalVideoQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
+            assert.equal(meeting.mediaProperties.localQualityLevel, CONSTANTS.QUALITY_LEVELS.LOW);
+          })
+        );
 
         it('should error if set to a invalid level', () => {
           assert.isRejected(meeting.setLocalVideoQuality('invalid'));
@@ -2151,13 +2244,19 @@ describe('plugin-meetings', () => {
           assert.exists(meeting.setRemoteQualityLevel);
         });
 
-        it('should set mediaProperty with the proper level', () => meeting.setRemoteQualityLevel(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
-          assert.equal(meeting.mediaProperties.remoteQualityLevel, CONSTANTS.QUALITY_LEVELS.LOW);
-        }));
+        it(
+          'should set mediaProperty with the proper level',
+          () => meeting.setRemoteQualityLevel(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
+            assert.equal(meeting.mediaProperties.remoteQualityLevel, CONSTANTS.QUALITY_LEVELS.LOW);
+          })
+        );
 
-        it('should call updateMedia', () => meeting.setRemoteQualityLevel(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
-          assert.calledOnce(meeting.updateMedia);
-        }));
+        it(
+          'should call updateMedia',
+          () => meeting.setRemoteQualityLevel(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
+            assert.calledOnce(meeting.updateMedia);
+          })
+        );
 
         it('should error if set to a invalid level', () => {
           assert.isRejected(meeting.setRemoteQualityLevel('invalid'));
@@ -2185,23 +2284,32 @@ describe('plugin-meetings', () => {
           assert.exists(meeting.setMeetingQuality);
         });
 
-        it('should call setRemoteQualityLevel', () => meeting.setMeetingQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
-          assert.calledOnce(meeting.setRemoteQualityLevel);
-        }));
+        it(
+          'should call setRemoteQualityLevel',
+          () => meeting.setMeetingQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
+            assert.calledOnce(meeting.setRemoteQualityLevel);
+          })
+        );
 
-        it('should not call setRemoteQualityLevel when receiveVideo and receiveAudio are false', () => {
-          mediaDirection.receiveAudio = false;
-          mediaDirection.receiveVideo = false;
-          meeting.mediaProperties.mediaDirection = mediaDirection;
+        it(
+          'should not call setRemoteQualityLevel when receiveVideo and receiveAudio are false',
+          () => {
+            mediaDirection.receiveAudio = false;
+            mediaDirection.receiveVideo = false;
+            meeting.mediaProperties.mediaDirection = mediaDirection;
 
-          return meeting.setMeetingQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
-            assert.notCalled(meeting.setRemoteQualityLevel);
-          });
-        });
+            return meeting.setMeetingQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
+              assert.notCalled(meeting.setRemoteQualityLevel);
+            });
+          }
+        );
 
-        it('should call setLocalVideoQuality', () => meeting.setMeetingQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
-          assert.calledOnce(meeting.setLocalVideoQuality);
-        }));
+        it(
+          'should call setLocalVideoQuality',
+          () => meeting.setMeetingQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
+            assert.calledOnce(meeting.setLocalVideoQuality);
+          })
+        );
 
         it('should not call setLocalVideoQuality when sendVideo is false', () => {
           mediaDirection.sendVideo = false;
@@ -2224,67 +2332,73 @@ describe('plugin-meetings', () => {
           meeting.locusInfo.onFullLocus = sinon.stub().returns(Promise.resolve());
         });
 
-        it('with no parameters triggers dial-in, delegating request to meetingRequest correctly', async () => {
-          await meeting.usePhoneAudio();
-          const DIAL_IN_URL = meeting.dialInUrl;
+        it(
+          'with no parameters triggers dial-in, delegating request to meetingRequest correctly',
+          async () => {
+            await meeting.usePhoneAudio();
+            const DIAL_IN_URL = meeting.dialInUrl;
 
-          assert.calledWith(meeting.meetingRequest.dialIn, {
-            correlationId: meeting.correlationId,
-            dialInUrl: DIAL_IN_URL,
-            locusUrl: meeting.locusUrl,
-            clientUrl: meeting.deviceUrl
-          });
-          assert.calledWith(meeting.locusInfo.onFullLocus, 'testData');
-          assert.notCalled(meeting.meetingRequest.dialOut);
+            assert.calledWith(meeting.meetingRequest.dialIn, {
+              correlationId: meeting.correlationId,
+              dialInUrl: DIAL_IN_URL,
+              locusUrl: meeting.locusUrl,
+              clientUrl: meeting.deviceUrl
+            });
+            assert.calledWith(meeting.locusInfo.onFullLocus, 'testData');
+            assert.notCalled(meeting.meetingRequest.dialOut);
 
-          meeting.meetingRequest.dialIn.resetHistory();
-          meeting.locusInfo.onFullLocus.resetHistory();
+            meeting.meetingRequest.dialIn.resetHistory();
+            meeting.locusInfo.onFullLocus.resetHistory();
 
-          // try again. the dial in urls should match
-          await meeting.usePhoneAudio();
+            // try again. the dial in urls should match
+            await meeting.usePhoneAudio();
 
-          assert.calledWith(meeting.meetingRequest.dialIn, {
-            correlationId: meeting.correlationId,
-            dialInUrl: DIAL_IN_URL,
-            locusUrl: meeting.locusUrl,
-            clientUrl: meeting.deviceUrl
-          });
-          assert.calledWith(meeting.locusInfo.onFullLocus, 'testData');
-          assert.notCalled(meeting.meetingRequest.dialOut);
-        });
+            assert.calledWith(meeting.meetingRequest.dialIn, {
+              correlationId: meeting.correlationId,
+              dialInUrl: DIAL_IN_URL,
+              locusUrl: meeting.locusUrl,
+              clientUrl: meeting.deviceUrl
+            });
+            assert.calledWith(meeting.locusInfo.onFullLocus, 'testData');
+            assert.notCalled(meeting.meetingRequest.dialOut);
+          }
+        );
 
-        it('given a phone number, triggers dial-out, delegating request to meetingRequest correctly', async () => {
-          const phoneNumber = '+442088241000';
+        it(
+          'given a phone number, triggers dial-out, delegating request to meetingRequest correctly',
+          async () => {
+            const phoneNumber = '+442088241000';
 
-          await meeting.usePhoneAudio(phoneNumber);
-          const DIAL_OUT_URL = meeting.dialOutUrl;
+            await meeting.usePhoneAudio(phoneNumber);
+            const DIAL_OUT_URL = meeting.dialOutUrl;
 
-          assert.calledWith(meeting.meetingRequest.dialOut, {
-            correlationId: meeting.correlationId,
-            dialOutUrl: DIAL_OUT_URL,
-            locusUrl: meeting.locusUrl,
-            clientUrl: meeting.deviceUrl,
-            phoneNumber
-          });
-          assert.calledWith(meeting.locusInfo.onFullLocus, 'testData');
-          assert.notCalled(meeting.meetingRequest.dialIn);
+            assert.calledWith(meeting.meetingRequest.dialOut, {
+              correlationId: meeting.correlationId,
+              dialOutUrl: DIAL_OUT_URL,
+              locusUrl: meeting.locusUrl,
+              clientUrl: meeting.deviceUrl,
+              phoneNumber
+            });
+            assert.calledWith(meeting.locusInfo.onFullLocus, 'testData');
+            assert.notCalled(meeting.meetingRequest.dialIn);
 
-          meeting.meetingRequest.dialOut.resetHistory();
-          meeting.locusInfo.onFullLocus.resetHistory();
+            meeting.meetingRequest.dialOut.resetHistory();
+            meeting.locusInfo.onFullLocus.resetHistory();
 
-          // try again. the dial out urls should match
-          await meeting.usePhoneAudio(phoneNumber);
+            // try again. the dial out urls should match
+            await meeting.usePhoneAudio(phoneNumber);
 
-          assert.calledWith(meeting.meetingRequest.dialOut, {
-            correlationId: meeting.correlationId,
-            dialOutUrl: DIAL_OUT_URL,
-            locusUrl: meeting.locusUrl,
-            clientUrl: meeting.deviceUrl,
-            phoneNumber
-          });
-          assert.calledWith(meeting.locusInfo.onFullLocus, 'testData');
-          assert.notCalled(meeting.meetingRequest.dialIn);
-        });
+            assert.calledWith(meeting.meetingRequest.dialOut, {
+              correlationId: meeting.correlationId,
+              dialOutUrl: DIAL_OUT_URL,
+              locusUrl: meeting.locusUrl,
+              clientUrl: meeting.deviceUrl,
+              phoneNumber
+            });
+            assert.calledWith(meeting.locusInfo.onFullLocus, 'testData');
+            assert.notCalled(meeting.meetingRequest.dialIn);
+          }
+        );
 
         it('rejects if the request failed (dial in)', () => {
           const error = 'something bad happened';
@@ -2342,59 +2456,65 @@ describe('plugin-meetings', () => {
         };
 
 
-        it('calls meetingInfoProvider with all the right parameters and parses the result', async () => {
-          meeting.attrs.meetingInfoProvider = {fetchMeetingInfo: sinon.stub().resolves({body: FAKE_MEETING_INFO})};
-          meeting.requiredCaptcha = FAKE_SDK_CAPTCHA_INFO;
-          meeting.destination = FAKE_DESTINATION;
-          meeting.destinationType = FAKE_TYPE;
-          meeting.parseMeetingInfo = sinon.stub().returns(undefined);
+        it(
+          'calls meetingInfoProvider with all the right parameters and parses the result',
+          async () => {
+            meeting.attrs.meetingInfoProvider = {fetchMeetingInfo: sinon.stub().resolves({body: FAKE_MEETING_INFO})};
+            meeting.requiredCaptcha = FAKE_SDK_CAPTCHA_INFO;
+            meeting.destination = FAKE_DESTINATION;
+            meeting.destinationType = FAKE_TYPE;
+            meeting.parseMeetingInfo = sinon.stub().returns(undefined);
 
-          await meeting.fetchMeetingInfo({
-            password: FAKE_PASSWORD, captchaCode: FAKE_CAPTCHA_CODE
-          });
+            await meeting.fetchMeetingInfo({
+              password: FAKE_PASSWORD, captchaCode: FAKE_CAPTCHA_CODE
+            });
 
-          assert.calledWith(meeting.attrs.meetingInfoProvider.fetchMeetingInfo, FAKE_DESTINATION, FAKE_TYPE, FAKE_PASSWORD, {code: FAKE_CAPTCHA_CODE, id: FAKE_CAPTCHA_ID});
+            assert.calledWith(meeting.attrs.meetingInfoProvider.fetchMeetingInfo, FAKE_DESTINATION, FAKE_TYPE, FAKE_PASSWORD, {code: FAKE_CAPTCHA_CODE, id: FAKE_CAPTCHA_ID});
 
-          assert.calledWith(meeting.parseMeetingInfo, {body: FAKE_MEETING_INFO}, FAKE_DESTINATION);
-          assert.deepEqual(meeting.meetingInfo, FAKE_MEETING_INFO);
-          assert.equal(meeting.passwordStatus, PASSWORD_STATUS.NOT_REQUIRED);
-          assert.equal(meeting.meetingInfoFailureReason, MEETING_INFO_FAILURE_REASON.NONE);
-          assert.equal(meeting.requiredCaptcha, null);
-          assert.calledTwice(TriggerProxy.trigger);
-          assert.calledWith(TriggerProxy.trigger, meeting, {file: 'meetings', function: 'fetchMeetingInfo'}, 'meeting:meetingInfoAvailable');
-        });
+            assert.calledWith(meeting.parseMeetingInfo, {body: FAKE_MEETING_INFO}, FAKE_DESTINATION);
+            assert.deepEqual(meeting.meetingInfo, FAKE_MEETING_INFO);
+            assert.equal(meeting.passwordStatus, PASSWORD_STATUS.NOT_REQUIRED);
+            assert.equal(meeting.meetingInfoFailureReason, MEETING_INFO_FAILURE_REASON.NONE);
+            assert.equal(meeting.requiredCaptcha, null);
+            assert.calledTwice(TriggerProxy.trigger);
+            assert.calledWith(TriggerProxy.trigger, meeting, {file: 'meetings', function: 'fetchMeetingInfo'}, 'meeting:meetingInfoAvailable');
+          }
+        );
 
-        it('calls meetingInfoProvider with all the right parameters and parses the result when random delay is applied', async () => {
-          meeting.attrs.meetingInfoProvider = {fetchMeetingInfo: sinon.stub().resolves({body: FAKE_MEETING_INFO})};
-          meeting.destination = FAKE_DESTINATION;
-          meeting.destinationType = FAKE_TYPE;
-          meeting.parseMeetingInfo = sinon.stub().returns(undefined);
-          meeting.fetchMeetingInfoTimeoutId = FAKE_TIMEOUT_FETCHMEETINGINFO_ID;
+        it(
+          'calls meetingInfoProvider with all the right parameters and parses the result when random delay is applied',
+          async () => {
+            meeting.attrs.meetingInfoProvider = {fetchMeetingInfo: sinon.stub().resolves({body: FAKE_MEETING_INFO})};
+            meeting.destination = FAKE_DESTINATION;
+            meeting.destinationType = FAKE_TYPE;
+            meeting.parseMeetingInfo = sinon.stub().returns(undefined);
+            meeting.fetchMeetingInfoTimeoutId = FAKE_TIMEOUT_FETCHMEETINGINFO_ID;
 
-          const clock = sinon.useFakeTimers();
-          const clearTimeoutSpy = sinon.spy(clock, 'clearTimeout');
+            const clock = sinon.useFakeTimers();
+            const clearTimeoutSpy = sinon.spy(clock, 'clearTimeout');
 
-          await meeting.fetchMeetingInfo({});
+            await meeting.fetchMeetingInfo({});
 
-          // clear timer
-          assert.calledWith(clearTimeoutSpy, FAKE_TIMEOUT_FETCHMEETINGINFO_ID);
-          clock.restore();
-          assert.isUndefined(meeting.fetchMeetingInfoTimeoutId);
+            // clear timer
+            assert.calledWith(clearTimeoutSpy, FAKE_TIMEOUT_FETCHMEETINGINFO_ID);
+            clock.restore();
+            assert.isUndefined(meeting.fetchMeetingInfoTimeoutId);
 
-          // meeting info provider
-          assert.calledWith(meeting.attrs.meetingInfoProvider.fetchMeetingInfo, FAKE_DESTINATION, FAKE_TYPE, null, null);
+            // meeting info provider
+            assert.calledWith(meeting.attrs.meetingInfoProvider.fetchMeetingInfo, FAKE_DESTINATION, FAKE_TYPE, null, null);
 
-          // parseMeeting info
-          assert.calledWith(meeting.parseMeetingInfo, {body: FAKE_MEETING_INFO}, FAKE_DESTINATION);
+            // parseMeeting info
+            assert.calledWith(meeting.parseMeetingInfo, {body: FAKE_MEETING_INFO}, FAKE_DESTINATION);
 
-          assert.deepEqual(meeting.meetingInfo, FAKE_MEETING_INFO);
-          assert.equal(meeting.meetingInfoFailureReason, MEETING_INFO_FAILURE_REASON.NONE);
-          assert.equal(meeting.requiredCaptcha, null);
-          assert.equal(meeting.passwordStatus, PASSWORD_STATUS.NOT_REQUIRED);
+            assert.deepEqual(meeting.meetingInfo, FAKE_MEETING_INFO);
+            assert.equal(meeting.meetingInfoFailureReason, MEETING_INFO_FAILURE_REASON.NONE);
+            assert.equal(meeting.requiredCaptcha, null);
+            assert.equal(meeting.passwordStatus, PASSWORD_STATUS.NOT_REQUIRED);
 
-          assert.calledTwice(TriggerProxy.trigger);
-          assert.calledWith(TriggerProxy.trigger, meeting, {file: 'meetings', function: 'fetchMeetingInfo'}, 'meeting:meetingInfoAvailable');
-        });
+            assert.calledTwice(TriggerProxy.trigger);
+            assert.calledWith(TriggerProxy.trigger, meeting, {file: 'meetings', function: 'fetchMeetingInfo'}, 'meeting:meetingInfoAvailable');
+          }
+        );
 
         it('fails if captchaCode is provided when captcha not needed', async () => {
           meeting.attrs.meetingInfoProvider = {fetchMeetingInfo: sinon.stub().resolves({body: FAKE_MEETING_INFO})};
@@ -2439,51 +2559,57 @@ describe('plugin-meetings', () => {
           assert.equal(meeting.passwordStatus, PASSWORD_STATUS.REQUIRED);
         });
 
-        it('handles meetingInfoProvider requiring captcha because of wrong password', async () => {
-          meeting.destination = FAKE_DESTINATION;
-          meeting.destinationType = FAKE_TYPE;
-          meeting.attrs.meetingInfoProvider = {
-            fetchMeetingInfo: sinon.stub().throws(new MeetingInfoV2CaptchaError(423005, FAKE_SDK_CAPTCHA_INFO))
-          };
-          meeting.requiredCaptcha = null;
+        it(
+          'handles meetingInfoProvider requiring captcha because of wrong password',
+          async () => {
+            meeting.destination = FAKE_DESTINATION;
+            meeting.destinationType = FAKE_TYPE;
+            meeting.attrs.meetingInfoProvider = {
+              fetchMeetingInfo: sinon.stub().throws(new MeetingInfoV2CaptchaError(423005, FAKE_SDK_CAPTCHA_INFO))
+            };
+            meeting.requiredCaptcha = null;
 
-          await assert.isRejected(meeting.fetchMeetingInfo({
-            password: 'aaa'
-          }), CaptchaError);
+            await assert.isRejected(meeting.fetchMeetingInfo({
+              password: 'aaa'
+            }), CaptchaError);
 
-          assert.calledWith(meeting.attrs.meetingInfoProvider.fetchMeetingInfo, FAKE_DESTINATION, FAKE_TYPE, 'aaa', null);
+            assert.calledWith(meeting.attrs.meetingInfoProvider.fetchMeetingInfo, FAKE_DESTINATION, FAKE_TYPE, 'aaa', null);
 
 
-          assert.deepEqual(meeting.meetingInfo, {});
-          assert.equal(meeting.meetingInfoFailureReason, MEETING_INFO_FAILURE_REASON.WRONG_PASSWORD);
-          assert.equal(meeting.passwordStatus, PASSWORD_STATUS.REQUIRED);
-          assert.deepEqual(meeting.requiredCaptcha, {
-            captchaId: FAKE_CAPTCHA_ID,
-            verificationImageURL: FAKE_CAPTCHA_IMAGE_URL,
-            verificationAudioURL: FAKE_CAPTCHA_AUDIO_URL,
-            refreshURL: FAKE_CAPTCHA_REFRESH_URL
-          });
-        });
+            assert.deepEqual(meeting.meetingInfo, {});
+            assert.equal(meeting.meetingInfoFailureReason, MEETING_INFO_FAILURE_REASON.WRONG_PASSWORD);
+            assert.equal(meeting.passwordStatus, PASSWORD_STATUS.REQUIRED);
+            assert.deepEqual(meeting.requiredCaptcha, {
+              captchaId: FAKE_CAPTCHA_ID,
+              verificationImageURL: FAKE_CAPTCHA_IMAGE_URL,
+              verificationAudioURL: FAKE_CAPTCHA_AUDIO_URL,
+              refreshURL: FAKE_CAPTCHA_REFRESH_URL
+            });
+          }
+        );
 
-        it('handles meetingInfoProvider requiring captcha because of wrong captcha', async () => {
-          meeting.destination = FAKE_DESTINATION;
-          meeting.destinationType = FAKE_TYPE;
-          meeting.attrs.meetingInfoProvider = {
-            fetchMeetingInfo: sinon.stub().throws(new MeetingInfoV2CaptchaError(423005, FAKE_SDK_CAPTCHA_INFO))
-          };
-          meeting.requiredCaptcha = FAKE_SDK_CAPTCHA_INFO;
+        it(
+          'handles meetingInfoProvider requiring captcha because of wrong captcha',
+          async () => {
+            meeting.destination = FAKE_DESTINATION;
+            meeting.destinationType = FAKE_TYPE;
+            meeting.attrs.meetingInfoProvider = {
+              fetchMeetingInfo: sinon.stub().throws(new MeetingInfoV2CaptchaError(423005, FAKE_SDK_CAPTCHA_INFO))
+            };
+            meeting.requiredCaptcha = FAKE_SDK_CAPTCHA_INFO;
 
-          await assert.isRejected(meeting.fetchMeetingInfo({
-            password: 'aaa', captchaCode: 'bbb'
-          }), CaptchaError);
+            await assert.isRejected(meeting.fetchMeetingInfo({
+              password: 'aaa', captchaCode: 'bbb'
+            }), CaptchaError);
 
-          assert.calledWith(meeting.attrs.meetingInfoProvider.fetchMeetingInfo, FAKE_DESTINATION, FAKE_TYPE, 'aaa', {code: 'bbb', id: FAKE_CAPTCHA_ID});
+            assert.calledWith(meeting.attrs.meetingInfoProvider.fetchMeetingInfo, FAKE_DESTINATION, FAKE_TYPE, 'aaa', {code: 'bbb', id: FAKE_CAPTCHA_ID});
 
-          assert.deepEqual(meeting.meetingInfo, {});
-          assert.equal(meeting.meetingInfoFailureReason, MEETING_INFO_FAILURE_REASON.WRONG_CAPTCHA);
-          assert.equal(meeting.passwordStatus, PASSWORD_STATUS.REQUIRED);
-          assert.deepEqual(meeting.requiredCaptcha, FAKE_SDK_CAPTCHA_INFO);
-        });
+            assert.deepEqual(meeting.meetingInfo, {});
+            assert.equal(meeting.meetingInfoFailureReason, MEETING_INFO_FAILURE_REASON.WRONG_CAPTCHA);
+            assert.equal(meeting.passwordStatus, PASSWORD_STATUS.REQUIRED);
+            assert.deepEqual(meeting.requiredCaptcha, FAKE_SDK_CAPTCHA_INFO);
+          }
+        );
 
         it('handles successful response when good password is passed', async () => {
           meeting.destination = FAKE_DESTINATION;
@@ -2510,44 +2636,47 @@ describe('plugin-meetings', () => {
           assert.equal(meeting.requiredCaptcha, null);
         });
 
-        it('refreshes captcha when captcha was required and we received 403 error code', async () => {
-          meeting.destination = FAKE_DESTINATION;
-          meeting.destinationType = FAKE_TYPE;
-          const refreshedCaptcha = {
-            captchaID: FAKE_WBXAPPAPI_CAPTCHA_INFO.captchaID,
-            verificationImageURL: FAKE_WBXAPPAPI_CAPTCHA_INFO.verificationImageURL,
-            verificationAudioURL: FAKE_WBXAPPAPI_CAPTCHA_INFO.verificationAudioURL
-          };
+        it(
+          'refreshes captcha when captcha was required and we received 403 error code',
+          async () => {
+            meeting.destination = FAKE_DESTINATION;
+            meeting.destinationType = FAKE_TYPE;
+            const refreshedCaptcha = {
+              captchaID: FAKE_WBXAPPAPI_CAPTCHA_INFO.captchaID,
+              verificationImageURL: FAKE_WBXAPPAPI_CAPTCHA_INFO.verificationImageURL,
+              verificationAudioURL: FAKE_WBXAPPAPI_CAPTCHA_INFO.verificationAudioURL
+            };
 
-          meeting.attrs.meetingInfoProvider = {
-            fetchMeetingInfo: sinon.stub().throws(new MeetingInfoV2PasswordError(403004, FAKE_MEETING_INFO))
-          };
-          meeting.meetingRequest.refreshCaptcha = sinon.stub().returns(Promise.resolve(
-            {
-              body: refreshedCaptcha
-            }
-          ));
-          meeting.passwordStatus = PASSWORD_STATUS.REQUIRED;
-          meeting.requiredCaptcha = FAKE_SDK_CAPTCHA_INFO;
-          meeting.destination = FAKE_DESTINATION;
-          meeting.destinationType = FAKE_TYPE;
+            meeting.attrs.meetingInfoProvider = {
+              fetchMeetingInfo: sinon.stub().throws(new MeetingInfoV2PasswordError(403004, FAKE_MEETING_INFO))
+            };
+            meeting.meetingRequest.refreshCaptcha = sinon.stub().returns(Promise.resolve(
+              {
+                body: refreshedCaptcha
+              }
+            ));
+            meeting.passwordStatus = PASSWORD_STATUS.REQUIRED;
+            meeting.requiredCaptcha = FAKE_SDK_CAPTCHA_INFO;
+            meeting.destination = FAKE_DESTINATION;
+            meeting.destinationType = FAKE_TYPE;
 
-          await assert.isRejected(meeting.fetchMeetingInfo({
-            password: 'aaa', captchaCode: 'bbb'
-          }));
+            await assert.isRejected(meeting.fetchMeetingInfo({
+              password: 'aaa', captchaCode: 'bbb'
+            }));
 
-          assert.calledWith(meeting.attrs.meetingInfoProvider.fetchMeetingInfo, FAKE_DESTINATION, FAKE_TYPE, 'aaa', {code: 'bbb', id: FAKE_CAPTCHA_ID});
+            assert.calledWith(meeting.attrs.meetingInfoProvider.fetchMeetingInfo, FAKE_DESTINATION, FAKE_TYPE, 'aaa', {code: 'bbb', id: FAKE_CAPTCHA_ID});
 
-          assert.deepEqual(meeting.meetingInfo, FAKE_MEETING_INFO);
-          assert.equal(meeting.meetingInfoFailureReason, MEETING_INFO_FAILURE_REASON.WRONG_PASSWORD);
-          assert.equal(meeting.passwordStatus, PASSWORD_STATUS.REQUIRED);
-          assert.deepEqual(meeting.requiredCaptcha, {
-            captchaId: refreshedCaptcha.captchaID,
-            verificationImageURL: refreshedCaptcha.verificationImageURL,
-            verificationAudioURL: refreshedCaptcha.verificationAudioURL,
-            refreshURL: FAKE_SDK_CAPTCHA_INFO.refreshURL // refresh url doesn't change
-          });
-        });
+            assert.deepEqual(meeting.meetingInfo, FAKE_MEETING_INFO);
+            assert.equal(meeting.meetingInfoFailureReason, MEETING_INFO_FAILURE_REASON.WRONG_PASSWORD);
+            assert.equal(meeting.passwordStatus, PASSWORD_STATUS.REQUIRED);
+            assert.deepEqual(meeting.requiredCaptcha, {
+              captchaId: refreshedCaptcha.captchaID,
+              verificationImageURL: refreshedCaptcha.verificationImageURL,
+              verificationAudioURL: refreshedCaptcha.verificationAudioURL,
+              refreshURL: FAKE_SDK_CAPTCHA_INFO.refreshURL // refresh url doesn't change
+            });
+          }
+        );
       });
 
       describe('#refreshCaptcha', () => {
@@ -2602,24 +2731,27 @@ describe('plugin-meetings', () => {
       });
 
       describe('#verifyPassword', () => {
-        it('calls fetchMeetingInfo() with the passed password and captcha code', async () => {
-          // simulate successful case
-          meeting.fetchMeetingInfo = sinon.stub().resolves();
-          const result = await meeting.verifyPassword('password', 'captcha id');
+        it(
+          'calls fetchMeetingInfo() with the passed password and captcha code',
+          async () => {
+            // simulate successful case
+            meeting.fetchMeetingInfo = sinon.stub().resolves();
+            const result = await meeting.verifyPassword('password', 'captcha id');
 
-          assert(Metrics.sendBehavioralMetric.calledOnce);
-          assert.calledWith(
-            Metrics.sendBehavioralMetric,
-            BEHAVIORAL_METRICS.VERIFY_PASSWORD_SUCCESS,
-          );
-          assert.equal(result.isPasswordValid, true);
-          assert.equal(result.requiredCaptcha, null);
-          assert.equal(result.failureReason, MEETING_INFO_FAILURE_REASON.NONE);
-          assert.calledWith(meeting.fetchMeetingInfo, {
-            password: 'password',
-            captchaCode: 'captcha id',
-          });
-        });
+            assert(Metrics.sendBehavioralMetric.calledOnce);
+            assert.calledWith(
+              Metrics.sendBehavioralMetric,
+              BEHAVIORAL_METRICS.VERIFY_PASSWORD_SUCCESS,
+            );
+            assert.equal(result.isPasswordValid, true);
+            assert.equal(result.requiredCaptcha, null);
+            assert.equal(result.failureReason, MEETING_INFO_FAILURE_REASON.NONE);
+            assert.calledWith(meeting.fetchMeetingInfo, {
+              password: 'password',
+              captchaCode: 'captcha id',
+            });
+          }
+        );
         it('handles PasswordError returned by fetchMeetingInfo', async () => {
           meeting.fetchMeetingInfo = sinon.stub().callsFake(() => {
             meeting.meetingInfoFailureReason = MEETING_INFO_FAILURE_REASON.WRONG_PASSWORD;
@@ -2783,12 +2915,15 @@ describe('plugin-meetings', () => {
           assert.calledWithMatch(Metrics.postEvent, {event: eventType.MOVE_MEDIA});
         });
 
-        it('should call `MeetingUtil.joinMeetingOptions` with resourceId', async () => {
-          sinon.spy(MeetingUtil, 'joinMeetingOptions');
-          await meeting.moveTo('resourceId');
+        it(
+          'should call `MeetingUtil.joinMeetingOptions` with resourceId',
+          async () => {
+            sinon.spy(MeetingUtil, 'joinMeetingOptions');
+            await meeting.moveTo('resourceId');
 
-          assert.calledWith(MeetingUtil.joinMeetingOptions, meeting, {resourceId: 'resourceId', moveToResource: true});
-        });
+            assert.calledWith(MeetingUtil.joinMeetingOptions, meeting, {resourceId: 'resourceId', moveToResource: true});
+          }
+        );
 
         it('should reconnectMedia after DX joins after moveTo', async () => {
           await meeting.moveTo('resourceId');
@@ -2904,23 +3039,26 @@ describe('plugin-meetings', () => {
           assert.calledWithMatch(Metrics.postEvent, {event: eventType.MOVE_MEDIA});
         });
 
-        it('should call `MeetingUtil.joinMeetingOptions` with resourceId', async () => {
-          sinon.spy(MeetingUtil, 'joinMeetingOptions');
-          await meeting.moveFrom('resourceId');
+        it(
+          'should call `MeetingUtil.joinMeetingOptions` with resourceId',
+          async () => {
+            sinon.spy(MeetingUtil, 'joinMeetingOptions');
+            await meeting.moveFrom('resourceId');
 
-          assert.calledWith(MeetingUtil.joinMeetingOptions, meeting);
-          assert.calledWith(MeetingUtil.leaveMeeting, meeting, {
-            resourceId: 'resourceId',
-            correlationId: meeting.correlationId,
-            moveMeeting: true
-          });
+            assert.calledWith(MeetingUtil.joinMeetingOptions, meeting);
+            assert.calledWith(MeetingUtil.leaveMeeting, meeting, {
+              resourceId: 'resourceId',
+              correlationId: meeting.correlationId,
+              moveMeeting: true
+            });
 
-          assert.calledOnce(Metrics.sendBehavioralMetric);
-          assert.calledWith(
-            Metrics.sendBehavioralMetric,
-            BEHAVIORAL_METRICS.MOVE_FROM_SUCCESS,
-          );
-        });
+            assert.calledOnce(Metrics.sendBehavioralMetric);
+            assert.calledWith(
+              Metrics.sendBehavioralMetric,
+              BEHAVIORAL_METRICS.MOVE_FROM_SUCCESS,
+            );
+          }
+        );
 
         it('should throw an error if moveFrom call fails', async () => {
           MeetingUtil.joinMeeting = sinon.stub().returns(Promise.reject());
@@ -2979,12 +3117,15 @@ describe('plugin-meetings', () => {
             meeting.reconnectionManager.cleanup = sinon.stub().returns(true);
           });
 
-          it('should throw error if media not established before trying reconenct', async () => {
-            meeting.currentMediaStatus = null;
-            await meeting.reconnect().catch((err) => {
-              assert.instanceOf(err, ParameterError);
-            });
-          });
+          it(
+            'should throw error if media not established before trying reconenct',
+            async () => {
+              meeting.currentMediaStatus = null;
+              await meeting.reconnect().catch((err) => {
+                assert.instanceOf(err, ParameterError);
+              });
+            }
+          );
 
           it('should trigger reconnection success', async () => {
             await meeting.reconnect();
@@ -3055,54 +3196,63 @@ describe('plugin-meetings', () => {
         });
       });
       describe('#closeRemoteStream', () => {
-        it('should stop remote tracks, and trigger a media:stopped event when the remote tracks are stopped', async () => {
-          await meeting.closeRemoteTracks();
+        it(
+          'should stop remote tracks, and trigger a media:stopped event when the remote tracks are stopped',
+          async () => {
+            await meeting.closeRemoteTracks();
 
-          assert.equal(TriggerProxy.trigger.callCount, 4);
-          assert.calledWith(
-            TriggerProxy.trigger,
-            sinon.match.instanceOf(Meeting),
-            {file: 'meeting/index', function: 'closeRemoteTracks'},
-            'media:stopped',
-            {type: 'remoteAudio'}
-          );
-          assert.calledWith(
-            TriggerProxy.trigger,
-            sinon.match.instanceOf(Meeting),
-            {file: 'meeting/index', function: 'closeRemoteTracks'},
-            'media:stopped',
-            {type: 'remoteVideo'}
-          );
-          assert.calledWith(
-            TriggerProxy.trigger,
-            sinon.match.instanceOf(Meeting),
-            {file: 'meeting/index', function: 'closeRemoteTracks'},
-            'media:stopped',
-            {type: 'remoteShare'}
-          );
-        });
+            assert.equal(TriggerProxy.trigger.callCount, 4);
+            assert.calledWith(
+              TriggerProxy.trigger,
+              sinon.match.instanceOf(Meeting),
+              {file: 'meeting/index', function: 'closeRemoteTracks'},
+              'media:stopped',
+              {type: 'remoteAudio'}
+            );
+            assert.calledWith(
+              TriggerProxy.trigger,
+              sinon.match.instanceOf(Meeting),
+              {file: 'meeting/index', function: 'closeRemoteTracks'},
+              'media:stopped',
+              {type: 'remoteVideo'}
+            );
+            assert.calledWith(
+              TriggerProxy.trigger,
+              sinon.match.instanceOf(Meeting),
+              {file: 'meeting/index', function: 'closeRemoteTracks'},
+              'media:stopped',
+              {type: 'remoteShare'}
+            );
+          }
+        );
       });
       describe('#closeLocalShare', () => {
-        it('should stop the stream, and trigger a media:stopped event when the local share stream stops', async () => {
-          await meeting.closeLocalShare();
-          assert.calledTwice(TriggerProxy.trigger);
+        it(
+          'should stop the stream, and trigger a media:stopped event when the local share stream stops',
+          async () => {
+            await meeting.closeLocalShare();
+            assert.calledTwice(TriggerProxy.trigger);
 
-          assert.equal(TriggerProxy.trigger.getCall(1).args[2], 'media:stopped');
-          assert.deepEqual(TriggerProxy.trigger.getCall(1).args[3], {type: 'localShare'});
-        });
+            assert.equal(TriggerProxy.trigger.getCall(1).args[2], 'media:stopped');
+            assert.deepEqual(TriggerProxy.trigger.getCall(1).args[3], {type: 'localShare'});
+          }
+        );
       });
       describe('#closeLocalStream', () => {
-        it('should stop the stream, and trigger a media:stopped event when the local stream stops', async () => {
-          await meeting.closeLocalStream();
-          assert.calledTwice(TriggerProxy.trigger);
-          assert.calledWith(
-            TriggerProxy.trigger,
-            sinon.match.instanceOf(Meeting),
-            {file: 'meeting/index', function: 'closeLocalStream'},
-            'media:stopped',
-            {type: 'local'}
-          );
-        });
+        it(
+          'should stop the stream, and trigger a media:stopped event when the local stream stops',
+          async () => {
+            await meeting.closeLocalStream();
+            assert.calledTwice(TriggerProxy.trigger);
+            assert.calledWith(
+              TriggerProxy.trigger,
+              sinon.match.instanceOf(Meeting),
+              {file: 'meeting/index', function: 'closeLocalStream'},
+              'media:stopped',
+              {type: 'local'}
+            );
+          }
+        );
       });
       describe('#setLocalTracks', () => {
         it('stores the current video device as the preferred video device', () => {
@@ -3155,28 +3305,31 @@ describe('plugin-meetings', () => {
         beforeEach(() => {
           meeting.statsAnalyzer = {startAnalyzer: sinon.stub()};
         });
-        it('should trigger a media:ready event when remote stream track ontrack is fired', () => {
-          const pc = {};
+        it(
+          'should trigger a media:ready event when remote stream track ontrack is fired',
+          () => {
+            const pc = {};
 
-          meeting.setRemoteStream(pc);
-          pc.ontrack({track: 'track', transceiver: {mid: '0'}});
-          assert.equal(TriggerProxy.trigger.getCall(1).args[2], 'media:ready');
-          assert.deepEqual(TriggerProxy.trigger.getCall(1).args[3], {type: 'remoteAudio', stream: true});
+            meeting.setRemoteStream(pc);
+            pc.ontrack({track: 'track', transceiver: {mid: '0'}});
+            assert.equal(TriggerProxy.trigger.getCall(1).args[2], 'media:ready');
+            assert.deepEqual(TriggerProxy.trigger.getCall(1).args[3], {type: 'remoteAudio', stream: true});
 
-          pc.ontrack({track: 'track', transceiver: {mid: '1'}});
-          assert.equal(TriggerProxy.trigger.getCall(2).args[2], 'media:ready');
-          assert.deepEqual(TriggerProxy.trigger.getCall(2).args[3], {type: 'remoteVideo', stream: true});
+            pc.ontrack({track: 'track', transceiver: {mid: '1'}});
+            assert.equal(TriggerProxy.trigger.getCall(2).args[2], 'media:ready');
+            assert.deepEqual(TriggerProxy.trigger.getCall(2).args[3], {type: 'remoteVideo', stream: true});
 
-          pc.ontrack({transceiver: {mid: '2'}, track: 'track'});
-          assert.equal(TriggerProxy.trigger.getCall(3).args[2], 'media:ready');
-          assert.deepEqual(TriggerProxy.trigger.getCall(3).args[3], {type: 'remoteShare', stream: true});
+            pc.ontrack({transceiver: {mid: '2'}, track: 'track'});
+            assert.equal(TriggerProxy.trigger.getCall(3).args[2], 'media:ready');
+            assert.deepEqual(TriggerProxy.trigger.getCall(3).args[3], {type: 'remoteShare', stream: true});
 
 
-          // special case for safari
-          pc.ontrack({target: {audioTransceiver: {receiver: {track: {id: 'trackId'}}}}, transceiver: {}, track: {id: 'trackId'}});
-          assert.equal(TriggerProxy.trigger.getCall(1).args[2], 'media:ready');
-          assert.deepEqual(TriggerProxy.trigger.getCall(1).args[3], {type: 'remoteAudio', stream: true});
-        });
+            // special case for safari
+            pc.ontrack({target: {audioTransceiver: {receiver: {track: {id: 'trackId'}}}}, transceiver: {}, track: {id: 'trackId'}});
+            assert.equal(TriggerProxy.trigger.getCall(1).args[2], 'media:ready');
+            assert.deepEqual(TriggerProxy.trigger.getCall(1).args[3], {type: 'remoteAudio', stream: true});
+          }
+        );
       });
       describe('#setUpLocusInfoSelfListener', () => {
         it('listens to the self unadmitted guest event', (done) => {
@@ -3394,132 +3547,144 @@ describe('plugin-meetings', () => {
           assert.equal(meeting.permissionToken, expectedInfoToParse.permissionToken);
         };
 
-        it('should parse meeting info from api return when locus meeting object is not available, set values, and return null', () => {
-          meeting.config.experimental = {enableMediaNegotiatedEvent: true};
-          meeting.config.experimental.enableUnifiedMeetings = true;
-          const FAKE_MEETING_INFO = {
-            body: {
+        it(
+          'should parse meeting info from api return when locus meeting object is not available, set values, and return null',
+          () => {
+            meeting.config.experimental = {enableMediaNegotiatedEvent: true};
+            meeting.config.experimental.enableUnifiedMeetings = true;
+            const FAKE_MEETING_INFO = {
+              body: {
+                conversationUrl: uuid1,
+                locusUrl: url1,
+                meetingJoinUrl: url2,
+                meetingNumber: '12345',
+                permissionToken: 'abc',
+                sipMeetingUri: test1,
+                sipUrl: test1,
+                owner: test2
+              }
+            };
+
+            meeting.parseMeetingInfo(FAKE_MEETING_INFO);
+            const expectedInfoToParse = {
               conversationUrl: uuid1,
               locusUrl: url1,
-              meetingJoinUrl: url2,
+              sipUri: test1,
               meetingNumber: '12345',
-              permissionToken: 'abc',
-              sipMeetingUri: test1,
-              sipUrl: test1,
-              owner: test2
-            }
-          };
+              meetingJoinUrl: url2,
+              owner: test2,
+              permissionToken: 'abc'
+            };
 
-          meeting.parseMeetingInfo(FAKE_MEETING_INFO);
-          const expectedInfoToParse = {
-            conversationUrl: uuid1,
-            locusUrl: url1,
-            sipUri: test1,
-            meetingNumber: '12345',
-            meetingJoinUrl: url2,
-            owner: test2,
-            permissionToken: 'abc'
-          };
+            checkParseMeetingInfo(expectedInfoToParse);
+          }
+        );
+        it(
+          'should parse meeting info from locus meeting object if possible, else from api return, set values, and return null',
+          () => {
+            meeting.config.experimental = {enableMediaNegotiatedEvent: true};
+            meeting.config.experimental.enableUnifiedMeetings = true;
+            const FAKE_LOCUS_MEETING = {
+              conversationUrl: 'locusConvURL',
+              url: 'locusUrl',
+              info: {
+                webExMeetingId: 'locusMeetingId',
+                sipUri: 'locusSipUri',
+                owner: 'locusOwner'
+              }
+            };
+            const FAKE_MEETING_INFO = {
+              body: {
+                conversationUrl: uuid1,
+                locusUrl: url1,
+                meetingJoinUrl: url2,
+                meetingNumber: '12345',
+                permissionToken: 'abc',
+                sipMeetingUri: test1,
+                sipUrl: test1,
+                owner: test2
+              }
+            };
 
-          checkParseMeetingInfo(expectedInfoToParse);
-        });
-        it('should parse meeting info from locus meeting object if possible, else from api return, set values, and return null', () => {
-          meeting.config.experimental = {enableMediaNegotiatedEvent: true};
-          meeting.config.experimental.enableUnifiedMeetings = true;
-          const FAKE_LOCUS_MEETING = {
-            conversationUrl: 'locusConvURL',
-            url: 'locusUrl',
-            info: {
-              webExMeetingId: 'locusMeetingId',
+            meeting.parseMeetingInfo(FAKE_MEETING_INFO, FAKE_LOCUS_MEETING);
+            const expectedInfoToParse = {
+              conversationUrl: 'locusConvURL',
+              locusUrl: 'locusUrl',
               sipUri: 'locusSipUri',
-              owner: 'locusOwner'
-            }
-          };
-          const FAKE_MEETING_INFO = {
-            body: {
+              meetingNumber: 'locusMeetingId',
+              meetingJoinUrl: url2,
+              owner: 'locusOwner',
+              permissionToken: 'abc'
+            };
+
+            checkParseMeetingInfo(expectedInfoToParse);
+          }
+        );
+        it(
+          'should parse meeting info from api return, set values, and return null',
+          () => {
+            meeting.config.experimental = {enableMediaNegotiatedEvent: true};
+            meeting.config.experimental.enableUnifiedMeetings = true;
+            const FAKE_MEETING_INFO = {
+              body: {
+                conversationUrl: uuid1,
+                locusUrl: url1,
+                meetingJoinUrl: url2,
+                meetingNumber: '12345',
+                permissionToken: 'abc',
+                sipMeetingUri: test1,
+                sipUrl: test1,
+                owner: test2
+              }
+            };
+
+            meeting.parseMeetingInfo(FAKE_MEETING_INFO);
+            const expectedInfoToParse = {
               conversationUrl: uuid1,
               locusUrl: url1,
-              meetingJoinUrl: url2,
+              sipUri: test1,
               meetingNumber: '12345',
-              permissionToken: 'abc',
-              sipMeetingUri: test1,
-              sipUrl: test1,
-              owner: test2
-            }
-          };
+              meetingJoinUrl: url2,
+              owner: test2,
+              permissionToken: 'abc'
+            };
 
-          meeting.parseMeetingInfo(FAKE_MEETING_INFO, FAKE_LOCUS_MEETING);
-          const expectedInfoToParse = {
-            conversationUrl: 'locusConvURL',
-            locusUrl: 'locusUrl',
-            sipUri: 'locusSipUri',
-            meetingNumber: 'locusMeetingId',
-            meetingJoinUrl: url2,
-            owner: 'locusOwner',
-            permissionToken: 'abc'
-          };
+            checkParseMeetingInfo(expectedInfoToParse);
+          }
+        );
+        it(
+          'should parse meeting info, set values, and return null when destination is a string',
+          () => {
+            meeting.config.experimental = {enableMediaNegotiatedEvent: true};
+            meeting.config.experimental.enableUnifiedMeetings = true;
+            const FAKE_STRING_DESTINATION = 'sipUrl';
+            const FAKE_MEETING_INFO = {
+              body: {
+                conversationUrl: uuid1,
+                locusUrl: url1,
+                meetingJoinUrl: url2,
+                meetingNumber: '12345',
+                permissionToken: 'abc',
+                sipMeetingUri: test1,
+                sipUrl: test1,
+                owner: test2
+              }
+            };
 
-          checkParseMeetingInfo(expectedInfoToParse);
-        });
-        it('should parse meeting info from api return, set values, and return null', () => {
-          meeting.config.experimental = {enableMediaNegotiatedEvent: true};
-          meeting.config.experimental.enableUnifiedMeetings = true;
-          const FAKE_MEETING_INFO = {
-            body: {
+            meeting.parseMeetingInfo(FAKE_MEETING_INFO, FAKE_STRING_DESTINATION);
+            const expectedInfoToParse = {
               conversationUrl: uuid1,
               locusUrl: url1,
-              meetingJoinUrl: url2,
+              sipUri: test1,
               meetingNumber: '12345',
-              permissionToken: 'abc',
-              sipMeetingUri: test1,
-              sipUrl: test1,
-              owner: test2
-            }
-          };
-
-          meeting.parseMeetingInfo(FAKE_MEETING_INFO);
-          const expectedInfoToParse = {
-            conversationUrl: uuid1,
-            locusUrl: url1,
-            sipUri: test1,
-            meetingNumber: '12345',
-            meetingJoinUrl: url2,
-            owner: test2,
-            permissionToken: 'abc'
-          };
-
-          checkParseMeetingInfo(expectedInfoToParse);
-        });
-        it('should parse meeting info, set values, and return null when destination is a string', () => {
-          meeting.config.experimental = {enableMediaNegotiatedEvent: true};
-          meeting.config.experimental.enableUnifiedMeetings = true;
-          const FAKE_STRING_DESTINATION = 'sipUrl';
-          const FAKE_MEETING_INFO = {
-            body: {
-              conversationUrl: uuid1,
-              locusUrl: url1,
               meetingJoinUrl: url2,
-              meetingNumber: '12345',
-              permissionToken: 'abc',
-              sipMeetingUri: test1,
-              sipUrl: test1,
-              owner: test2
-            }
-          };
+              owner: test2,
+              permissionToken: 'abc'
+            };
 
-          meeting.parseMeetingInfo(FAKE_MEETING_INFO, FAKE_STRING_DESTINATION);
-          const expectedInfoToParse = {
-            conversationUrl: uuid1,
-            locusUrl: url1,
-            sipUri: test1,
-            meetingNumber: '12345',
-            meetingJoinUrl: url2,
-            owner: test2,
-            permissionToken: 'abc'
-          };
-
-          checkParseMeetingInfo(expectedInfoToParse);
-        });
+            checkParseMeetingInfo(expectedInfoToParse);
+          }
+        );
       });
       describe('#parseLocus', () => {
         describe('when CALL and participants', () => {
@@ -3527,16 +3692,19 @@ describe('plugin-meetings', () => {
             meeting.setLocus = sinon.stub().returns(true);
             MeetingUtil.getLocusPartner = sinon.stub().returns({person: {sipUrl: uuid3}});
           });
-          it('should parse the locus object and set meeting properties and return null', () => {
-            meeting.type = 'CALL';
-            meeting.parseLocus({url: url1, participants: [{id: uuid1}], self: {id: uuid2}});
-            assert.calledOnce(meeting.setLocus);
-            assert.calledWith(meeting.setLocus, {url: url1, participants: [{id: uuid1}], self: {id: uuid2}});
-            assert.calledOnce(MeetingUtil.getLocusPartner);
-            assert.calledWith(MeetingUtil.getLocusPartner, [{id: uuid1}], {id: uuid2});
-            assert.deepEqual(meeting.partner, {person: {sipUrl: uuid3}});
-            assert.equal(meeting.sipUri, uuid3);
-          });
+          it(
+            'should parse the locus object and set meeting properties and return null',
+            () => {
+              meeting.type = 'CALL';
+              meeting.parseLocus({url: url1, participants: [{id: uuid1}], self: {id: uuid2}});
+              assert.calledOnce(meeting.setLocus);
+              assert.calledWith(meeting.setLocus, {url: url1, participants: [{id: uuid1}], self: {id: uuid2}});
+              assert.calledOnce(MeetingUtil.getLocusPartner);
+              assert.calledWith(MeetingUtil.getLocusPartner, [{id: uuid1}], {id: uuid2});
+              assert.deepEqual(meeting.partner, {person: {sipUrl: uuid3}});
+              assert.equal(meeting.sipUri, uuid3);
+            }
+          );
         });
       });
       describe('#setRoapSeq', () => {
@@ -3686,31 +3854,34 @@ describe('plugin-meetings', () => {
         beforeEach(() => {
           meeting.locusInfo.initialSetup = sinon.stub().returns(true);
         });
-        it('should read the locus object, set on the meeting and return null', () => {
-          meeting.parseLocus({
-            mediaConnections: [test1],
-            locusUrl: url1,
-            locusId: uuid1,
-            selfId: uuid2,
-            mediaId: uuid3,
-            host: {id: uuid4}
-          });
-          assert.calledOnce(meeting.locusInfo.initialSetup);
-          assert.calledWith(meeting.locusInfo.initialSetup, {
-            mediaConnections: [test1],
-            locusUrl: url1,
-            locusId: uuid1,
-            selfId: uuid2,
-            mediaId: uuid3,
-            host: {id: uuid4}
-          });
-          assert.equal(meeting.mediaConnections, test1);
-          assert.equal(meeting.locusUrl, url1);
-          assert.equal(meeting.locusId, uuid1);
-          assert.equal(meeting.selfId, uuid2);
-          assert.equal(meeting.mediaId, uuid3);
-          assert.equal(meeting.hostId, uuid4);
-        });
+        it(
+          'should read the locus object, set on the meeting and return null',
+          () => {
+            meeting.parseLocus({
+              mediaConnections: [test1],
+              locusUrl: url1,
+              locusId: uuid1,
+              selfId: uuid2,
+              mediaId: uuid3,
+              host: {id: uuid4}
+            });
+            assert.calledOnce(meeting.locusInfo.initialSetup);
+            assert.calledWith(meeting.locusInfo.initialSetup, {
+              mediaConnections: [test1],
+              locusUrl: url1,
+              locusId: uuid1,
+              selfId: uuid2,
+              mediaId: uuid3,
+              host: {id: uuid4}
+            });
+            assert.equal(meeting.mediaConnections, test1);
+            assert.equal(meeting.locusUrl, url1);
+            assert.equal(meeting.locusId, uuid1);
+            assert.equal(meeting.selfId, uuid2);
+            assert.equal(meeting.mediaId, uuid3);
+            assert.equal(meeting.hostId, uuid4);
+          }
+        );
       });
       describe('preferred video device', () => {
         describe('#getVideoDeviceId', () => {
@@ -4111,21 +4282,27 @@ describe('plugin-meetings', () => {
               payloadTestHelper([data1, data2, data3]);
             });
 
-            it('Scenario #2: you share whiteboard A and remote person A shares whiteboard B', () => {
-              const data1 = generateData(blankPayload, true, false, USER_IDS.ME, RESOURCE_URLS.WHITEBOARD_A);
-              const data2 = generateData(data1.payload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_B);
-              const data3 = generateData(data2.payload, false, false, USER_IDS.REMOTE_A);
+            it(
+              'Scenario #2: you share whiteboard A and remote person A shares whiteboard B',
+              () => {
+                const data1 = generateData(blankPayload, true, false, USER_IDS.ME, RESOURCE_URLS.WHITEBOARD_A);
+                const data2 = generateData(data1.payload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_B);
+                const data3 = generateData(data2.payload, false, false, USER_IDS.REMOTE_A);
 
-              payloadTestHelper([data1, data2, data3]);
-            });
+                payloadTestHelper([data1, data2, data3]);
+              }
+            );
 
-            it('Scenario #3: remote person A shares whiteboard A and you share whiteboard B', () => {
-              const data1 = generateData(blankPayload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
-              const data2 = generateData(data1.payload, true, false, USER_IDS.ME, RESOURCE_URLS.WHITEBOARD_B);
-              const data3 = generateData(data2.payload, false, false, USER_IDS.ME);
+            it(
+              'Scenario #3: remote person A shares whiteboard A and you share whiteboard B',
+              () => {
+                const data1 = generateData(blankPayload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
+                const data2 = generateData(data1.payload, true, false, USER_IDS.ME, RESOURCE_URLS.WHITEBOARD_B);
+                const data3 = generateData(data2.payload, false, false, USER_IDS.ME);
 
-              payloadTestHelper([data1, data2, data3]);
-            });
+                payloadTestHelper([data1, data2, data3]);
+              }
+            );
 
             it('Scenario #4: remote person A shares both whiteboards', () => {
               const data1 = generateData(blankPayload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
@@ -4135,13 +4312,16 @@ describe('plugin-meetings', () => {
               payloadTestHelper([data1, data2, data3]);
             });
 
-            it('Scenario #5: remote person A shares whiteboard A and remote person B shares whiteboard B', () => {
-              const data1 = generateData(blankPayload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
-              const data2 = generateData(data1.payload, true, false, USER_IDS.REMOTE_B, RESOURCE_URLS.WHITEBOARD_B);
-              const data3 = generateData(data2.payload, false, false, USER_IDS.REMOTE_B);
+            it(
+              'Scenario #5: remote person A shares whiteboard A and remote person B shares whiteboard B',
+              () => {
+                const data1 = generateData(blankPayload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
+                const data2 = generateData(data1.payload, true, false, USER_IDS.REMOTE_B, RESOURCE_URLS.WHITEBOARD_B);
+                const data3 = generateData(data2.payload, false, false, USER_IDS.REMOTE_B);
 
-              payloadTestHelper([data1, data2, data3]);
-            });
+                payloadTestHelper([data1, data2, data3]);
+              }
+            );
           });
 
           describe('Whiteboard A --> Desktop', () => {
@@ -4154,41 +4334,53 @@ describe('plugin-meetings', () => {
               payloadTestHelper([data1, data2, data3, data4]);
             });
 
-            it('Scenario #2: you share whiteboard A and remote person A shares desktop', () => {
-              const data1 = generateData(blankPayload, true, false, USER_IDS.ME, RESOURCE_URLS.WHITEBOARD_A);
-              const data2 = generateData(data1.payload, false, false, USER_IDS.ME, RESOURCE_URLS.WHITEBOARD_A, true, USER_IDS.REMOTE_A);
-              const data3 = generateData(data2.payload, true, true, USER_IDS.REMOTE_A, undefined, true, USER_IDS.ME);
-              const data4 = generateData(data3.payload, false, true, USER_IDS.REMOTE_A);
+            it(
+              'Scenario #2: you share whiteboard A and remote person A shares desktop',
+              () => {
+                const data1 = generateData(blankPayload, true, false, USER_IDS.ME, RESOURCE_URLS.WHITEBOARD_A);
+                const data2 = generateData(data1.payload, false, false, USER_IDS.ME, RESOURCE_URLS.WHITEBOARD_A, true, USER_IDS.REMOTE_A);
+                const data3 = generateData(data2.payload, true, true, USER_IDS.REMOTE_A, undefined, true, USER_IDS.ME);
+                const data4 = generateData(data3.payload, false, true, USER_IDS.REMOTE_A);
 
-              payloadTestHelper([data1, data2, data3, data4]);
-            });
+                payloadTestHelper([data1, data2, data3, data4]);
+              }
+            );
 
-            it('Scenario #3: remote person A shares whiteboard and you share desktop', () => {
-              const data1 = generateData(blankPayload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
-              const data2 = generateData(data1.payload, false, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A, true, USER_IDS.ME);
-              const data3 = generateData(data2.payload, true, true, USER_IDS.ME, undefined, true, USER_IDS.REMOTE_A);
-              const data4 = generateData(data3.payload, false, true, USER_IDS.ME);
+            it(
+              'Scenario #3: remote person A shares whiteboard and you share desktop',
+              () => {
+                const data1 = generateData(blankPayload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
+                const data2 = generateData(data1.payload, false, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A, true, USER_IDS.ME);
+                const data3 = generateData(data2.payload, true, true, USER_IDS.ME, undefined, true, USER_IDS.REMOTE_A);
+                const data4 = generateData(data3.payload, false, true, USER_IDS.ME);
 
-              payloadTestHelper([data1, data2, data3, data4]);
-            });
+                payloadTestHelper([data1, data2, data3, data4]);
+              }
+            );
 
-            it('Scenario #4: remote person A shares whiteboard and then shares desktop', () => {
-              const data1 = generateData(blankPayload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
-              const data2 = generateData(data1.payload, false, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A, true, USER_IDS.REMOTE_A);
-              const data3 = generateData(data2.payload, true, true, USER_IDS.REMOTE_A, undefined, true, USER_IDS.REMOTE_A);
-              const data4 = generateData(data3.payload, false, true, USER_IDS.REMOTE_A);
+            it(
+              'Scenario #4: remote person A shares whiteboard and then shares desktop',
+              () => {
+                const data1 = generateData(blankPayload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
+                const data2 = generateData(data1.payload, false, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A, true, USER_IDS.REMOTE_A);
+                const data3 = generateData(data2.payload, true, true, USER_IDS.REMOTE_A, undefined, true, USER_IDS.REMOTE_A);
+                const data4 = generateData(data3.payload, false, true, USER_IDS.REMOTE_A);
 
-              payloadTestHelper([data1, data2, data3, data4]);
-            });
+                payloadTestHelper([data1, data2, data3, data4]);
+              }
+            );
 
-            it('Scenario #5: remote person A shares whiteboard and remote person B shares desktop', () => {
-              const data1 = generateData(blankPayload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
-              const data2 = generateData(data1.payload, false, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A, true, USER_IDS.REMOTE_B);
-              const data3 = generateData(data2.payload, true, true, USER_IDS.REMOTE_B, undefined, true, USER_IDS.REMOTE_A);
-              const data4 = generateData(data3.payload, false, true, USER_IDS.REMOTE_B);
+            it(
+              'Scenario #5: remote person A shares whiteboard and remote person B shares desktop',
+              () => {
+                const data1 = generateData(blankPayload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
+                const data2 = generateData(data1.payload, false, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A, true, USER_IDS.REMOTE_B);
+                const data3 = generateData(data2.payload, true, true, USER_IDS.REMOTE_B, undefined, true, USER_IDS.REMOTE_A);
+                const data4 = generateData(data3.payload, false, true, USER_IDS.REMOTE_B);
 
-              payloadTestHelper([data1, data2, data3, data4]);
-            });
+                payloadTestHelper([data1, data2, data3, data4]);
+              }
+            );
           });
 
           describe('Desktop --> Whiteboard A', () => {
@@ -4200,37 +4392,49 @@ describe('plugin-meetings', () => {
               payloadTestHelper([data1, data2, data3]);
             });
 
-            it('Scenario #2: you share desktop and remote person A shares whiteboard', () => {
-              const data1 = generateData(blankPayload, true, true, USER_IDS.ME);
-              const data2 = generateData(data1.payload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
-              const data3 = generateData(data2.payload, false, false, USER_IDS.REMOTE_A);
+            it(
+              'Scenario #2: you share desktop and remote person A shares whiteboard',
+              () => {
+                const data1 = generateData(blankPayload, true, true, USER_IDS.ME);
+                const data2 = generateData(data1.payload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
+                const data3 = generateData(data2.payload, false, false, USER_IDS.REMOTE_A);
 
-              payloadTestHelper([data1, data2, data3]);
-            });
+                payloadTestHelper([data1, data2, data3]);
+              }
+            );
 
-            it('Scenario #3: remote person A shares desktop and you share whiteboard', () => {
-              const data1 = generateData(blankPayload, true, true, USER_IDS.REMOTE_A);
-              const data2 = generateData(data1.payload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
-              const data3 = generateData(data2.payload, false, false, USER_IDS.REMOTE_A);
+            it(
+              'Scenario #3: remote person A shares desktop and you share whiteboard',
+              () => {
+                const data1 = generateData(blankPayload, true, true, USER_IDS.REMOTE_A);
+                const data2 = generateData(data1.payload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
+                const data3 = generateData(data2.payload, false, false, USER_IDS.REMOTE_A);
 
-              payloadTestHelper([data1, data2, data3]);
-            });
+                payloadTestHelper([data1, data2, data3]);
+              }
+            );
 
-            it('Scenario #4: remote person A shares desktop and then shares whiteboard', () => {
-              const data1 = generateData(blankPayload, true, true, USER_IDS.REMOTE_A);
-              const data2 = generateData(data1.payload, true, false, USER_IDS.ME, RESOURCE_URLS.WHITEBOARD_A);
-              const data3 = generateData(data2.payload, false, false, USER_IDS.ME);
+            it(
+              'Scenario #4: remote person A shares desktop and then shares whiteboard',
+              () => {
+                const data1 = generateData(blankPayload, true, true, USER_IDS.REMOTE_A);
+                const data2 = generateData(data1.payload, true, false, USER_IDS.ME, RESOURCE_URLS.WHITEBOARD_A);
+                const data3 = generateData(data2.payload, false, false, USER_IDS.ME);
 
-              payloadTestHelper([data1, data2, data3]);
-            });
+                payloadTestHelper([data1, data2, data3]);
+              }
+            );
 
-            it('Scenario #5: remote person A shares desktop and remote person B shares whiteboard', () => {
-              const data1 = generateData(blankPayload, true, true, USER_IDS.REMOTE_A);
-              const data2 = generateData(data1.payload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
-              const data3 = generateData(data2.payload, false, false, USER_IDS.REMOTE_A);
+            it(
+              'Scenario #5: remote person A shares desktop and remote person B shares whiteboard',
+              () => {
+                const data1 = generateData(blankPayload, true, true, USER_IDS.REMOTE_A);
+                const data2 = generateData(data1.payload, true, false, USER_IDS.REMOTE_A, RESOURCE_URLS.WHITEBOARD_A);
+                const data3 = generateData(data2.payload, false, false, USER_IDS.REMOTE_A);
 
-              payloadTestHelper([data1, data2, data3]);
-            });
+                payloadTestHelper([data1, data2, data3]);
+              }
+            );
           });
 
           describe('Desktop A --> Desktop B', () => {
@@ -4243,37 +4447,49 @@ describe('plugin-meetings', () => {
               payloadTestHelper([data1, data2, data3, data4]);
             });
 
-            it('Scenario #2: you share desktop A and remote person A shares desktop B', () => {
-              const data1 = generateData(blankPayload, true, true, USER_IDS.ME);
-              const data2 = generateData(data1.payload, true, true, USER_IDS.REMOTE_A);
-              const data3 = generateData(data2.payload, false, true, USER_IDS.REMOTE_A);
+            it(
+              'Scenario #2: you share desktop A and remote person A shares desktop B',
+              () => {
+                const data1 = generateData(blankPayload, true, true, USER_IDS.ME);
+                const data2 = generateData(data1.payload, true, true, USER_IDS.REMOTE_A);
+                const data3 = generateData(data2.payload, false, true, USER_IDS.REMOTE_A);
 
-              payloadTestHelper([data1, data2, data3]);
-            });
+                payloadTestHelper([data1, data2, data3]);
+              }
+            );
 
-            it('Scenario #3: remote person A shares desktop A and you share desktop B', () => {
-              const data1 = generateData(blankPayload, true, true, USER_IDS.REMOTE_A);
-              const data2 = generateData(data1.payload, true, true, USER_IDS.ME);
-              const data3 = generateData(data2.payload, false, true, USER_IDS.ME);
+            it(
+              'Scenario #3: remote person A shares desktop A and you share desktop B',
+              () => {
+                const data1 = generateData(blankPayload, true, true, USER_IDS.REMOTE_A);
+                const data2 = generateData(data1.payload, true, true, USER_IDS.ME);
+                const data3 = generateData(data2.payload, false, true, USER_IDS.ME);
 
-              payloadTestHelper([data1, data2, data3]);
-            });
+                payloadTestHelper([data1, data2, data3]);
+              }
+            );
 
-            it('Scenario #4: remote person A shares desktop A and then shares desktop B', () => {
-              const data1 = generateData(blankPayload, true, true, USER_IDS.REMOTE_A);
-              const data2 = generateData(data1.payload, true, true, USER_IDS.REMOTE_A);
-              const data3 = generateData(data2.payload, false, true, USER_IDS.REMOTE_A);
+            it(
+              'Scenario #4: remote person A shares desktop A and then shares desktop B',
+              () => {
+                const data1 = generateData(blankPayload, true, true, USER_IDS.REMOTE_A);
+                const data2 = generateData(data1.payload, true, true, USER_IDS.REMOTE_A);
+                const data3 = generateData(data2.payload, false, true, USER_IDS.REMOTE_A);
 
-              payloadTestHelper([data1, data2, data3]);
-            });
+                payloadTestHelper([data1, data2, data3]);
+              }
+            );
 
-            it('Scenario #5: remote person A shares desktop A and remote person B shares desktop B', () => {
-              const data1 = generateData(blankPayload, true, true, USER_IDS.REMOTE_A);
-              const data2 = generateData(data1.payload, true, true, USER_IDS.REMOTE_B);
-              const data3 = generateData(data2.payload, false, true, USER_IDS.REMOTE_B);
+            it(
+              'Scenario #5: remote person A shares desktop A and remote person B shares desktop B',
+              () => {
+                const data1 = generateData(blankPayload, true, true, USER_IDS.REMOTE_A);
+                const data2 = generateData(data1.payload, true, true, USER_IDS.REMOTE_B);
+                const data3 = generateData(data2.payload, false, true, USER_IDS.REMOTE_B);
 
-              payloadTestHelper([data1, data2, data3]);
-            });
+                payloadTestHelper([data1, data2, data3]);
+              }
+            );
           });
         });
       });

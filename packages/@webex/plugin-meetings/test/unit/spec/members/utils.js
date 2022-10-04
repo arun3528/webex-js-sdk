@@ -1,5 +1,4 @@
 import sinon from 'sinon';
-import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
 import MembersUtil from '@webex/plugin-meetings/src/members/util';

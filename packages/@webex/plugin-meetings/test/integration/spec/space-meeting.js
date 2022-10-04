@@ -18,7 +18,7 @@ skipInNode(describe)('plugin-meetings', () => {
   describe('space-meeting', () => {
     let space = null;
 
-    before(() => webexTestUsers.generateTestUsers({
+    beforeAll(() => webexTestUsers.generateTestUsers({
       count: 4,
       whistler: process.env.WHISTLER || process.env.JENKINS
     })
@@ -102,14 +102,17 @@ skipInNode(describe)('plugin-meetings', () => {
       assert(meetingNumber === alice.meeting.meetingNumber, 'meetingNumber matches alice meeting number');
     });
 
-    it('Bob and chris joins space meeting', () => testUtils.waitForStateChange(alice.meeting, 'JOINED')
-      .then(() => testUtils.waitForStateChange(bob.meeting, 'IDLE'))
-      .then(() => testUtils.waitForStateChange(chris.meeting, 'IDLE'))
-      .then(() => bob.meeting.join())
-      .then(() => chris.meeting.join())
-    // add .then checks for alice response, should see bob and chris member status to isInMeeting = true
-      .then(() => testUtils.waitForStateChange(bob.meeting, 'JOINED'))
-      .then(() => testUtils.waitForStateChange(chris.meeting, 'JOINED')));
+    it(
+      'Bob and chris joins space meeting',
+      () => testUtils.waitForStateChange(alice.meeting, 'JOINED')
+        .then(() => testUtils.waitForStateChange(bob.meeting, 'IDLE'))
+        .then(() => testUtils.waitForStateChange(chris.meeting, 'IDLE'))
+        .then(() => bob.meeting.join())
+        .then(() => chris.meeting.join())
+      // add .then checks for alice response, should see bob and chris member status to isInMeeting = true
+        .then(() => testUtils.waitForStateChange(bob.meeting, 'JOINED'))
+        .then(() => testUtils.waitForStateChange(chris.meeting, 'JOINED'))
+    );
 
     it('Bob and Alice addsMedia', () => testUtils.addMedia(bob)
       .then(() => testUtils.addMedia(alice)));
@@ -178,7 +181,7 @@ skipInNode(describe)('plugin-meetings', () => {
   });
 
   jenkinsOnly(describe.skip)('Unclaimed PMR', () => {
-    before(() => webexTestUsers.generateTestUsers({
+    beforeAll(() => webexTestUsers.generateTestUsers({
       count: 3,
       whistler: true
     })
@@ -198,7 +201,7 @@ skipInNode(describe)('plugin-meetings', () => {
         console.log('WEBEX MEETING error ', error);
       }));
 
-    after(() => CMR.release(alice.webex, alice.cmr.reservationUrl));
+    afterAll(() => CMR.release(alice.webex, alice.cmr.reservationUrl));
 
     describe('Successful meeting', () => {
       it('alice joins the unclaimed PMR as attende', () => {
@@ -244,7 +247,7 @@ skipInNode(describe)('plugin-meetings', () => {
 
   // TODO: fix this . getting 408 conflict for leave
   jenkinsOnly(describe.skip)('Claimed PMR', () => {
-    before(() => webexTestUsers.generateTestUsers({
+    beforeAll(() => webexTestUsers.generateTestUsers({
       count: 3,
       whistler: true
     })
@@ -266,7 +269,7 @@ skipInNode(describe)('plugin-meetings', () => {
         console.log('WEBEX MEETING error ', error);
       }));
 
-    after(() => CMR.release(alice.webex, alice.cmr.reservationUrl));
+    afterAll(() => CMR.release(alice.webex, alice.cmr.reservationUrl));
 
     describe('Successful meeting', () => {
       it('alice starts a space meeting', () => Promise.all([

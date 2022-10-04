@@ -1,5 +1,4 @@
 import 'jsdom-global/register';
-import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 
@@ -67,27 +66,36 @@ describe('plugin-meetings', () => {
       sandbox.restore();
     });
 
-    it('should trigger updateNetworkQualityStatus when determineUplinkNetworkQuality has finished', async () => {
-      await networkQualityMonitor.determineUplinkNetworkQuality(configObject);
+    it(
+      'should trigger updateNetworkQualityStatus when determineUplinkNetworkQuality has finished',
+      async () => {
+        await networkQualityMonitor.determineUplinkNetworkQuality(configObject);
 
-      assert.calledOnce(networkQualityMonitor.updateNetworkQualityStatus);
-    });
+        assert.calledOnce(networkQualityMonitor.updateNetworkQualityStatus);
+      }
+    );
 
-    it('should emit a network quality judgement event with the proper payload', async () => {
-      await networkQualityMonitor.determineUplinkNetworkQuality(configObject);
-      assert(sandBoxEmitSpy.calledWith(sinon.match({
-        file: 'networkQualityMonitor',
-        function: 'emitNetworkQuality'
-      }), sinon.match(EVENT_TRIGGERS.NETWORK_QUALITY), sinon.match({
-        mediaType: 'video',
-        networkQualityScore: 0
-      })));
-    });
+    it(
+      'should emit a network quality judgement event with the proper payload',
+      async () => {
+        await networkQualityMonitor.determineUplinkNetworkQuality(configObject);
+        assert(sandBoxEmitSpy.calledWith(sinon.match({
+          file: 'networkQualityMonitor',
+          function: 'emitNetworkQuality'
+        }), sinon.match(EVENT_TRIGGERS.NETWORK_QUALITY), sinon.match({
+          mediaType: 'video',
+          networkQualityScore: 0
+        })));
+      }
+    );
 
-    it('should reset to default values after determineUplinkNetworkQuality call stack is complete', async () => {
-      await networkQualityMonitor.determineUplinkNetworkQuality(configObject);
-      assert.isNull(networkQualityMonitor.mediaType);
-      assert.deepEqual(networkQualityMonitor.networkQualityScore, 1);
-    });
+    it(
+      'should reset to default values after determineUplinkNetworkQuality call stack is complete',
+      async () => {
+        await networkQualityMonitor.determineUplinkNetworkQuality(configObject);
+        assert.isNull(networkQualityMonitor.mediaType);
+        assert.deepEqual(networkQualityMonitor.networkQualityScore, 1);
+      }
+    );
   });
 });

@@ -50,13 +50,16 @@ describe('plugin-meetings', () => {
         assert.deepEqual(SelfUtils.getLayout(self), self.controls.layouts[0].type);
       });
 
-      it('should return undefined if the new self does not have a provided layout', () => {
-        const mutatedSelf = cloneDeep(self);
+      it(
+        'should return undefined if the new self does not have a provided layout',
+        () => {
+          const mutatedSelf = cloneDeep(self);
 
-        delete mutatedSelf.controls.layouts;
+          delete mutatedSelf.controls.layouts;
 
-        assert.deepEqual(SelfUtils.getLayout(mutatedSelf), undefined);
-      });
+          assert.deepEqual(SelfUtils.getLayout(mutatedSelf), undefined);
+        }
+      );
     });
 
     describe('getRoles', () => {

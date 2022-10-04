@@ -1,5 +1,4 @@
 import sinon from 'sinon';
-import chai from 'chai';
 import uuid from 'uuid';
 import chaiAsPromised from 'chai-as-promised';
 import MockWebex from '@webex/test-helper-mock-webex';

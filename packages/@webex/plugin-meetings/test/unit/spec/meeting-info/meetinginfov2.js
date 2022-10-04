@@ -111,26 +111,29 @@ describe('plugin-meetings', () => {
         MeetingInfoUtil.getRequestBody.restore();
       });
 
-      it('should fetch meeting info for the personal meeting room  type', async () => {
-        const body = {meetingKey: '1234323'};
-        const requestResponse = {statusCode: 200, body};
+      it(
+        'should fetch meeting info for the personal meeting room  type',
+        async () => {
+          const body = {meetingKey: '1234323'};
+          const requestResponse = {statusCode: 200, body};
 
-        sinon.stub(MeetingInfoUtil, 'getDestinationType').returns(Promise.resolve({type: 'MEETING_ID', destination: '123456'}));
-        sinon.stub(MeetingInfoUtil, 'getRequestBody').returns(Promise.resolve(body));
-        webex.request.resolves(requestResponse);
+          sinon.stub(MeetingInfoUtil, 'getDestinationType').returns(Promise.resolve({type: 'MEETING_ID', destination: '123456'}));
+          sinon.stub(MeetingInfoUtil, 'getRequestBody').returns(Promise.resolve(body));
+          webex.request.resolves(requestResponse);
 
-        const result = await meetingInfo.fetchMeetingInfo({
-          type: _PERSONAL_ROOM_
-        });
+          const result = await meetingInfo.fetchMeetingInfo({
+            type: _PERSONAL_ROOM_
+          });
 
-        assert.calledWith(webex.request, {
-          method: 'POST', service: WBXAPPAPI_SERVICE, resource: 'meetingInfo', body: {meetingKey: '1234323'}
-        });
-        assert.deepEqual(result, requestResponse);
+          assert.calledWith(webex.request, {
+            method: 'POST', service: WBXAPPAPI_SERVICE, resource: 'meetingInfo', body: {meetingKey: '1234323'}
+          });
+          assert.deepEqual(result, requestResponse);
 
-        MeetingInfoUtil.getDestinationType.restore();
-        MeetingInfoUtil.getRequestBody.restore();
-      });
+          MeetingInfoUtil.getDestinationType.restore();
+          MeetingInfoUtil.getRequestBody.restore();
+        }
+      );
 
       it('should use the direct uri for the request if it exists', async () => {
         const body = {meetingKey: '1234323'};
@@ -158,68 +161,80 @@ describe('plugin-meetings', () => {
         MeetingInfoUtil.getDirectMeetingInfoURI.restore();
       });
 
-      it('should fetch meeting info with provided password and captcha code', async () => {
-        const requestResponse = {statusCode: 200, body: {meetingKey: '1234323'}};
+      it(
+        'should fetch meeting info with provided password and captcha code',
+        async () => {
+          const requestResponse = {statusCode: 200, body: {meetingKey: '1234323'}};
 
-        webex.request.resolves(requestResponse);
+          webex.request.resolves(requestResponse);
 
-        const result = await meetingInfo.fetchMeetingInfo('1234323', _MEETING_ID_, 'abc', {id: '999', code: 'aabbcc11'});
+          const result = await meetingInfo.fetchMeetingInfo('1234323', _MEETING_ID_, 'abc', {id: '999', code: 'aabbcc11'});
 
-        assert.calledWith(webex.request, {
-          method: 'POST',
-          service: WBXAPPAPI_SERVICE,
-          resource: 'meetingInfo',
-          body: {
-            supportHostKey: true,
-            supportCountryList: true,
-            meetingKey: '1234323',
-            password: 'abc',
-            captchaID: '999',
-            captchaVerifyCode: 'aabbcc11'
+          assert.calledWith(webex.request, {
+            method: 'POST',
+            service: WBXAPPAPI_SERVICE,
+            resource: 'meetingInfo',
+            body: {
+              supportHostKey: true,
+              supportCountryList: true,
+              meetingKey: '1234323',
+              password: 'abc',
+              captchaID: '999',
+              captchaVerifyCode: 'aabbcc11'
+            }
+          });
+          assert.deepEqual(result, requestResponse);
+          assert(Metrics.sendBehavioralMetric.calledOnce);
+          assert.calledWith(
+            Metrics.sendBehavioralMetric,
+            BEHAVIORAL_METRICS.FETCH_MEETING_INFO_V1_SUCCESS,
+          );
+        }
+      );
+
+      it(
+        'create adhoc meeting when conversationUrl passed with enableAdhocMeetings toggle',
+        async () => {
+          sinon.stub(meetingInfo, 'createAdhocSpaceMeeting').returns(Promise.resolve());
+          await meetingInfo.fetchMeetingInfo('conversationUrl', _CONVERSATION_URL_);
+
+          assert.calledWith(meetingInfo.createAdhocSpaceMeeting, 'conversationUrl');
+          assert.notCalled(webex.request);
+          meetingInfo.createAdhocSpaceMeeting.restore();
+        }
+      );
+
+      it(
+        'should not call createAdhocSpaceMeeting if enableAdhocMeetings toggle is off',
+        async () => {
+          webex.config.meetings.experimental.enableAdhocMeetings = false;
+          sinon.stub(meetingInfo, 'createAdhocSpaceMeeting').returns(Promise.resolve());
+
+          await meetingInfo.fetchMeetingInfo('conversationUrl', _CONVERSATION_URL_);
+
+          assert.notCalled(meetingInfo.createAdhocSpaceMeeting);
+          assert.called(webex.request);
+          meetingInfo.createAdhocSpaceMeeting.restore();
+        }
+      );
+
+
+      it(
+        'should throw an error MeetingInfoV2AdhocMeetingError if not able to start adhoc meeting for a conversation',
+        async () => {
+          webex.config.meetings.experimental.enableAdhocMeetings = true;
+
+          webex.request = sinon.stub().rejects({statusCode: 403, body: {code: 400000}});
+          try {
+            await meetingInfo.createAdhocSpaceMeeting('conversationUrl');
           }
-        });
-        assert.deepEqual(result, requestResponse);
-        assert(Metrics.sendBehavioralMetric.calledOnce);
-        assert.calledWith(
-          Metrics.sendBehavioralMetric,
-          BEHAVIORAL_METRICS.FETCH_MEETING_INFO_V1_SUCCESS,
-        );
-      });
-
-      it('create adhoc meeting when conversationUrl passed with enableAdhocMeetings toggle', async () => {
-        sinon.stub(meetingInfo, 'createAdhocSpaceMeeting').returns(Promise.resolve());
-        await meetingInfo.fetchMeetingInfo('conversationUrl', _CONVERSATION_URL_);
-
-        assert.calledWith(meetingInfo.createAdhocSpaceMeeting, 'conversationUrl');
-        assert.notCalled(webex.request);
-        meetingInfo.createAdhocSpaceMeeting.restore();
-      });
-
-      it('should not call createAdhocSpaceMeeting if enableAdhocMeetings toggle is off', async () => {
-        webex.config.meetings.experimental.enableAdhocMeetings = false;
-        sinon.stub(meetingInfo, 'createAdhocSpaceMeeting').returns(Promise.resolve());
-
-        await meetingInfo.fetchMeetingInfo('conversationUrl', _CONVERSATION_URL_);
-
-        assert.notCalled(meetingInfo.createAdhocSpaceMeeting);
-        assert.called(webex.request);
-        meetingInfo.createAdhocSpaceMeeting.restore();
-      });
-
-
-      it('should throw an error MeetingInfoV2AdhocMeetingError if not able to start adhoc meeting for a conversation', async () => {
-        webex.config.meetings.experimental.enableAdhocMeetings = true;
-
-        webex.request = sinon.stub().rejects({statusCode: 403, body: {code: 400000}});
-        try {
-          await meetingInfo.createAdhocSpaceMeeting('conversationUrl');
+          catch (err) {
+            assert.instanceOf(err, MeetingInfoV2AdhocMeetingError);
+            assert.deepEqual(err.message, 'Failed starting the adhoc meeting, Please contact support team , code=400000');
+            assert.equal(err.wbxAppApiCode, 400000);
+          }
         }
-        catch (err) {
-          assert.instanceOf(err, MeetingInfoV2AdhocMeetingError);
-          assert.deepEqual(err.message, 'Failed starting the adhoc meeting, Please contact support team , code=400000');
-          assert.equal(err.wbxAppApiCode, 400000);
-        }
-      });
+      );
 
       it('should throw MeetingInfoV2PasswordError for 403 response', async () => {
         const FAKE_MEETING_INFO = {blablabla: 'some_fake_meeting_info'};
@@ -278,17 +293,26 @@ describe('plugin-meetings', () => {
           }
         };
 
-        it('should throw MeetingInfoV2CaptchaError for 423 response (wbxappapi code 423005)', async () => {
-          await runTest(423005, true);
-        });
+        it(
+          'should throw MeetingInfoV2CaptchaError for 423 response (wbxappapi code 423005)',
+          async () => {
+            await runTest(423005, true);
+          }
+        );
 
-        it('should throw MeetingInfoV2CaptchaError for 423 response (wbxappapi code 423006)', async () => {
-          await runTest(423006, true);
-        });
+        it(
+          'should throw MeetingInfoV2CaptchaError for 423 response (wbxappapi code 423006)',
+          async () => {
+            await runTest(423006, true);
+          }
+        );
 
-        it('should throw MeetingInfoV2CaptchaError for 423 response (wbxappapi code 423001)', async () => {
-          await runTest(423001, false);
-        });
+        it(
+          'should throw MeetingInfoV2CaptchaError for 423 response (wbxappapi code 423001)',
+          async () => {
+            await runTest(423001, false);
+          }
+        );
       });
     });
 

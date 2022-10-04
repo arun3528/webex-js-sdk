@@ -337,11 +337,14 @@ describe('plugin-meetings', () => {
               assert.exists(webex.meetings.getMeetingByType);
             });
             describe('#getMeetingByType', () => {
-              it('gets the Meeting instance from MeetingCollection using type and value', () => {
-                webex.meetings.getMeetingByType(test1, test2);
-                assert.calledOnce(webex.meetings.meetingCollection.getByKey);
-                assert.calledWith(webex.meetings.meetingCollection.getByKey, test1, test2);
-              });
+              it(
+                'gets the Meeting instance from MeetingCollection using type and value',
+                () => {
+                  webex.meetings.getMeetingByType(test1, test2);
+                  assert.calledOnce(webex.meetings.meetingCollection.getByKey);
+                  assert.calledWith(webex.meetings.meetingCollection.getByKey, test1, test2);
+                }
+              );
             });
           });
           describe('MeetingCollection getAll proxies', () => {
@@ -352,15 +355,18 @@ describe('plugin-meetings', () => {
               assert.exists(webex.meetings.getAllMeetings);
             });
             describe('#getAllMeetings', () => {
-              it('calls MeetingCollection to get all meetings with supplied options', () => {
-                webex.meetings.getAllMeetings({
-                  test: test1
-                });
-                assert.calledOnce(webex.meetings.meetingCollection.getAll);
-                assert.calledWith(webex.meetings.meetingCollection.getAll, {
-                  test: test1
-                });
-              });
+              it(
+                'calls MeetingCollection to get all meetings with supplied options',
+                () => {
+                  webex.meetings.getAllMeetings({
+                    test: test1
+                  });
+                  assert.calledOnce(webex.meetings.meetingCollection.getAll);
+                  assert.calledWith(webex.meetings.meetingCollection.getAll, {
+                    test: test1
+                  });
+                }
+              );
             });
           });
         });
@@ -482,26 +488,25 @@ describe('plugin-meetings', () => {
           }));
         });
 
-        it('should call MeetingInfo#fetchInfoOptions() with proper params',
-          () => {
-            webex.meetings.meetingInfo.fetchInfoOptions = sinon.stub().resolves(
-              infoOptions
-            );
+        it('should call MeetingInfo#fetchInfoOptions() with proper params', () => {
+          webex.meetings.meetingInfo.fetchInfoOptions = sinon.stub().resolves(
+            infoOptions
+          );
 
-            return webex.meetings.create(
-              infoOptions.destination,
-              infoOptions.type
-            )
-              .then(() => {
-                assert.calledWith(
-                  webex.meetings.meetingInfo.fetchInfoOptions,
-                  infoOptions.destination,
-                  infoOptions.type
-                );
+          return webex.meetings.create(
+            infoOptions.destination,
+            infoOptions.type
+          )
+            .then(() => {
+              assert.calledWith(
+                webex.meetings.meetingInfo.fetchInfoOptions,
+                infoOptions.destination,
+                infoOptions.type
+              );
 
-                assert.calledTwice(webex.meetings.meetingCollection.getByKey);
-              });
-          });
+              assert.calledTwice(webex.meetings.meetingCollection.getByKey);
+            });
+        });
 
         it('calls createMeeting and returns its promise', async () => {
           const FAKE_USE_RANDOM_DELAY = true;
@@ -513,44 +518,47 @@ describe('plugin-meetings', () => {
           assert.calledWith(webex.meetings.createMeeting, test1, test2, FAKE_USE_RANDOM_DELAY);
         });
 
-        it('creates a new meeting when a scheduled meeting exists in the conversation', async () => {
-          const conversationId = '3b1ce9a0-777d-11eb-ba2e-b9fd98c6d469';
-          const conversationUrl = `https://conv-a.wbx2.com/conversation/api/v1/conversations/${conversationId}`;
-          const correlationId = uuid.v4();
-          const scheduledMeetingFixture = {
-            conversationId,
-            conversationUrl,
-            correlationId,
-            id: correlationId,
-            locusInfo: {
+        it(
+          'creates a new meeting when a scheduled meeting exists in the conversation',
+          async () => {
+            const conversationId = '3b1ce9a0-777d-11eb-ba2e-b9fd98c6d469';
+            const conversationUrl = `https://conv-a.wbx2.com/conversation/api/v1/conversations/${conversationId}`;
+            const correlationId = uuid.v4();
+            const scheduledMeetingFixture = {
+              conversationId,
+              conversationUrl,
+              correlationId,
+              id: correlationId,
+              locusInfo: {
+                scheduledMeeting: true,
+              },
+            };
+
+            infoOptions.destination = conversationUrl;
+            infoOptions.locusInfo = {
               scheduledMeeting: true,
-            },
-          };
+            };
 
-          infoOptions.destination = conversationUrl;
-          infoOptions.locusInfo = {
-            scheduledMeeting: true,
-          };
+            webex.meetings.meetingCollection.getByKey = sinon.stub().callsFake((type) => {
+              if (type === 'conversationUrl') {
+                return infoOptions;
+              }
 
-          webex.meetings.meetingCollection.getByKey = sinon.stub().callsFake((type) => {
-            if (type === 'conversationUrl') {
-              return infoOptions;
-            }
+              return undefined;
+            });
 
-            return undefined;
-          });
+            webex.meetings.meetingInfo.fetchInfoOptions = sinon.stub().resolves(
+              scheduledMeetingFixture
+            );
 
-          webex.meetings.meetingInfo.fetchInfoOptions = sinon.stub().resolves(
-            scheduledMeetingFixture
-          );
+            webex.meetings.meetingCollection.set(scheduledMeetingFixture);
 
-          webex.meetings.meetingCollection.set(scheduledMeetingFixture);
+            await webex.meetings.create(conversationUrl, infoOptions.type);
 
-          await webex.meetings.create(conversationUrl, infoOptions.type);
-
-          assert.calledOnce(webex.meetings.createMeeting);
-          assert.calledWith(webex.meetings.createMeeting, conversationUrl, infoOptions.type);
-        });
+            assert.calledOnce(webex.meetings.createMeeting);
+            assert.calledWith(webex.meetings.createMeeting, conversationUrl, infoOptions.type);
+          }
+        );
       });
     });
     describe('Private Detailed API and Helpers', () => {
@@ -672,31 +680,34 @@ describe('plugin-meetings', () => {
               }
             });
           });
-          it('should setup the meeting by difference event without replaces', async () => {
-            await webex.meetings.handleLocusEvent({
-              locus: {
+          it(
+            'should setup the meeting by difference event without replaces',
+            async () => {
+              await webex.meetings.handleLocusEvent({
+                locus: {
+                  id: uuid1,
+                  self: {
+                    callBackInfo: {
+                      callbackAddress: uri1
+                    }
+                  }
+                },
+                eventType: 'locus.difference',
+                locusUrl: url1
+              });
+              assert.callCount(webex.meetings.meetingCollection.getByKey, 4);
+              assert.calledWith(webex.meetings.meetingCollection.getByKey, 'locusUrl', url1);
+              assert.calledOnce(initialSetup);
+              assert.calledWith(initialSetup, {
                 id: uuid1,
                 self: {
                   callBackInfo: {
                     callbackAddress: uri1
                   }
                 }
-              },
-              eventType: 'locus.difference',
-              locusUrl: url1
-            });
-            assert.callCount(webex.meetings.meetingCollection.getByKey, 4);
-            assert.calledWith(webex.meetings.meetingCollection.getByKey, 'locusUrl', url1);
-            assert.calledOnce(initialSetup);
-            assert.calledWith(initialSetup, {
-              id: uuid1,
-              self: {
-                callBackInfo: {
-                  callbackAddress: uri1
-                }
-              }
-            });
-          });
+              });
+            }
+          );
           it('should setup the meeting by a not difference event', async () => {
             await webex.meetings.handleLocusEvent({
               locus: {
@@ -816,159 +827,177 @@ describe('plugin-meetings', () => {
             assert.calledWith(TriggerProxy.trigger, meeting, {file: 'meetings', function: 'fetchMeetingInfo'}, 'meeting:meetingInfoAvailable');
           };
 
-          it('creates the meeting from a successful meeting info fetch promise testing', async () => {
-            const meeting = await webex.meetings.createMeeting('test destination', 'test type');
+          it(
+            'creates the meeting from a successful meeting info fetch promise testing',
+            async () => {
+              const meeting = await webex.meetings.createMeeting('test destination', 'test type');
 
-            const expectedMeetingData = {
-              permissionToken: 'PT',
-              meetingJoinUrl: 'meetingJoinUrl'
-            };
+              const expectedMeetingData = {
+                permissionToken: 'PT',
+                meetingJoinUrl: 'meetingJoinUrl'
+              };
 
-            checkCreateWithoutDelay(meeting, 'test destination', 'test type', expectedMeetingData);
-          });
+              checkCreateWithoutDelay(meeting, 'test destination', 'test type', expectedMeetingData);
+            }
+          );
 
-          it('creates the meeting from a successful meeting info fetch meeting resolve testing', async () => {
-            const meeting = await webex.meetings.createMeeting('test destination', 'test type');
-            const expectedMeetingData = {
-              permissionToken: 'PT',
-              meetingJoinUrl: 'meetingJoinUrl'
-            };
+          it(
+            'creates the meeting from a successful meeting info fetch meeting resolve testing',
+            async () => {
+              const meeting = await webex.meetings.createMeeting('test destination', 'test type');
+              const expectedMeetingData = {
+                permissionToken: 'PT',
+                meetingJoinUrl: 'meetingJoinUrl'
+              };
 
-            assert.instanceOf(meeting, Meeting, 'createMeeting should eventually resolve to a Meeting Object');
-            checkCreateWithoutDelay(meeting, 'test destination', 'test type', expectedMeetingData);
-          });
+              assert.instanceOf(meeting, Meeting, 'createMeeting should eventually resolve to a Meeting Object');
+              checkCreateWithoutDelay(meeting, 'test destination', 'test type', expectedMeetingData);
+            }
+          );
 
-          it('creates the meeting from a successful meeting info fetch with random delay', async () => {
-            const FAKE_LOCUS_MEETING = {
-              conversationUrl: 'locusConvURL',
-              url: 'locusUrl',
-              info: {
-                webExMeetingId: 'locusMeetingId',
-                sipUri: 'locusSipUri',
-                owner: 'locusOwner'
-              },
-              meeting: {
-                startTime: fakeMeetingStartTimeString
-              },
-              fullState: {
-                active: false
-              }
-            };
+          it(
+            'creates the meeting from a successful meeting info fetch with random delay',
+            async () => {
+              const FAKE_LOCUS_MEETING = {
+                conversationUrl: 'locusConvURL',
+                url: 'locusUrl',
+                info: {
+                  webExMeetingId: 'locusMeetingId',
+                  sipUri: 'locusSipUri',
+                  owner: 'locusOwner'
+                },
+                meeting: {
+                  startTime: fakeMeetingStartTimeString
+                },
+                fullState: {
+                  active: false
+                }
+              };
 
-            const meeting = await webex.meetings.createMeeting(FAKE_LOCUS_MEETING, 'test type', true);
+              const meeting = await webex.meetings.createMeeting(FAKE_LOCUS_MEETING, 'test type', true);
 
-            assert.instanceOf(meeting, Meeting, 'createMeeting should eventually resolve to a Meeting Object');
-            assert.notCalled(webex.meetings.meetingInfo.fetchMeetingInfo);
-            assert.calledOnce(setTimeoutSpy);
+              assert.instanceOf(meeting, Meeting, 'createMeeting should eventually resolve to a Meeting Object');
+              assert.notCalled(webex.meetings.meetingInfo.fetchMeetingInfo);
+              assert.calledOnce(setTimeoutSpy);
 
-            // Parse meeting info with locus object
-            assert.equal(meeting.conversationUrl, 'locusConvURL');
-            assert.equal(meeting.locusUrl, 'locusUrl');
-            assert.equal(meeting.sipUri, 'locusSipUri');
-            assert.equal(meeting.meetingNumber, 'locusMeetingId');
-            assert.isUndefined(meeting.meetingJoinUrl);
-            assert.equal(meeting.owner, 'locusOwner');
-            assert.isUndefined(meeting.permissionToken);
+              // Parse meeting info with locus object
+              assert.equal(meeting.conversationUrl, 'locusConvURL');
+              assert.equal(meeting.locusUrl, 'locusUrl');
+              assert.equal(meeting.sipUri, 'locusSipUri');
+              assert.equal(meeting.meetingNumber, 'locusMeetingId');
+              assert.isUndefined(meeting.meetingJoinUrl);
+              assert.equal(meeting.owner, 'locusOwner');
+              assert.isUndefined(meeting.permissionToken);
 
-            // Add meeting and send trigger
-            assert.calledWith(MeetingsUtil.getMeetingAddedType, 'test type');
-            assert.calledTwice(TriggerProxy.trigger);
-            assert.calledWith(TriggerProxy.trigger, sinon.match.instanceOf(Meetings), {
-              file: 'meetings', function: 'createMeeting'
-            }, 'meeting:added', {
-              meeting: sinon.match.instanceOf(Meeting), type: 'test meeting added type'
-            });
+              // Add meeting and send trigger
+              assert.calledWith(MeetingsUtil.getMeetingAddedType, 'test type');
+              assert.calledTwice(TriggerProxy.trigger);
+              assert.calledWith(TriggerProxy.trigger, sinon.match.instanceOf(Meetings), {
+                file: 'meetings', function: 'createMeeting'
+              }, 'meeting:added', {
+                meeting: sinon.match.instanceOf(Meeting), type: 'test meeting added type'
+              });
 
-            // When timer expires
-            clock.tick(FAKE_TIME_TO_START);
-            assert.calledWith(webex.meetings.meetingInfo.fetchMeetingInfo, FAKE_LOCUS_MEETING, 'test type');
+              // When timer expires
+              clock.tick(FAKE_TIME_TO_START);
+              assert.calledWith(webex.meetings.meetingInfo.fetchMeetingInfo, FAKE_LOCUS_MEETING, 'test type');
 
-            // Parse meeting info is called again with new meeting info
-            await testUtils.flushPromises();
-            assert.equal(meeting.conversationUrl, 'locusConvURL');
-            assert.equal(meeting.locusUrl, 'locusUrl');
-            assert.equal(meeting.sipUri, 'locusSipUri');
-            assert.equal(meeting.meetingNumber, 'locusMeetingId');
-            assert.equal(meeting.meetingJoinUrl, 'meetingJoinUrl');
-            assert.equal(meeting.owner, 'locusOwner');
-            assert.equal(meeting.permissionToken, 'PT');
+              // Parse meeting info is called again with new meeting info
+              await testUtils.flushPromises();
+              assert.equal(meeting.conversationUrl, 'locusConvURL');
+              assert.equal(meeting.locusUrl, 'locusUrl');
+              assert.equal(meeting.sipUri, 'locusSipUri');
+              assert.equal(meeting.meetingNumber, 'locusMeetingId');
+              assert.equal(meeting.meetingJoinUrl, 'meetingJoinUrl');
+              assert.equal(meeting.owner, 'locusOwner');
+              assert.equal(meeting.permissionToken, 'PT');
 
-            assert.calledWith(TriggerProxy.trigger, meeting, {file: 'meetings', function: 'fetchMeetingInfo'}, 'meeting:meetingInfoAvailable');
-          });
+              assert.calledWith(TriggerProxy.trigger, meeting, {file: 'meetings', function: 'fetchMeetingInfo'}, 'meeting:meetingInfoAvailable');
+            }
+          );
 
-          it('creates the meeting from a successful meeting info fetch that has no random delay because it is active', async () => {
-            const FAKE_LOCUS_MEETING = {
-              conversationUrl: 'locusConvURL',
-              url: 'locusUrl',
-              info: {
-                webExMeetingId: 'locusMeetingId',
-                sipUri: 'locusSipUri',
-                owner: 'locusOwner'
-              },
-              meeting: {
-                startTime: fakeMeetingStartTimeString
-              },
-              fullState: {
-                active: true
-              }
-            };
+          it(
+            'creates the meeting from a successful meeting info fetch that has no random delay because it is active',
+            async () => {
+              const FAKE_LOCUS_MEETING = {
+                conversationUrl: 'locusConvURL',
+                url: 'locusUrl',
+                info: {
+                  webExMeetingId: 'locusMeetingId',
+                  sipUri: 'locusSipUri',
+                  owner: 'locusOwner'
+                },
+                meeting: {
+                  startTime: fakeMeetingStartTimeString
+                },
+                fullState: {
+                  active: true
+                }
+              };
 
-            const meeting = await webex.meetings.createMeeting(FAKE_LOCUS_MEETING, 'test type', true);
+              const meeting = await webex.meetings.createMeeting(FAKE_LOCUS_MEETING, 'test type', true);
 
-            assert.instanceOf(meeting, Meeting, 'createMeeting should eventually resolve to a Meeting Object');
-            checkCreateWithoutDelay(meeting, FAKE_LOCUS_MEETING, 'test type');
-          });
+              assert.instanceOf(meeting, Meeting, 'createMeeting should eventually resolve to a Meeting Object');
+              checkCreateWithoutDelay(meeting, FAKE_LOCUS_MEETING, 'test type');
+            }
+          );
 
-          it('creates the meeting from a successful meeting info fetch that has no random delay because meeting start time is in the past', async () => {
-            const FAKE_LOCUS_MEETING = {
-              conversationUrl: 'locusConvURL',
-              url: 'locusUrl',
-              info: {
-                webExMeetingId: 'locusMeetingId',
-                sipUri: 'locusSipUri',
-                owner: 'locusOwner'
-              },
-              meeting: {
-                startTime: fakeMeetingStartTimeString - (1 * 60 * 60 * 1000)
-              },
-              fullState: {
-                active: false
-              }
-            };
+          it(
+            'creates the meeting from a successful meeting info fetch that has no random delay because meeting start time is in the past',
+            async () => {
+              const FAKE_LOCUS_MEETING = {
+                conversationUrl: 'locusConvURL',
+                url: 'locusUrl',
+                info: {
+                  webExMeetingId: 'locusMeetingId',
+                  sipUri: 'locusSipUri',
+                  owner: 'locusOwner'
+                },
+                meeting: {
+                  startTime: fakeMeetingStartTimeString - (1 * 60 * 60 * 1000)
+                },
+                fullState: {
+                  active: false
+                }
+              };
 
-            const meeting = await webex.meetings.createMeeting(FAKE_LOCUS_MEETING, 'test type', true);
+              const meeting = await webex.meetings.createMeeting(FAKE_LOCUS_MEETING, 'test type', true);
 
-            assert.instanceOf(meeting, Meeting, 'createMeeting should eventually resolve to a Meeting Object');
-            checkCreateWithoutDelay(meeting, FAKE_LOCUS_MEETING, 'test type');
-          });
+              assert.instanceOf(meeting, Meeting, 'createMeeting should eventually resolve to a Meeting Object');
+              checkCreateWithoutDelay(meeting, FAKE_LOCUS_MEETING, 'test type');
+            }
+          );
 
-          it('creates the meeting from a successful meeting info fetch that has no random delay because enableUnifiedMeetings is disabled', async () => {
-            Object.assign(webex.meetings.config, {
-              experimental: {
-                enableUnifiedMeetings: false
-              }
-            });
-            const FAKE_LOCUS_MEETING = {
-              conversationUrl: 'locusConvURL',
-              url: 'locusUrl',
-              info: {
-                webExMeetingId: 'locusMeetingId',
-                sipUri: 'locusSipUri',
-                owner: 'locusOwner'
-              },
-              meeting: {
-                startTime: fakeMeetingStartTimeString
-              },
-              fullState: {
-                active: false
-              }
-            };
+          it(
+            'creates the meeting from a successful meeting info fetch that has no random delay because enableUnifiedMeetings is disabled',
+            async () => {
+              Object.assign(webex.meetings.config, {
+                experimental: {
+                  enableUnifiedMeetings: false
+                }
+              });
+              const FAKE_LOCUS_MEETING = {
+                conversationUrl: 'locusConvURL',
+                url: 'locusUrl',
+                info: {
+                  webExMeetingId: 'locusMeetingId',
+                  sipUri: 'locusSipUri',
+                  owner: 'locusOwner'
+                },
+                meeting: {
+                  startTime: fakeMeetingStartTimeString
+                },
+                fullState: {
+                  active: false
+                }
+              };
 
-            const meeting = await webex.meetings.createMeeting(FAKE_LOCUS_MEETING, 'test type', true);
+              const meeting = await webex.meetings.createMeeting(FAKE_LOCUS_MEETING, 'test type', true);
 
-            assert.instanceOf(meeting, Meeting, 'createMeeting should eventually resolve to a Meeting Object');
-            checkCreateWithoutDelay(meeting, FAKE_LOCUS_MEETING, 'test type');
-          });
+              assert.instanceOf(meeting, Meeting, 'createMeeting should eventually resolve to a Meeting Object');
+              checkCreateWithoutDelay(meeting, FAKE_LOCUS_MEETING, 'test type');
+            }
+          );
         });
 
         describe('rejected MeetingInfo.#fetchMeetingInfo', () => {
@@ -1063,12 +1092,15 @@ describe('plugin-meetings', () => {
       });
 
       describe('#fetchUserPreferredWebexSite', () => {
-        it('should call request.getMeetingPreferences to get the preferred webex site ', async () => {
-          assert.isDefined(webex.meetings.preferredWebexSite);
-          await webex.meetings.fetchUserPreferredWebexSite();
+        it(
+          'should call request.getMeetingPreferences to get the preferred webex site ',
+          async () => {
+            assert.isDefined(webex.meetings.preferredWebexSite);
+            await webex.meetings.fetchUserPreferredWebexSite();
 
-          assert.equal(webex.meetings.preferredWebexSite, 'go.webex.com');
-        });
+            assert.equal(webex.meetings.preferredWebexSite, 'go.webex.com');
+          }
+        );
 
         it('should not fail if UserPreferred info is not fetched ', async () => {
           Object.assign(webex.internal, {

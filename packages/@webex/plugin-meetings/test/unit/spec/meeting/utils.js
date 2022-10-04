@@ -160,18 +160,21 @@ describe('plugin-meetings', () => {
         assert.equal(parameter.inviteeAddress, 'sipUri');
       });
 
-      it('#Should fallback to meetingNumber if meetingJoinUrl/sipUrl  does not exists', async () => {
-        const meeting = {meetingNumber: 'meetingNumber', locusUrl: 'locusUrl', meetingRequest: {joinMeeting: sinon.stub().returns(Promise.resolve({body: {}, headers: {}}))}};
+      it(
+        '#Should fallback to meetingNumber if meetingJoinUrl/sipUrl  does not exists',
+        async () => {
+          const meeting = {meetingNumber: 'meetingNumber', locusUrl: 'locusUrl', meetingRequest: {joinMeeting: sinon.stub().returns(Promise.resolve({body: {}, headers: {}}))}};
 
-        MeetingUtil.parseLocusJoin = sinon.stub();
-        await MeetingUtil.joinMeeting(meeting, {});
+          MeetingUtil.parseLocusJoin = sinon.stub();
+          await MeetingUtil.joinMeeting(meeting, {});
 
-        assert.calledOnce(meeting.meetingRequest.joinMeeting);
-        const parameter = meeting.meetingRequest.joinMeeting.getCall(0).args[0];
+          assert.calledOnce(meeting.meetingRequest.joinMeeting);
+          const parameter = meeting.meetingRequest.joinMeeting.getCall(0).args[0];
 
-        assert.isUndefined(parameter.inviteeAddress);
-        assert.equal(parameter.meetingNumber, 'meetingNumber');
-      });
+          assert.isUndefined(parameter.inviteeAddress);
+          assert.equal(parameter.meetingNumber, 'meetingNumber');
+        }
+      );
     });
 
     describe('getUserDisplayHintsFromLocusInfo', () => {

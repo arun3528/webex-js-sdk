@@ -1,5 +1,4 @@
 import 'jsdom-global/register';
-import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import sinon from 'sinon';
 
@@ -60,16 +59,19 @@ describe('plugin-meetings', () => {
         sandbox.restore();
       });
 
-      it('should trigger determineUplinkNetworkQuality with specific arguments', async () => {
-        await statsAnalyzer.parseGetStatsResult(statusResult, 'video');
+      it(
+        'should trigger determineUplinkNetworkQuality with specific arguments',
+        async () => {
+          await statsAnalyzer.parseGetStatsResult(statusResult, 'video');
 
-        assert.calledOnce(statsAnalyzer.networkQualityMonitor.determineUplinkNetworkQuality);
-        assert(sandBoxSpy.calledWith({
-          mediaType: 'video',
-          remoteRtpResults: statusResult,
-          statsAnalyzerCurrentStats: statsAnalyzer.statsResults
-        }));
-      });
+          assert.calledOnce(statsAnalyzer.networkQualityMonitor.determineUplinkNetworkQuality);
+          assert(sandBoxSpy.calledWith({
+            mediaType: 'video',
+            remoteRtpResults: statusResult,
+            statsAnalyzerCurrentStats: statsAnalyzer.statsResults
+          }));
+        }
+      );
     });
 
     describe('startAnalyzer', () => {
@@ -198,85 +200,97 @@ describe('plugin-meetings', () => {
         assert.deepEqual(receivedEventsData.remote.stopped, expected.remote?.stopped);
       };
 
-      it('emits LOCAL_MEDIA_STARTED and LOCAL_MEDIA_STOPPED events for audio', async () => {
-        await startStatsAnalyzer({expected: {sendAudio: true}});
+      it(
+        'emits LOCAL_MEDIA_STARTED and LOCAL_MEDIA_STOPPED events for audio',
+        async () => {
+          await startStatsAnalyzer({expected: {sendAudio: true}});
 
-        // check that we haven't received any events yet
-        checkReceivedEvent({expected: {}});
+          // check that we haven't received any events yet
+          checkReceivedEvent({expected: {}});
 
-        // setup a mock to return some values higher the previous ones
-        fakeStats.audio.sender.packetsSent += 10;
+          // setup a mock to return some values higher the previous ones
+          fakeStats.audio.sender.packetsSent += 10;
 
-        await progressTime();
+          await progressTime();
 
-        // check that we got the LOCAL_MEDIA_STARTED event for audio
-        checkReceivedEvent({expected: {local: {started: {type: 'audio'}}}});
+          // check that we got the LOCAL_MEDIA_STARTED event for audio
+          checkReceivedEvent({expected: {local: {started: {type: 'audio'}}}});
 
-        // now advance the clock and the mock still returns same values, so only "stopped" event should be triggered
-        resetReceivedEvents();
-        await progressTime();
-        checkReceivedEvent({expected: {local: {stopped: {type: 'audio'}}}});
-      });
+          // now advance the clock and the mock still returns same values, so only "stopped" event should be triggered
+          resetReceivedEvents();
+          await progressTime();
+          checkReceivedEvent({expected: {local: {stopped: {type: 'audio'}}}});
+        }
+      );
 
-      it('emits LOCAL_MEDIA_STARTED and LOCAL_MEDIA_STOPPED events for video', async () => {
-        await startStatsAnalyzer({expected: {sendVideo: true}});
+      it(
+        'emits LOCAL_MEDIA_STARTED and LOCAL_MEDIA_STOPPED events for video',
+        async () => {
+          await startStatsAnalyzer({expected: {sendVideo: true}});
 
-        // check that we haven't received any events yet
-        checkReceivedEvent({expected: {}});
+          // check that we haven't received any events yet
+          checkReceivedEvent({expected: {}});
 
-        // setup a mock to return some values higher the previous ones
-        fakeStats.video.sender.framesSent += 1;
+          // setup a mock to return some values higher the previous ones
+          fakeStats.video.sender.framesSent += 1;
 
-        await progressTime();
+          await progressTime();
 
-        // check that we got the LOCAL_MEDIA_STARTED event for audio
-        checkReceivedEvent({expected: {local: {started: {type: 'video'}}}});
+          // check that we got the LOCAL_MEDIA_STARTED event for audio
+          checkReceivedEvent({expected: {local: {started: {type: 'video'}}}});
 
-        // now advance the clock and the mock still returns same values, so only "stopped" event should be triggered
-        resetReceivedEvents();
-        await progressTime();
-        checkReceivedEvent({expected: {local: {stopped: {type: 'video'}}}});
-      });
+          // now advance the clock and the mock still returns same values, so only "stopped" event should be triggered
+          resetReceivedEvents();
+          await progressTime();
+          checkReceivedEvent({expected: {local: {stopped: {type: 'video'}}}});
+        }
+      );
 
-      it('emits REMOTE_MEDIA_STARTED and REMOTE_MEDIA_STOPPED events for audio', async () => {
-        await startStatsAnalyzer({expected: {receiveAudio: true}});
+      it(
+        'emits REMOTE_MEDIA_STARTED and REMOTE_MEDIA_STOPPED events for audio',
+        async () => {
+          await startStatsAnalyzer({expected: {receiveAudio: true}});
 
-        // check that we haven't received any events yet
-        checkReceivedEvent({expected: {}});
+          // check that we haven't received any events yet
+          checkReceivedEvent({expected: {}});
 
-        // setup a mock to return some values higher the previous ones
-        fakeStats.audio.receiver.packetsReceived += 5;
+          // setup a mock to return some values higher the previous ones
+          fakeStats.audio.receiver.packetsReceived += 5;
 
-        await progressTime();
-        // check that we got the REMOTE_MEDIA_STARTED event for audio
-        checkReceivedEvent({expected: {remote: {started: {type: 'audio'}}}});
+          await progressTime();
+          // check that we got the REMOTE_MEDIA_STARTED event for audio
+          checkReceivedEvent({expected: {remote: {started: {type: 'audio'}}}});
 
-        // now advance the clock and the mock still returns same values, so only "stopped" event should be triggered
-        resetReceivedEvents();
-        await progressTime();
+          // now advance the clock and the mock still returns same values, so only "stopped" event should be triggered
+          resetReceivedEvents();
+          await progressTime();
 
-        checkReceivedEvent({expected: {remote: {stopped: {type: 'audio'}}}});
-      });
+          checkReceivedEvent({expected: {remote: {stopped: {type: 'audio'}}}});
+        }
+      );
 
-      it('emits REMOTE_MEDIA_STARTED and REMOTE_MEDIA_STOPPED events for video', async () => {
-        await startStatsAnalyzer({expected: {receiveVideo: true}});
+      it(
+        'emits REMOTE_MEDIA_STARTED and REMOTE_MEDIA_STOPPED events for video',
+        async () => {
+          await startStatsAnalyzer({expected: {receiveVideo: true}});
 
-        // check that we haven't received any events yet
-        checkReceivedEvent({expected: {}});
+          // check that we haven't received any events yet
+          checkReceivedEvent({expected: {}});
 
-        // setup a mock to return some values higher the previous ones
-        fakeStats.video.receiver.framesDecoded += 1;
+          // setup a mock to return some values higher the previous ones
+          fakeStats.video.receiver.framesDecoded += 1;
 
-        await progressTime();
-        // check that we got the REMOTE_MEDIA_STARTED event for video
-        checkReceivedEvent({expected: {remote: {started: {type: 'video'}}}});
+          await progressTime();
+          // check that we got the REMOTE_MEDIA_STARTED event for video
+          checkReceivedEvent({expected: {remote: {started: {type: 'video'}}}});
 
-        // now advance the clock and the mock still returns same values, so only "stopped" event should be triggered
-        resetReceivedEvents();
-        await progressTime();
+          // now advance the clock and the mock still returns same values, so only "stopped" event should be triggered
+          resetReceivedEvents();
+          await progressTime();
 
-        checkReceivedEvent({expected: {remote: {stopped: {type: 'video'}}}});
-      });
+          checkReceivedEvent({expected: {remote: {stopped: {type: 'video'}}}});
+        }
+      );
     });
   });
 });
