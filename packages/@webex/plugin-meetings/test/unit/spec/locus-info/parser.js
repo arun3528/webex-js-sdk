@@ -4,7 +4,8 @@
 
 import sinon from 'sinon';
 import {assert} from '@webex/test-helper-chai';
-import LocusDeltaParser from '@webex/plugin-meetings/src/locus-info/parser';
+
+import LocusDeltaParser from '../../../../src/locus-info/parser';
 
 import basicSequenceComparisons from './lib/BasicSeqCmp.json';
 import sequenceComparisons from './lib/SeqCmp';

@@ -2,8 +2,8 @@ import sinon from 'sinon';
 import {assert} from '@webex/test-helper-chai';
 import MockWebex from '@webex/test-helper-mock-webex';
 
-import Meetings from '@webex/plugin-meetings';
-import MeetingRequest from '@webex/plugin-meetings/src/meeting/request';
+import Meetings from '../../../../src/Meetings';
+import MeetingRequest from '../../../../src/meeting/request';
 
 describe('plugin-meetings', () => {
   let meetingsRequest;

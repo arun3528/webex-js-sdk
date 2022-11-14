@@ -1,10 +1,11 @@
 import sinon from 'sinon';
 import {assert} from '@webex/test-helper-chai';
-import MeetingUtil from '@webex/plugin-meetings/src/meeting/util';
-import LoggerProxy from '@webex/plugin-meetings/src/common/logs/logger-proxy';
+
+import MeetingUtil from '../../../../src/meeting/util';
+import LoggerProxy from '../../../../src/common/logs/logger-proxy';
 import LoggerConfig
-  from '@webex/plugin-meetings/src/common/logs/logger-config';
-import Metrics from '@webex/plugin-meetings/src/metrics/index';
+  from '../../../../src/common/logs/logger-config';
+import Metrics from '../../../../src/metrics/index';
 
 
 describe('plugin-meetings', () => {

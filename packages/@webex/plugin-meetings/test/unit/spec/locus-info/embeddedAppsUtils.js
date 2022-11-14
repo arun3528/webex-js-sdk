@@ -1,7 +1,7 @@
 import {assert} from '@webex/test-helper-chai';
 import {cloneDeep} from 'lodash';
 
-import EmbeddedAppUtils from '@webex/plugin-meetings/src/locus-info/embeddedAppsUtils';
+import EmbeddedAppUtils from '../../../../src/locus-info/embeddedAppsUtils';
 
 describe('plugin-meetings', () => {
   describe('embeddedAppsUtils', () => {

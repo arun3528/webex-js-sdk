@@ -33,6 +33,7 @@
         "@webex/test-helper-mock-webex": "workspace:^",
         "@webex/test-helper-refresh-callback": "workspace:^",
         "@webex/test-helper-test-users": "workspace:^",
+        "@webex/webex-core": "workspace:^",
         "chai": "^4.3.4",
         "chai-as-promised": "^7.1.1",
         "sinon": "^9.2.4"
@@ -44,7 +45,6 @@
         "@webex/internal-plugin-device": "workspace:^",
         "@webex/plugin-logger": "workspace:^",
         "@webex/storage-adapter-spec": "workspace:^",
-        "@webex/webex-core": "workspace:^",
         "ampersand-collection": "^2.0.2",
         "ampersand-events": "^2.0.2",
         "ampersand-state": "^5.0.3",

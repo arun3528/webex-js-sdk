@@ -17,6 +17,7 @@
         ]
     },
     "devDependencies": {
+        "@webex/internal-plugin-team": "workspace:^",
         "@webex/test-helper-chai": "workspace:^",
         "@webex/test-helper-mocha": "workspace:^",
         "@webex/test-helper-mock-webex": "workspace:^",
@@ -27,7 +28,6 @@
         "@webex/internal-plugin-conversation": "workspace:^",
         "@webex/internal-plugin-device": "workspace:^",
         "@webex/internal-plugin-encryption": "workspace:^",
-        "@webex/internal-plugin-team": "workspace:^",
         "@webex/internal-plugin-user": "workspace:^",
         "@webex/webex-core": "workspace:^",
         "lodash": "^4.17.21",

@@ -10,18 +10,17 @@ import MockWebex from '@webex/test-helper-mock-webex';
 import sinon from 'sinon';
 import uuid from 'uuid';
 
-import StaticConfig from '@webex/plugin-meetings/src/common/config';
-import TriggerProxy from '@webex/plugin-meetings/src/common/events/trigger-proxy';
-import LoggerConfig from '@webex/plugin-meetings/src/common/logs/logger-config';
-import MediaUtil from '@webex/plugin-meetings/src/media/util';
-import Meeting from '@webex/plugin-meetings/src/meeting';
-import MeetingUtil from '@webex/plugin-meetings/src/meeting/util';
-import Meetings from '@webex/plugin-meetings/src/meetings';
-import MeetingCollection from '@webex/plugin-meetings/src/meetings/collection';
-import MeetingsUtil from '@webex/plugin-meetings/src/meetings/util';
-import PersonalMeetingRoom from '@webex/plugin-meetings/src/personal-meeting-room';
-import Reachability from '@webex/plugin-meetings/src/reachability';
-
+import StaticConfig from '../../../../src/common/config';
+import TriggerProxy from '../../../../src/common/events/trigger-proxy';
+import LoggerConfig from '../../../../src/common/logs/logger-config';
+import MediaUtil from '../../../../src/media/util';
+import Meeting from '../../../../src/meeting';
+import MeetingUtil from '../../../../src/meeting/util';
+import Meetings from '../../../../src/meetings';
+import MeetingCollection from '../../../../src/meetings/collection';
+import MeetingsUtil from '../../../../src/meetings/util';
+import PersonalMeetingRoom from '../../../../src/personal-meeting-room';
+import Reachability from '../../../../src/reachability';
 import testUtils from '../../../utils/testUtils';
 import {
   LOCUSEVENT,

@@ -1,6 +1,6 @@
 import {assert} from '@webex/test-helper-chai';
 
-import MemberUtil from '@webex/plugin-meetings/src/member/util';
+import MemberUtil from '../../../../src/member/util';
 
 
 describe('isHandRaised', () => {

@@ -7,19 +7,19 @@ import sinon from 'sinon';
 import MockWebex from '@webex/test-helper-mock-webex';
 import Device from '@webex/internal-plugin-device';
 import Mercury from '@webex/internal-plugin-mercury';
+
 import {
   _MEETING_ID_,
   _PERSONAL_ROOM_,
   _CONVERSATION_URL_,
   _SIP_URI_,
   WBXAPPAPI_SERVICE
-} from '@webex/plugin-meetings/src/constants';
-
-import Meetings from '@webex/plugin-meetings/src/meetings';
-import MeetingInfo, {MeetingInfoV2PasswordError, MeetingInfoV2CaptchaError, MeetingInfoV2AdhocMeetingError} from '@webex/plugin-meetings/src/meeting-info/meeting-info-v2';
-import MeetingInfoUtil from '@webex/plugin-meetings/src/meeting-info/utilv2';
-import Metrics from '@webex/plugin-meetings/src/metrics';
-import BEHAVIORAL_METRICS from '@webex/plugin-meetings/src/metrics/constants';
+} from '../../../../src/constants';
+import Meetings from '../../../../src/meetings';
+import MeetingInfo, {MeetingInfoV2PasswordError, MeetingInfoV2CaptchaError, MeetingInfoV2AdhocMeetingError} from '../../../../src/meeting-info/meeting-info-v2';
+import MeetingInfoUtil from '../../../../src/meeting-info/utilv2';
+import Metrics from '../../../../src/metrics';
+import BEHAVIORAL_METRICS from '../../../../src/metrics/constants';
 
 describe('plugin-meetings', () => {
   const conversation = {

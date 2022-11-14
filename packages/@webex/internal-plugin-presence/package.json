@@ -16,12 +16,12 @@
         ]
     },
     "devDependencies": {
+        "@webex/internal-plugin-presence": "workspace:^",
         "sinon": "^9.2.4"
     },
     "dependencies": {
         "@webex/internal-plugin-device": "workspace:^",
         "@webex/internal-plugin-mercury": "workspace:^",
-        "@webex/internal-plugin-presence": "workspace:^",
         "@webex/test-helper-chai": "workspace:^",
         "@webex/test-helper-mocha": "workspace:^",
         "@webex/test-helper-mock-webex": "workspace:^",

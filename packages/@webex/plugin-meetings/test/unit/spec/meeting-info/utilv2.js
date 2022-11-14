@@ -4,6 +4,7 @@
 
 import {assert, expect} from '@webex/test-helper-chai';
 import sinon from 'sinon';
+
 import {
   _MEETING_ID_,
   _SIP_URI_,
@@ -12,10 +13,10 @@ import {
   _PERSONAL_ROOM_,
   _LOCUS_ID_,
   _MEETING_UUID_
-} from '@webex/plugin-meetings/src/constants';
-import MeetingInfoUtil from '@webex/plugin-meetings/src/meeting-info/utilv2';
-import LoggerProxy from '@webex/plugin-meetings/src/common/logs/logger-proxy';
-import LoggerConfig from '@webex/plugin-meetings/src/common/logs/logger-config';
+} from '../../../../src/constants';
+import MeetingInfoUtil from '../../../../src/meeting-info/utilv2';
+import LoggerProxy from '../../../../src/common/logs/logger-proxy';
+import LoggerConfig from '../../../../src/common/logs/logger-config';
 
 describe('plugin-meetings', () => {
   const logger = {

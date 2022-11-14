@@ -16,6 +16,7 @@
         ]
     },
     "devDependencies": {
+        "@webex/plugin-team-memberships": "workspace:^",
         "@webex/test-helper-chai": "workspace:^",
         "@webex/test-helper-test-users": "workspace:^",
         "sinon": "^9.2.4"
@@ -24,7 +25,6 @@
         "@webex/internal-plugin-device": "workspace:^",
         "@webex/plugin-logger": "workspace:^",
         "@webex/plugin-rooms": "workspace:^",
-        "@webex/plugin-team-memberships": "workspace:^",
         "@webex/plugin-teams": "workspace:^",
         "@webex/webex-core": "workspace:^"
     }

@@ -4,10 +4,10 @@ import uuid from 'uuid';
 import chaiAsPromised from 'chai-as-promised';
 import MockWebex from '@webex/test-helper-mock-webex';
 
-import Meetings from '@webex/plugin-meetings';
-import MembersRequest from '@webex/plugin-meetings/src/members/request';
-import membersUtil from '@webex/plugin-meetings/src/members/util';
-import ParameterError from '@webex/plugin-meetings/src/common/errors/parameter';
+import Meetings from '../../../../src/Meetings';
+import MembersRequest from '../../../../src/members/request';
+import membersUtil from '../../../../src/members/util';
+import ParameterError from '../../../../src/common/errors/parameter';
 
 const {assert} = chai;
 

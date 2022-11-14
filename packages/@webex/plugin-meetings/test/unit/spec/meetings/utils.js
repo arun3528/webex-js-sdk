@@ -1,6 +1,6 @@
 import {assert} from '@webex/test-helper-chai';
 
-import MeetingsUtil from '@webex/plugin-meetings/src/meetings/util';
+import MeetingsUtil from '../../../../src/meetings/util';
 
 describe('plugin-meetings', () => {
   describe('Meetings utils function', () => {

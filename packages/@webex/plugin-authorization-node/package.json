@@ -17,6 +17,7 @@
         ]
     },
     "devDependencies": {
+        "@webex/plugin-authorization-node": "workspace:^",
         "@webex/test-helper-appid": "workspace:^",
         "@webex/test-helper-chai": "workspace:^",
         "@webex/test-helper-mocha": "workspace:^",
@@ -27,7 +28,6 @@
     "dependencies": {
         "@webex/common": "workspace:^",
         "@webex/internal-plugin-device": "workspace:^",
-        "@webex/plugin-authorization-node": "workspace:^",
         "@webex/webex-core": "workspace:^",
         "uuid": "^3.3.2"
     }

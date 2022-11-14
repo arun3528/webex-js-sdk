@@ -21,10 +21,10 @@
         ]
     },
     "devDependencies": {
+        "@webex/helper-image": "workspace:^",
         "sinon": "^9.2.4"
     },
     "dependencies": {
-        "@webex/helper-image": "workspace:^",
         "@webex/http-core": "workspace:^",
         "@webex/test-helper-chai": "workspace:^",
         "@webex/test-helper-file": "workspace:^",

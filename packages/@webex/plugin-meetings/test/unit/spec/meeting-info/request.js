@@ -7,11 +7,11 @@ import sinon from 'sinon';
 import MockWebex from '@webex/test-helper-mock-webex';
 import Device from '@webex/internal-plugin-device';
 import Mercury from '@webex/internal-plugin-mercury';
-import Meetings from '@webex/plugin-meetings/src/meetings';
+
+import Meetings from '../../../../src/meetings';
 import {
   _LOCUS_ID_
-} from '@webex/plugin-meetings/src/constants';
-
+} from '../../../../src/constants';
 import MeetingInfoRequest from '../../../../src/meeting-info/request';
 
 describe('plugin-meetings', () => {

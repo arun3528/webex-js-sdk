@@ -1,7 +1,7 @@
 import 'jsdom-global/register';
 import {assert} from '@webex/test-helper-chai';
-import BrowserDetection from
-  '@webex/plugin-meetings/src/common/browser-detection';
+
+import BrowserDetection from '../../../../src/common/browser-detection';
 
 const USER_AGENT_CHROME_MAC =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) ' +

@@ -2,7 +2,7 @@ import {assert} from '@webex/test-helper-chai';
 import Sinon from 'sinon';
 import {cloneDeep} from 'lodash';
 
-import SelfUtils from '@webex/plugin-meetings/src/locus-info/selfUtils';
+import SelfUtils from '../../../../src/locus-info/selfUtils';
 
 import {self} from './selfConstant';
 

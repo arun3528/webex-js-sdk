@@ -11,10 +11,10 @@ import {Credentials} from '@webex/webex-core';
 import Support from '@webex/internal-plugin-support';
 import MockWebex from '@webex/test-helper-mock-webex';
 
-import Meetings from '@webex/plugin-meetings';
-import ParameterError from '@webex/plugin-meetings/src/common/errors/parameter';
-import Members from '@webex/plugin-meetings/src/members';
-import MembersUtil from '@webex/plugin-meetings/src/members/util';
+import Meetings from '../../../../src/Meetings';
+import ParameterError from '../../../../src/common/errors/parameter';
+import Members from '../../../../src/members';
+import MembersUtil from '../../../../src/members/util';
 
 const {assert} = chai;
 

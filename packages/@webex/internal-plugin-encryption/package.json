@@ -20,6 +20,7 @@
     ]
   },
   "devDependencies": {
+    "@webex/internal-plugin-encryption": "workspace:^",
     "@webex/test-helper-chai": "workspace:^",
     "@webex/test-helper-make-local-url": "workspace:^",
     "@webex/test-helper-mocha": "workspace:^",
@@ -32,7 +33,6 @@
     "@webex/common-timers": "workspace:^",
     "@webex/http-core": "workspace:^",
     "@webex/internal-plugin-device": "workspace:^",
-    "@webex/internal-plugin-encryption": "workspace:^",
     "@webex/internal-plugin-mercury": "workspace:^",
     "@webex/test-helper-file": "workspace:^",
     "@webex/webex-core": "workspace:^",

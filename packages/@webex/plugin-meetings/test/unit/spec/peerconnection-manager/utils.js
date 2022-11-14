@@ -1,6 +1,7 @@
 
 import {assert} from '@webex/test-helper-chai';
-import PeerConnectionUtils from '@webex/plugin-meetings/src/peer-connection-manager/util';
+
+import PeerConnectionUtils from '../../../../src/peer-connection-manager/util';
 
 describe('Peerconnection Manager', () => {
   describe('Utils', () => {

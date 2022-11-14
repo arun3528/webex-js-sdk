@@ -18,11 +18,13 @@
             "envify"
         ]
     },
+    "devDependencies": {
+        "@webex/plugin-attachment-actions": "workspace:^"
+    },
     "dependencies": {
         "@webex/common": "workspace:^",
         "@webex/internal-plugin-conversation": "workspace:^",
         "@webex/internal-plugin-mercury": "workspace:^",
-        "@webex/plugin-attachment-actions": "workspace:^",
         "@webex/plugin-logger": "workspace:^",
         "@webex/plugin-messages": "workspace:^",
         "@webex/plugin-people": "workspace:^",

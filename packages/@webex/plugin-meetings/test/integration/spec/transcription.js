@@ -1,6 +1,7 @@
-import Transcription from '@webex/plugin-meetings/src/transcription';
 import {assert} from '@webex/test-helper-chai';
 import sinon from 'sinon';
+
+import Transcription from '../../../src/transcription';
 
 describe('transcription index', () => {
   let webSocketUrl, members, sessionId, token, transcription;

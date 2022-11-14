@@ -1,11 +1,11 @@
 import {assert} from '@webex/test-helper-chai';
 import sinon from 'sinon';
-import TurnDiscovery from '@webex/plugin-meetings/src/roap/turnDiscovery';
-import {ROAP} from '@webex/plugin-meetings/src/constants';
+import TurnDiscovery from '../../../../src/roap/turnDiscovery';
+import {ROAP} from '../../../../src/constants';
 
-import RoapRequest from '@webex/plugin-meetings/src/roap/request';
-import RoapHandler from '@webex/plugin-meetings/src/roap/handler';
-import Roap from '@webex/plugin-meetings/src/roap/';
+import RoapRequest from '../../../../src/roap/request';
+import RoapHandler from '../../../../src/roap/handler';
+import Roap from '../../../../src/roap/';
 
 describe('Roap', () => {
   describe('doTurnDiscovery', () => {

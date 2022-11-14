@@ -3,10 +3,11 @@
  */
 
 import {assert} from '@webex/test-helper-chai';
-import MeetingCollection from '@webex/plugin-meetings/src/meetings/collection';
-import LoggerProxy from '@webex/plugin-meetings/src/common/logs/logger-proxy';
-import LoggerConfig from '@webex/plugin-meetings/src/common/logs/logger-config';
 import uuid from 'uuid';
+
+import MeetingCollection from '../../../../src/meetings/collection';
+import LoggerProxy from '../../../../src/common/logs/logger-proxy';
+import LoggerConfig from '../../../../src/common/logs/logger-config';
 
 describe('plugin-meetings', () => {
   const logger = {

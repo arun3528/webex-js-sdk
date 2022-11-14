@@ -1,8 +1,8 @@
 import sinon from 'sinon';
 import {assert} from '@webex/test-helper-chai';
 
-import MemberUtil from '@webex/plugin-meetings/src/member/util';
-import Member from '@webex/plugin-meetings/src/member';
+import MemberUtil from '../../../../src/member/util';
+import Member from '../../../../src/member';
 
 
 describe('member', () => {

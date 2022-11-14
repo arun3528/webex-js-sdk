@@ -16,9 +16,11 @@
         ]
     },
     "dependencies": {
-        "@webex/storage-adapter-local-storage": "workspace:^",
         "@webex/storage-adapter-spec": "workspace:^",
         "@webex/test-helper-mocha": "workspace:^",
         "@webex/webex-core": "workspace:^"
+    },
+    "devDependencies": {
+        "@webex/storage-adapter-local-storage": "workspace:^"
     }
 }

@@ -19,7 +19,6 @@
     "dependencies": {
         "@webex/internal-plugin-device": "workspace:^",
         "@webex/internal-plugin-search": "workspace:^",
-        "@webex/internal-plugin-support": "workspace:^",
         "@webex/test-helper-chai": "workspace:^",
         "@webex/test-helper-file": "workspace:^",
         "@webex/test-helper-mock-webex": "workspace:^",
@@ -27,5 +26,8 @@
         "@webex/webex-core": "workspace:^",
         "lodash": "^4.17.21",
         "uuid": "^3.3.2"
+    },
+    "devDependencies": {
+        "@webex/internal-plugin-support": "workspace:^"
     }
 }

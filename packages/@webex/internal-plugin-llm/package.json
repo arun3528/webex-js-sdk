@@ -10,7 +10,6 @@
         "node": ">=14"
     },
     "dependencies": {
-        "@webex/internal-plugin-llm": "workspace:^",
         "@webex/internal-plugin-mercury": "workspace:^"
     },
     "browserify": {
@@ -20,6 +19,7 @@
         ]
     },
     "devDependencies": {
+        "@webex/internal-plugin-llm": "workspace:^",
         "@webex/test-helper-chai": "workspace:^",
         "@webex/test-helper-mock-webex": "workspace:^",
         "sinon": "^9.2.4"

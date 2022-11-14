@@ -4,12 +4,11 @@ import {cloneDeep} from 'lodash';
 import {assert} from '@webex/test-helper-chai';
 import MockWebex from '@webex/test-helper-mock-webex';
 
-import Meetings from '@webex/plugin-meetings';
-import LocusInfo from '@webex/plugin-meetings/src/locus-info';
-import SelfUtils from '@webex/plugin-meetings/src/locus-info/selfUtils';
-import InfoUtils from '@webex/plugin-meetings/src/locus-info/infoUtils';
-import LocusDeltaParser from '@webex/plugin-meetings/src/locus-info/parser';
-
+import Meetings from '../../../../src/Meetings';
+import LocusInfo from '../../../../src/locus-info';
+import SelfUtils from '../../../../src/locus-info/selfUtils';
+import InfoUtils from '../../../../src/locus-info/infoUtils';
+import LocusDeltaParser from '../../../../src/locus-info/parser';
 import {
   LOCUSINFO,
   RECORDING_STATE,

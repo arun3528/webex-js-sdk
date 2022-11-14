@@ -8,7 +8,7 @@ import MockWebex from '@webex/test-helper-mock-webex';
 import {browserOnly} from '@webex/test-helper-mocha';
 import {assert} from '@webex/test-helper-chai';
 
-import metrics from '@webex/plugin-meetings/src/metrics';
+import metrics from '../../../../src/metrics';
 
 
 /**

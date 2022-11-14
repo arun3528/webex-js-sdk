@@ -17,6 +17,7 @@
     ]
   },
   "devDependencies": {
+    "@webex/internal-plugin-board": "workspace:^",
     "@webex/test-helper-chai": "workspace:^",
     "@webex/test-helper-file": "workspace:^",
     "@webex/test-helper-mocha": "workspace:^",
@@ -27,7 +28,6 @@
   },
   "dependencies": {
     "@webex/common": "workspace:^",
-    "@webex/internal-plugin-board": "workspace:^",
     "@webex/internal-plugin-conversation": "workspace:^",
     "@webex/internal-plugin-encryption": "workspace:^",
     "@webex/internal-plugin-feature": "workspace:^",

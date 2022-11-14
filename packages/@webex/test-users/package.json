@@ -16,13 +16,13 @@
         ]
     },
     "devDependencies": {
+        "@webex/test-users": "workspace:^",
         "chai": "^4.3.4",
         "chai-as-promised": "^7.1.1"
     },
     "dependencies": {
         "@webex/http-core": "workspace:^",
         "@webex/test-helper-mocha": "workspace:^",
-        "@webex/test-users": "workspace:^",
         "btoa": "^1.2.1",
         "lodash": "^4.17.21",
         "node-random-name": "^1.0.1",

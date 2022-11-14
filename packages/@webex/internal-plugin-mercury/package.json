@@ -21,6 +21,7 @@
     },
     "devDependencies": {
         "@sinonjs/fake-timers": "^6.0.1",
+        "@webex/internal-plugin-mercury": "workspace:^",
         "sinon": "^9.2.4"
     },
     "dependencies": {
@@ -28,7 +29,6 @@
         "@webex/common-timers": "workspace:^",
         "@webex/internal-plugin-device": "workspace:^",
         "@webex/internal-plugin-feature": "workspace:^",
-        "@webex/internal-plugin-mercury": "workspace:^",
         "@webex/internal-plugin-metrics": "workspace:^",
         "@webex/test-helper-chai": "workspace:^",
         "@webex/test-helper-mocha": "workspace:^",

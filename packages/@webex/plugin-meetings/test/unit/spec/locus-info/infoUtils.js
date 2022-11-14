@@ -1,7 +1,7 @@
 import {assert} from '@webex/test-helper-chai';
 import Sinon from 'sinon';
 
-import InfoUtils from '@webex/plugin-meetings/src/locus-info/infoUtils';
+import InfoUtils from '../../../../src/locus-info/infoUtils';
 
 
 describe('plugin-meetings', () => {

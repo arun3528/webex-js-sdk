@@ -24,11 +24,13 @@
         "@webex/internal-plugin-lyra": "workspace:^",
         "@webex/internal-plugin-search": "workspace:^",
         "@webex/plugin-authorization": "workspace:^",
-        "@webex/plugin-device-manager": "workspace:^",
         "@webex/plugin-logger": "workspace:^",
         "@webex/test-helper-chai": "workspace:^",
         "@webex/webex-core": "workspace:^",
         "lodash": "^4.17.21",
         "uuid": "^3.3.2"
+    },
+    "devDependencies": {
+        "@webex/plugin-device-manager": "workspace:^"
     }
 }

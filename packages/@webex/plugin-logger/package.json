@@ -16,11 +16,11 @@
         ]
     },
     "devDependencies": {
+        "@webex/plugin-logger": "workspace:^",
         "sinon": "^9.2.4"
     },
     "dependencies": {
         "@webex/common": "workspace:^",
-        "@webex/plugin-logger": "workspace:^",
         "@webex/test-helper-chai": "workspace:^",
         "@webex/test-helper-mocha": "workspace:^",
         "@webex/test-helper-mock-webex": "workspace:^",

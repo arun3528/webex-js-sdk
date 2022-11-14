@@ -17,6 +17,7 @@
         ]
     },
     "devDependencies": {
+        "@webex/internal-plugin-avatar": "workspace:^",
         "@webex/test-helper-chai": "workspace:^",
         "@webex/test-helper-file": "workspace:^",
         "@webex/test-helper-mock-webex": "workspace:^",
@@ -27,7 +28,6 @@
         "@webex/common": "workspace:^",
         "@webex/common-timers": "workspace:^",
         "@webex/helper-image": "workspace:^",
-        "@webex/internal-plugin-avatar": "workspace:^",
         "@webex/internal-plugin-device": "workspace:^",
         "@webex/internal-plugin-user": "workspace:^",
         "@webex/webex-core": "workspace:^",

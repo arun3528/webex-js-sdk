@@ -10,7 +10,13 @@ import {assert} from '@webex/test-helper-chai';
 import {Credentials} from '@webex/webex-core';
 import Support from '@webex/internal-plugin-support';
 import MockWebex from '@webex/test-helper-mock-webex';
-import {
+
+import Meetings from '../../../../src/Meetings';
+import {CONNECTION_STATE,
+  EVENT_TYPES,
+  ENDED,
+  QUALITY_LEVELS,
+  LAYOUT_TYPES,
   FLOOR_ACTION,
   SHARE_STATUS,
   MEETING_INFO_FAILURE_REASON,
@@ -19,30 +25,27 @@ import {
   EVENT_TRIGGERS,
   _SIP_URI_,
   _MEETING_ID_,
-  LOCUSINFO,
-} from '@webex/plugin-meetings/src/constants';
-import * as StatsAnalyzerModule from '@webex/plugin-meetings/src/statsAnalyzer';
-import EventsScope from '@webex/plugin-meetings/src/common/events/events-scope';
-import Meetings, {CONSTANTS} from '@webex/plugin-meetings';
-import Meeting from '@webex/plugin-meetings/src/meeting';
-import Members from '@webex/plugin-meetings/src/members';
-import Roap from '@webex/plugin-meetings/src/roap';
-import MeetingRequest from '@webex/plugin-meetings/src/meeting/request';
-import LocusInfo from '@webex/plugin-meetings/src/locus-info';
-import MediaProperties from '@webex/plugin-meetings/src/media/properties';
-import MeetingUtil from '@webex/plugin-meetings/src/meeting/util';
-import Media from '@webex/plugin-meetings/src/media/index';
-import PeerConnectionManager from '@webex/plugin-meetings/src/peer-connection-manager';
-import ReconnectionManager from '@webex/plugin-meetings/src/reconnection-manager';
-import MediaUtil from '@webex/plugin-meetings/src/media/util';
-import LoggerProxy from '@webex/plugin-meetings/src/common/logs/logger-proxy';
-import LoggerConfig from '@webex/plugin-meetings/src/common/logs/logger-config';
-import TriggerProxy from '@webex/plugin-meetings/src/common/events/trigger-proxy';
-import BrowserDetection from '@webex/plugin-meetings/src/common/browser-detection';
-import Metrics from '@webex/plugin-meetings/src/metrics';
-import {trigger, eventType} from '@webex/plugin-meetings/src/metrics/config';
-import BEHAVIORAL_METRICS from '@webex/plugin-meetings/src/metrics/constants';
-
+  LOCUSINFO} from '../../../../src/constants';
+import * as StatsAnalyzerModule from '../../../../src/statsAnalyzer';
+import EventsScope from '../../../../src/common/events/events-scope';
+import Meeting from '../../../../src/meeting';
+import Members from '../../../../src/members';
+import Roap from '../../../../src/roap';
+import MeetingRequest from '../../../../src/meeting/request';
+import LocusInfo from '../../../../src/locus-info';
+import MediaProperties from '../../../../src/media/properties';
+import MeetingUtil from '../../../../src/meeting/util';
+import Media from '../../../../src/media/index';
+import PeerConnectionManager from '../../../../src/peer-connection-manager';
+import ReconnectionManager from '../../../../src/reconnection-manager';
+import MediaUtil from '../../../../src/media/util';
+import LoggerProxy from '../../../../src/common/logs/logger-proxy';
+import LoggerConfig from '../../../../src/common/logs/logger-config';
+import TriggerProxy from '../../../../src/common/events/trigger-proxy';
+import BrowserDetection from '../../../../src/common/browser-detection';
+import Metrics from '../../../../src/metrics';
+import {trigger, eventType} from '../../../../src/metrics/config';
+import BEHAVIORAL_METRICS from '../../../../src/metrics/constants';
 import locus from '../fixture/locus';
 import {
   UserNotJoinedError,
@@ -891,7 +894,7 @@ describe('plugin-meetings', () => {
           meeting.setRemoteStream = sinon.stub().returns(true);
           meeting.setMercuryListener = sinon.stub();
           meeting.roap.sendRoapMediaRequest = sinon.stub().returns(new Promise((resolve) => {
-            meeting.mediaProperties.peerConnection.connectionState = CONSTANTS.CONNECTION_STATE.CONNECTED;
+            meeting.mediaProperties.peerConnection.connectionState = CONNECTION_STATE.CONNECTED;
             resolve();
           }));
           meeting.roap.doTurnDiscovery = sinon.stub().resolves();
@@ -971,7 +974,7 @@ describe('plugin-meetings', () => {
         it('if an error occurs after media request has already been sent, and the user waits until the server kicks them out, a UserNotJoinedError should be thrown when attempting to addMedia again', async () => {
           meeting.meetingState = 'ACTIVE';
           meeting.roap.sendRoapMediaRequest = sinon.stub().returns(new Promise((resolve) => {
-            meeting.mediaProperties.peerConnection.connectionState = CONSTANTS.CONNECTION_STATE.CONNECTED;
+            meeting.mediaProperties.peerConnection.connectionState = CONNECTION_STATE.CONNECTED;
             resolve();
           }).then(() => {
             throw new Error('sample error thrown');
@@ -989,7 +992,7 @@ describe('plugin-meetings', () => {
         it('if an error occurs after media request has already been sent, and the user does NOT wait until the server kicks them out, the user should be able to addMedia successfully', async () => {
           meeting.meetingState = 'ACTIVE';
           meeting.roap.sendRoapMediaRequest = sinon.stub().returns(new Promise((resolve) => {
-            meeting.mediaProperties.peerConnection.connectionState = CONSTANTS.CONNECTION_STATE.CONNECTED;
+            meeting.mediaProperties.peerConnection.connectionState = CONNECTION_STATE.CONNECTED;
             resolve();
           }).then(() => {
             throw new Error('sample error thrown');
@@ -1000,7 +1003,7 @@ describe('plugin-meetings', () => {
 
           meeting.mediaProperties.peerConnection = {};
           meeting.roap.sendRoapMediaRequest = sinon.stub().returns(new Promise((resolve) => {
-            meeting.mediaProperties.peerConnection.connectionState = CONSTANTS.CONNECTION_STATE.CONNECTED;
+            meeting.mediaProperties.peerConnection.connectionState = CONNECTION_STATE.CONNECTED;
             resolve();
           }));
           await meeting.addMedia().catch((err) => {
@@ -1542,7 +1545,6 @@ describe('plugin-meetings', () => {
 
           it('handleShareTrackEnded triggers an event', () => {
             const stream = 'stream';
-            const {EVENT_TYPES} = CONSTANTS;
 
             sandbox.stub(meeting, 'stopShare').resolves(true);
 
@@ -1968,7 +1970,7 @@ describe('plugin-meetings', () => {
 
             await meeting.changeVideoLayout(layoutType);
 
-            assert(CONSTANTS.LAYOUT_TYPES.includes(layoutType));
+            assert(LAYOUT_TYPES.includes(layoutType));
             assert.calledWith(meeting.meetingRequest.changeVideoLayoutDebounced, {
               locusUrl: meeting.locusInfo.self.url,
               deviceUrl: meeting.deviceUrl,
@@ -2166,14 +2168,14 @@ describe('plugin-meetings', () => {
           assert.exists(meeting.setLocalVideoQuality);
         });
 
-        it('should call getMediaStreams with the proper level', () => meeting.setLocalVideoQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
+        it('should call getMediaStreams with the proper level', () => meeting.setLocalVideoQuality(QUALITY_LEVELS.LOW).then(() => {
           assert.calledWith(meeting.getMediaStreams,
             mediaDirection,
-            CONSTANTS.VIDEO_RESOLUTIONS[CONSTANTS.QUALITY_LEVELS.LOW]);
+            VIDEO_RESOLUTIONS[QUALITY_LEVELS.LOW]);
         }));
 
-        it('should set mediaProperty with the proper level', () => meeting.setLocalVideoQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
-          assert.equal(meeting.mediaProperties.localQualityLevel, CONSTANTS.QUALITY_LEVELS.LOW);
+        it('should set mediaProperty with the proper level', () => meeting.setLocalVideoQuality(QUALITY_LEVELS.LOW).then(() => {
+          assert.equal(meeting.mediaProperties.localQualityLevel, QUALITY_LEVELS.LOW);
         }));
 
         it('should error if set to a invalid level', () => {
@@ -2199,11 +2201,11 @@ describe('plugin-meetings', () => {
           assert.exists(meeting.setRemoteQualityLevel);
         });
 
-        it('should set mediaProperty with the proper level', () => meeting.setRemoteQualityLevel(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
-          assert.equal(meeting.mediaProperties.remoteQualityLevel, CONSTANTS.QUALITY_LEVELS.LOW);
+        it('should set mediaProperty with the proper level', () => meeting.setRemoteQualityLevel(QUALITY_LEVELS.LOW).then(() => {
+          assert.equal(meeting.mediaProperties.remoteQualityLevel, QUALITY_LEVELS.LOW);
         }));
 
-        it('should call updateMedia', () => meeting.setRemoteQualityLevel(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
+        it('should call updateMedia', () => meeting.setRemoteQualityLevel(QUALITY_LEVELS.LOW).then(() => {
           assert.calledOnce(meeting.updateMedia);
         }));
 
@@ -2233,7 +2235,7 @@ describe('plugin-meetings', () => {
           assert.exists(meeting.setMeetingQuality);
         });
 
-        it('should call setRemoteQualityLevel', () => meeting.setMeetingQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
+        it('should call setRemoteQualityLevel', () => meeting.setMeetingQuality(QUALITY_LEVELS.LOW).then(() => {
           assert.calledOnce(meeting.setRemoteQualityLevel);
         }));
 
@@ -2242,12 +2244,12 @@ describe('plugin-meetings', () => {
           mediaDirection.receiveVideo = false;
           meeting.mediaProperties.mediaDirection = mediaDirection;
 
-          return meeting.setMeetingQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
+          return meeting.setMeetingQuality(QUALITY_LEVELS.LOW).then(() => {
             assert.notCalled(meeting.setRemoteQualityLevel);
           });
         });
 
-        it('should call setLocalVideoQuality', () => meeting.setMeetingQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
+        it('should call setLocalVideoQuality', () => meeting.setMeetingQuality(QUALITY_LEVELS.LOW).then(() => {
           assert.calledOnce(meeting.setLocalVideoQuality);
         }));
 
@@ -2255,7 +2257,7 @@ describe('plugin-meetings', () => {
           mediaDirection.sendVideo = false;
           meeting.mediaProperties.mediaDirection = mediaDirection;
 
-          return meeting.setMeetingQuality(CONSTANTS.QUALITY_LEVELS.LOW).then(() => {
+          return meeting.setMeetingQuality(QUALITY_LEVELS.LOW).then(() => {
             assert.notCalled(meeting.setLocalVideoQuality);
           });
         });
@@ -2994,7 +2996,6 @@ describe('plugin-meetings', () => {
 
     describe('Public Event Triggers', () => {
       let sandbox;
-      const {ENDED} = CONSTANTS;
 
       beforeEach(() => {
         const fakeMediaTrack = () => ({stop: () => {}, readyState: ENDED});

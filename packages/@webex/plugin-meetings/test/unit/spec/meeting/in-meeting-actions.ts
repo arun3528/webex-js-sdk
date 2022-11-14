@@ -1,5 +1,5 @@
 import {assert} from '@webex/test-helper-chai';
-import InMeetingActions from '@webex/plugin-meetings/src/meeting/in-meeting-actions';
+import InMeetingActions from '../../../../src/meeting/in-meeting-actions';
 
 
 describe('plugin-meetings', () => {

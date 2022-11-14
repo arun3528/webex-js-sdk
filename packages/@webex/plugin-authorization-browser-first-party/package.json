@@ -18,11 +18,11 @@
     },
     "devDependencies": {
         "@babel/polyfill": "^7.12.1",
+        "@webex/plugin-authorization-browser-first-party": "workspace:^",
         "sinon": "^9.2.4"
     },
     "dependencies": {
         "@webex/common": "workspace:^",
-        "@webex/plugin-authorization-browser-first-party": "workspace:^",
         "@webex/storage-adapter-local-storage": "workspace:^",
         "@webex/test-helper-automation": "workspace:^",
         "@webex/test-helper-chai": "workspace:^",

@@ -1,5 +1,6 @@
 import {assert} from '@webex/test-helper-chai';
-import SimpleQueue from '@webex/plugin-meetings/src/common/queue';
+
+import SimpleQueue from '../../../../src/common/queue';
 
 describe('common/queue', () => {
   let fifo = null;

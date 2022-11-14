@@ -17,6 +17,7 @@
         ]
     },
     "devDependencies": {
+        "@webex/internal-plugin-device": "workspace:^",
         "@webex/test-helper-chai": "workspace:^",
         "@webex/test-helper-mock-webex": "workspace:^",
         "@webex/test-helper-test-users": "workspace:^",
@@ -28,7 +29,6 @@
         "@webex/common": "workspace:^",
         "@webex/common-timers": "workspace:^",
         "@webex/http-core": "workspace:^",
-        "@webex/internal-plugin-device": "workspace:^",
         "@webex/internal-plugin-metrics": "workspace:^",
         "@webex/webex-core": "workspace:^",
         "ampersand-collection": "^2.0.2",

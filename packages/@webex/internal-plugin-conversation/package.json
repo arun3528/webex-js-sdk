@@ -19,7 +19,6 @@
         "@webex/common": "workspace:^",
         "@webex/helper-html": "workspace:^",
         "@webex/helper-image": "workspace:^",
-        "@webex/internal-plugin-conversation": "workspace:^",
         "@webex/internal-plugin-encryption": "workspace:^",
         "@webex/internal-plugin-user": "workspace:^",
         "@webex/webex-core": "workspace:^",
@@ -29,6 +28,7 @@
         "uuid": "^3.3.2"
     },
     "devDependencies": {
+        "@webex/internal-plugin-conversation": "workspace:^",
         "@webex/test-helper-chai": "workspace:^",
         "@webex/test-helper-file": "workspace:^",
         "@webex/test-helper-make-local-url": "workspace:^",

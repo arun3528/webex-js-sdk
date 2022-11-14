@@ -2,9 +2,9 @@ import 'jsdom-global/register';
 import {assert} from '@webex/test-helper-chai';
 import sinon from 'sinon';
 
-import PeerConnectionManager from '@webex/plugin-meetings/src/peer-connection-manager/index';
-import StaticConfig from '@webex/plugin-meetings/src/common/config';
-import {InvalidSdpError} from '@webex/plugin-meetings/src/common/errors/webex-errors';
+import PeerConnectionManager from '../../../../src/peer-connection-manager/index';
+import StaticConfig from '../../../../src/common/config';
+import {InvalidSdpError} from '../../../../src/common/errors/webex-errors';
 
 describe('Peerconnection Manager', () => {
   describe('Methods', () => {

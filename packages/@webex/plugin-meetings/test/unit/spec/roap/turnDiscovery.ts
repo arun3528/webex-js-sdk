@@ -1,10 +1,10 @@
 import sinon from 'sinon';
 import {assert} from '@webex/test-helper-chai';
-import TurnDiscovery from '@webex/plugin-meetings/src/roap/turnDiscovery';
+import TurnDiscovery from '../../../../src/roap/turnDiscovery';
 
-import Metrics from '@webex/plugin-meetings/src/metrics';
-import BEHAVIORAL_METRICS from '@webex/plugin-meetings/src/metrics/constants';
-import RoapRequest from '@webex/plugin-meetings/src/roap/request';
+import Metrics from '../../../../src/metrics';
+import BEHAVIORAL_METRICS from '../../../../src/metrics/constants';
+import RoapRequest from '../../../../src/roap/request';
 
 import testUtils from '../../../utils/testUtils';
 

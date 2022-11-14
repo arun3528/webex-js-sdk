@@ -5,10 +5,11 @@
 import 'jsdom-global/register';
 import {assert} from '@webex/test-helper-chai';
 import sinon from 'sinon';
+
 import {
   _PERSONAL_ROOM_
-} from '@webex/plugin-meetings/src/constants';
-import PersonalMeetingRoom from '@webex/plugin-meetings/src/personal-meeting-room';
+} from '../../../../src/constants';
+import PersonalMeetingRoom from '../../../../src/personal-meeting-room';
 
 describe('personal-meeting-room', () => {
   let meetingInfo;

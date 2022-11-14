@@ -16,6 +16,7 @@
         ]
     },
     "devDependencies": {
+        "@webex/plugin-messages": "workspace:^",
         "@webex/test-helper-chai": "workspace:^",
         "@webex/test-helper-file": "workspace:^",
         "@webex/test-helper-mocha": "workspace:^",
@@ -28,7 +29,6 @@
         "@webex/internal-plugin-device": "workspace:^",
         "@webex/internal-plugin-mercury": "workspace:^",
         "@webex/plugin-logger": "workspace:^",
-        "@webex/plugin-messages": "workspace:^",
         "@webex/plugin-people": "workspace:^",
         "@webex/plugin-rooms": "workspace:^",
         "@webex/webex-core": "workspace:^",

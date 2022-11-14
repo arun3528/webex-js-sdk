@@ -2,17 +2,17 @@
 import {assert} from '@webex/test-helper-chai';
 import sinon from 'sinon';
 import MockWebex from '@webex/test-helper-mock-webex';
-import {BNR_STATUS} from '@webex/plugin-meetings/src/constants';
 
-import BEHAVIORAL_METRICS from '@webex/plugin-meetings/src/metrics/constants';
-import Meeting from '@webex/plugin-meetings/src/meeting';
-import Meetings from '@webex/plugin-meetings';
-import Metrics from '@webex/plugin-meetings/src/metrics';
-import MediaUtil from '@webex/plugin-meetings/src/media/util';
-import MeetingUtil from '@webex/plugin-meetings/src/meeting/util';
-import createEffectsState from '@webex/plugin-meetings/src/meeting/effectsState';
-import LoggerProxy from '@webex/plugin-meetings/src/common/logs/logger-proxy';
-import LoggerConfig from '@webex/plugin-meetings/src/common/logs/logger-config';
+import Meetings from '../../../../src/Meetings';
+import {BNR_STATUS} from '../../../../src/constants';
+import BEHAVIORAL_METRICS from '../../../../src/metrics/constants';
+import Meeting from '../../../../src/meeting';
+import Metrics from '../../../../src/metrics';
+import MediaUtil from '../../../../src/media/util';
+import MeetingUtil from '../../../../src/meeting/util';
+import createEffectsState from '../../../../src/meeting/effectsState';
+import LoggerProxy from '../../../../src/common/logs/logger-proxy';
+import LoggerConfig from '../../../../src/common/logs/logger-config';
 
 describe('plugin-meetings', () => {
   const logger = {

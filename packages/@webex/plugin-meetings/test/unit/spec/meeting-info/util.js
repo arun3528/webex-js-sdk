@@ -1,6 +1,7 @@
 import {assert} from '@webex/test-helper-chai';
 import sinon from 'sinon';
-import MeetingInfoUtil from '@webex/plugin-meetings/src/meeting-info/util';
+
+import MeetingInfoUtil from '../../../../src/meeting-info/util';
 
 describe('plugin-meetings', () => {
   describe('meeting-info#util', () => {

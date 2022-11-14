@@ -1,11 +1,11 @@
 import sinon from 'sinon';
 import {assert} from '@webex/test-helper-chai';
-import MeetingUtil from '@webex/plugin-meetings/src/meeting/util';
-import createMuteState from '@webex/plugin-meetings/src/meeting/muteState';
-import Media from '@webex/plugin-meetings/src/media/index';
-import PermissionError from '@webex/plugin-meetings/src/common/errors/permission';
-import {AUDIO, VIDEO} from '@webex/plugin-meetings/src/constants';
 
+import MeetingUtil from '../../../../src/meeting/util';
+import createMuteState from '../../../../src/meeting/muteState';
+import Media from '../../../../src/media/index';
+import PermissionError from '../../../../src/common/errors/permission';
+import {AUDIO, VIDEO} from '../../../../src/constants';
 import testUtils from '../../../utils/testUtils';
 
 describe('plugin-meetings', () => {
