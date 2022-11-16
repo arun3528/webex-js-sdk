@@ -118,7 +118,7 @@
     "detective": "^5.2.1",
     "documentation": "^13.2.5",
     "documentation-theme-utils": "^3.0.0",
-    "dotenv": "^4.0.0",
+    "dotenv": "^16.0.3",
     "envify": "^4.1.0",
     "eslint": "^8.24.0",
     "eslint-config-airbnb-base": "^15.0.0",
