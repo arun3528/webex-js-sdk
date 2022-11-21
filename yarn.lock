@@ -4012,9 +4012,9 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@webex/internal-media-core@npm:^0.0.7-beta":
-  version: 0.0.7-beta
-  resolution: "@webex/internal-media-core@npm:0.0.7-beta"
+"@webex/internal-media-core@npm:^0.0.8-beta":
+  version: 0.0.8-beta
+  resolution: "@webex/internal-media-core@npm:0.0.8-beta"
   dependencies:
     "@babel/runtime": "npm:^7.18.9"
     "@webex/ts-sdp": "npm:^1.0.1"
@@ -4025,7 +4025,7 @@ __metadata:
     uuid: "npm:^8.3.2"
     webrtc-adapter: "npm:^8.1.1"
     xstate: "npm:^4.30.6"
-  checksum: cc9930caa5c1e392d1c5d2a678bdd1581fb69303f96531677d8247c08bbd6add1ae31dfef96ac24272387b4101383930d9e274252badf71860eb6186bd6b857e
+  checksum: b667bc35877bbb37a29efe47b80cd2c4a9f99715f659a55b32b65d78082126aff7d73dc5110889c121fa21c4c89c30788362e8f14d862df12cfcd052e6cc9064
   languageName: node
   linkType: hard
 
@@ -4591,7 +4591,7 @@ __metadata:
   resolution: "@webex/plugin-meetings@workspace:packages/@webex/plugin-meetings"
   dependencies:
     "@webex/common": "workspace:^"
-    "@webex/internal-media-core": "npm:^0.0.7-beta"
+    "@webex/internal-media-core": "npm:^0.0.8-beta"
     "@webex/internal-plugin-conversation": "workspace:^"
     "@webex/internal-plugin-device": "workspace:^"
     "@webex/internal-plugin-mercury": "workspace:^"
