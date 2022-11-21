@@ -3594,7 +3594,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@wdio/logger@npm:7.19.0, @wdio/logger@npm:^7.19.0, @wdio/logger@npm:^7.5.3":
+"@wdio/logger@npm:7.19.0, @wdio/logger@npm:^7.5.3":
   version: 7.19.0
   resolution: "@wdio/logger@npm:7.19.0"
   dependencies:
@@ -3603,6 +3603,18 @@ __metadata:
     loglevel-plugin-prefix: "npm:^0.8.4"
     strip-ansi: "npm:^6.0.0"
   checksum: 00825965f6d1aaa7b72e8b85b1c65f88b9b59b6eceab920931cf2c1561fc05c2d3d52ba31256ff215c8c97a57fbe53292fdb84b3372821c70d718836d08a0b5e
+  languageName: node
+  linkType: hard
+
+"@wdio/logger@npm:^8.0.0-alpha.219":
+  version: 8.0.0-alpha.565
+  resolution: "@wdio/logger@npm:8.0.0-alpha.565"
+  dependencies:
+    chalk: "npm:^5.1.2"
+    loglevel: "npm:^1.6.0"
+    loglevel-plugin-prefix: "npm:^0.8.4"
+    strip-ansi: "npm:^6.0.0"
+  checksum: 10f5628af1215c24d82317401c5bd0008bdacf1be5848299421cca8a5bd28de2452d02c290c015cb62efd4b2d1be15564b4fcb7c04d8961c4ba88259ba0a1634
   languageName: node
   linkType: hard
 
@@ -7382,6 +7394,13 @@ __metadata:
     ansi-styles: "npm:^4.1.0"
     supports-color: "npm:^7.1.0"
   checksum: cb96ab47eb1b55525e72caac9eed1513bff28e686df7eee6b04379c80922df21c8283d9938af16a645826c94c9e19fb52ad63cbead6b5073d08ae5f8fa2661a2
+  languageName: node
+  linkType: hard
+
+"chalk@npm:^5.1.2":
+  version: 5.1.2
+  resolution: "chalk@npm:5.1.2"
+  checksum: 0bfd090fccb1c5918b19bea32a8f34c5e19db774758fa0ff28883aba790d614c0e4cea5061d6a48967c2b4cc91c51b77a3f9f9cee2f4fb5d258b5bf248193739
   languageName: node
   linkType: hard
 
@@ -11323,7 +11342,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fs-extra@npm:^10.0.0, fs-extra@npm:^10.0.1":
+"fs-extra@npm:^10.0.0, fs-extra@npm:^10.1.0":
   version: 10.1.0
   resolution: "fs-extra@npm:10.1.0"
   dependencies:
@@ -11603,6 +11622,13 @@ __metadata:
   version: 5.1.1
   resolution: "get-port@npm:5.1.1"
   checksum: 93afec66950abbe4a7a004543c5d94dbf22c2649598482c8064acfceae7663cae62c7aaef448f7ec6744b37286e89eed2bada01726a6ca4e09e3809d92e4fccc
+  languageName: node
+  linkType: hard
+
+"get-port@npm:^6.1.2":
+  version: 6.1.2
+  resolution: "get-port@npm:6.1.2"
+  checksum: b3458247e1c6ed079cbf0f7b57bd2ba3db5b0108bc8f8061c0e0817237234ce2cfbb42dffe5ced6bc74d3410f913d5e56ad966fe7c35003db845ead70c7c3bf6
   languageName: node
   linkType: hard
 
@@ -22233,18 +22259,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"wdio-geckodriver-service@npm:^2.1.1":
-  version: 2.1.2
-  resolution: "wdio-geckodriver-service@npm:2.1.2"
+"wdio-geckodriver-service@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "wdio-geckodriver-service@npm:4.0.0"
   dependencies:
-    "@wdio/logger": "npm:^7.19.0"
-    fs-extra: "npm:^10.0.1"
-    get-port: "npm:^5.1.1"
+    "@wdio/logger": "npm:^8.0.0-alpha.219"
+    fs-extra: "npm:^10.1.0"
+    get-port: "npm:^6.1.2"
     split2: "npm:^4.1.0"
     tcp-port-used: "npm:^1.0.2"
   peerDependencies:
-    geckodriver: ^3.0.1
-  checksum: fe23640474e711bb6182f44ea3019e03390c9bdbbae9432a8b6771e3b1875454e89ddbe7e7011853ed0910ac13f577a38b344e89a207d99af804e0ca8addef9b
+    "@wdio/types": ^7.25.0
+    geckodriver: ^3.0.2
+  peerDependenciesMeta:
+    "@wdio/types":
+      optional: true
+    geckodriver:
+      optional: true
+  checksum: 724a9b9e57bcd989d75cf9e57b044e26530d3f93436722cc3359cf57a74e91fbaa98b0eedeb34a024e103230ecee4a6aba0f35884870c5420b51dc1125ca4807
   languageName: node
   linkType: hard
 
@@ -22485,7 +22517,7 @@ __metadata:
     uuid: "npm:^3.3.2"
     wd: "npm:^1.14.0"
     wdio-chromedriver-service: "npm:^7.3.2"
-    wdio-geckodriver-service: "npm:^2.1.1"
+    wdio-geckodriver-service: "npm:^4.0.0"
     webdriverio: "npm:^7.19.5"
     webpack: "npm:^5.74.0"
     webpack-cli: "npm:^4.8.0"
