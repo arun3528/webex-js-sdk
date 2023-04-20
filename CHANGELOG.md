@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0-bnr.3](https://github.com/webex/webex-js-sdk/compare/v3.0.0-beta.71...v3.0.0-bnr.3) (2023-04-20)
+
+
+### Features
+
+* **bnr:** bump internal-media-core version to get webrtc-core interf… ([#2758](https://github.com/webex/webex-js-sdk/issues/2758)) ([03b6e90](https://github.com/webex/webex-js-sdk/commit/03b6e906aaac9f8a96d93f00bdd7bea4c87f8698))
+
+
+### Bug Fixes
+
+* initial changes for using webrtc-core in multistream api ([#2694](https://github.com/webex/webex-js-sdk/issues/2694)) ([d87477d](https://github.com/webex/webex-js-sdk/commit/d87477d79cba03fab7efe1b9a88520195d0e61a8))
+* testUtils ([#2755](https://github.com/webex/webex-js-sdk/issues/2755)) ([eec000f](https://github.com/webex/webex-js-sdk/commit/eec000ffe535b82e80c19fefed8663008c48e1b0))
+
 ## [3.0.0-beta.71](https://github.com/webex/webex-js-sdk/compare/v3.0.0-beta.70...v3.0.0-beta.71) (2023-04-14)
 
 ## [3.0.0-beta.70](https://github.com/webex/webex-js-sdk/compare/v3.0.0-beta.69...v3.0.0-beta.70) (2023-04-14)
