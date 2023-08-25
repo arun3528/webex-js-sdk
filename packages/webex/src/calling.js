@@ -1,5 +1,5 @@
-import WebexCalling from '@webex/calling';
 import EventEmitter from 'events';
+import * as WebexCalling from '@webex/calling';
 
 /* eslint-disable require-jsdoc */
 require('@webex/internal-plugin-device');
@@ -94,7 +94,9 @@ class Calling extends EventEmitter {
       : undefined;
   }
 
-  static createMicrophoneStream = WebexCalling.createMicrophoneStream;
+  static get createMicrophoneStream() {
+    return WebexCalling.createMicrophoneStream;
+  }
 
   // createCallingMicrophoneStream = async (audioConstraints) => {
   //   const microphoneStream = createMicrophoneStream(audioConstraints);
