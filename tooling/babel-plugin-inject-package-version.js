@@ -31,9 +31,7 @@ module.exports = function injectPackageVersion() {
             );
 
             if (!visited) {
-              def.properties.push(
-                t.objectProperty(t.identifier('version'), t.stringLiteral(version))
-              );
+              def.properties.push(t.objectProperty(t.identifier('version'), '1.1.1'));
             }
           }
         }

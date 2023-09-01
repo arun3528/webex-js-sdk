@@ -65,7 +65,9 @@ jobs:
         run: yarn workspaces foreach --from '@webex/*-tools' --topological-dev --parallel --verbose run build:src
 
       - name: Build
-        run: yarn workspaces foreach --parallel --verbose run build:src
+        run: |
+          yarn workspaces foreach --parallel --verbose run build:src && yarn build:script
+          yarn build:script
 
       - name: Cache Distributables
         uses: actions/cache@v3
@@ -183,7 +185,11 @@ jobs:
       - name: Increment Package Versions
         run: yarn package-tools increment --packages ${{ needs.generate-package-matrix.outputs.node-recursive }} --tag ${GITHUB_REF##*/}
 
-      - name: Deploy Packages - [DRY RUN]
+      - name: Build a webex UMD
+        run: yarn build:script
+
+
+      - name: Deploy Packages
         run: yarn workspaces foreach --from '${{ needs.generate-package-matrix.outputs.yarn-recursive }}' --verbose run deploy:npm --access public --tag ${GITHUB_REF##*/}
 
   publish-documentation:
