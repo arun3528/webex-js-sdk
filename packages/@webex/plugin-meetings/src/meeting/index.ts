@@ -4502,7 +4502,7 @@ export default class Meeting extends StatelessWebexPlugin {
     }
 
     try {
-      await this.webex.internal.voicea.setCaptionLanguage(language);
+      await this.webex.internal.voicea.requestLanguage(language);
     } catch (error) {
       LoggerProxy.logger.error(`Meeting:index#setCaptionLanguage --> ${error}`);
 
