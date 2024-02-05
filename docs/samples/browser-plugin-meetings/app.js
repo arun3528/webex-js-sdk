@@ -952,9 +952,9 @@ function startReceivingTranscription() {
 
     generalTranscriptionContent.innerHTML = '';
 
-    meeting.on('meeting:receiveTranscription:started', () => {
-      fillLanguageDropDowns(voiceaCaptionLanguage,meeting.transcription.languageOptions.captionLanguages);
-      fillLanguageDropDowns(voiceaSpokenLanguage,meeting.transcription.languageOptions.spokenLanguages);
+    meeting.on('meeting:receiveTranscription:started', (payload) => {
+      fillLanguageDropDowns(voiceaCaptionLanguage,payload.captionLanguages);
+      fillLanguageDropDowns(voiceaSpokenLanguage,payload.spokenLanguages);
       generalStopReceivingTranscription.disabled = false;
       voiceaSpokenLanguage.disabled = false;
       voiceaSpokenLanguageBtn.disabled = false;

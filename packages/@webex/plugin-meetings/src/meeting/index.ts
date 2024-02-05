@@ -1889,7 +1889,8 @@ export default class Meeting extends StatelessWebexPlugin {
             file: 'meeting/index',
             function: 'join',
           },
-          EVENT_TRIGGERS.MEETING_STARTED_RECEIVING_TRANSCRIPTION
+          EVENT_TRIGGERS.MEETING_STARTED_RECEIVING_TRANSCRIPTION,
+          payload
         );
       }
     );
