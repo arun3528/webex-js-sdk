@@ -70,7 +70,7 @@ export const TYPE = 'type';
 export const VIDEO = 'video';
 export const VIDEO_STATUS = 'videoStatus';
 
-export const ENGLISH_LANGUAGE = 'en';
+export const LANGUAGE_ENGLISH = 'en';
 
 // *********** UPPERCASE ONLY STRINGS ************
 // Please alphabetize

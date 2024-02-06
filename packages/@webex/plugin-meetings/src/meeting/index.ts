@@ -105,14 +105,13 @@ import {
   SHARE_STATUS,
   SHARE_STOPPED_REASON,
   VIDEO,
-  HTTP_VERBS,
   SELF_ROLES,
   INTERPRETATION,
   SELF_POLICY,
   MEETING_PERMISSION_TOKEN_REFRESH_THRESHOLD_IN_SEC,
   MEETING_PERMISSION_TOKEN_REFRESH_REASON,
   ROAP_OFFER_ANSWER_EXCHANGE_TIMEOUT,
-  ENGLISH_LANGUAGE,
+  LANGUAGE_ENGLISH,
 } from '../constants';
 import BEHAVIORAL_METRICS from '../metrics/constants';
 import ParameterError from '../common/errors/parameter';
@@ -1902,7 +1901,7 @@ export default class Meeting extends StatelessWebexPlugin {
         this.transcription.languageOptions = {
           ...this.transcription.languageOptions,
           currentCaptionLanguage:
-            this.transcription.languageOptions.requestedCaptionLanguage ?? ENGLISH_LANGUAGE,
+            this.transcription.languageOptions.requestedCaptionLanguage ?? LANGUAGE_ENGLISH,
         };
         Trigger.trigger(
           this,
@@ -2290,10 +2289,10 @@ export default class Meeting extends StatelessWebexPlugin {
     this.locusInfo.on(
       LOCUSINFO.EVENTS.CONTROLS_MEETING_TRANSCRIBE_UPDATED,
       ({caption, transcribing}) => {
-        // @ts-ignore - config coming from registerPlugin
         // user need to be joined to start the llm and receive transcription
         if (this.isJoined()) {
-          if (transcribing && !this.transcription) {
+          // @ts-ignore - config coming from registerPlugin
+          if (transcribing && !this.transcription && this.config.receiveTranscription) {
             this.startTranscription();
           } else if (!transcribing && this.transcription) {
             Trigger.trigger(
