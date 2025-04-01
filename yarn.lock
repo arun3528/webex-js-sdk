@@ -4611,7 +4611,7 @@ __metadata:
     btoa: "npm:^1.2.1"
     chai: "npm:^4.3.4"
     chai-as-promised: "npm:^7.1.1"
-    dotenv: "npm:^4.0.0"
+    dotenv: "npm:^16.0.3"
     global: "npm:^4.4.0"
     ip-anonymize: "npm:^0.1.0"
     javascript-state-machine: "npm:^3.1.0"
@@ -9469,10 +9469,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "dotenv@npm:4.0.0"
-  checksum: f6d3e22e09d163314da81673985b11eaeecf0a55cb4ffda4ed6fe6f653ed8608a791b9c3151f44e04668db8e147b0bb30edf1b3f4d5c0aa1e394e792f0007ed7
+"dotenv@npm:^16.0.3":
+  version: 16.0.3
+  resolution: "dotenv@npm:16.0.3"
+  checksum: abce82d99b45e2ebbd42625a78cadbfafe03072c15e6538b6a3a7ed204b6e091c0de929dd09231edc61f78afbdcd5b8a2f21b9e933e8ab27d75bee865a0e58c9
   languageName: node
   linkType: hard
 
@@ -22426,7 +22426,7 @@ __metadata:
     detective: "npm:^5.2.1"
     documentation: "npm:^13.2.5"
     documentation-theme-utils: "npm:^3.0.0"
-    dotenv: "npm:^4.0.0"
+    dotenv: "npm:^16.0.3"
     envify: "npm:^4.1.0"
     eslint: "npm:^8.24.0"
     eslint-config-airbnb-base: "npm:^15.0.0"
