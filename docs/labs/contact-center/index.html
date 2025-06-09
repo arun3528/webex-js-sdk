@@ -433,7 +433,7 @@ function setupTaskSpecificEventHandlers(currentTask) { // currentTask is the obj
 
     // Other task events to listen for:
 currentTask.on('task:hold', () => console.log('Call placed on hold'));
-currentTask.on('task:resume', () => console.log('Call resumed from hold'));
+currentTask.on('task:unhold', () => console.log('Call resumed from hold'));
 currentTask.on('task:consultCreated', () => console.log('Consult initiated'));
 // ... and many more for different interaction states.
 // For a full list of task events, refer to:
@@ -570,7 +570,7 @@ async function endCurrentTask(currentTask) {
 // await currentTask.consultTransfer();
 </code></pre>
         <p><strong>Output of these actions:</strong> The state of the <code>currentTask</code> changes within the
-            Contact Center. Corresponding events (e.g., <code>task:hold</code>, <code>task:resume</code>,
+            Contact Center. Corresponding events (e.g., <code>task:hold</code>, <code>task:unhold</code>,
             <code>task:end</code>) are emitted on the <code>currentTask</code> object, allowing the UI to update.
         </p>
         <div class="call-controls">

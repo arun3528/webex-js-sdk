@@ -27,7 +27,7 @@ export const TASK_EVENTS = {
   TASK_UNASSIGNED: 'task:unassigned',
   TASK_HOLD: 'task:hold',
   TASK_PAUSE: 'task:pause',
-  TASK_RESUME: 'task:resume',
+  TASK_RESUME: 'task:unhold',
   TASK_END: 'task:end',
   TASK_WRAPUP: 'task:wrapup',
   TASK_WRAPPEDUP: 'task:wrappedup',
