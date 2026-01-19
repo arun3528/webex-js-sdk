@@ -6,7 +6,7 @@ import {
   getMockRequestTemplate,
   getMobiusDiscoveryResponse,
 } from '../common/testUtil';
-import {CallType, RegistrationStatus, ServiceIndicator} from '../common/types';
+import {CallType, HTTP_METHODS, RegistrationStatus, ServiceIndicator} from '../common/types';
 /* eslint-disable dot-notation */
 import {CALLING_CLIENT_EVENT_KEYS, CallSessionEvent, MOBIUS_EVENT_KEYS} from '../Events/types';
 import log from '../Logger';
@@ -871,6 +871,150 @@ describe('CallingClient Tests', () => {
 
     it('should complete without throwing', async () => {
       await expect(windowsChromiumIceWarmup({})).resolves.not.toThrow();
+    });
+  });
+
+  describe('Device management helpers', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+      webex.internal.services._hostCatalog = mockCatalogUS;
+      webex.internal.services.getMobiusClusters = jest.fn().mockReturnValue(mockUSServiceHosts);
+      webex.internal.services._serviceUrls.mobius =
+        'https://mobius.aintgen-a-1.int.infra.webex.com/api/v1';
+    });
+
+    it('getUserDevices aggregates devices across servers', async () => {
+      const discoveryBody = getMobiusDiscoveryResponse();
+      const primaryDeviceServiceUrl = `${discoveryBody.primary.uris[0]}/calling/web/`;
+      const backupDeviceServiceUrl = `${discoveryBody.backup.uris[0]}/calling/web/`;
+      const userId = webex.internal.device.userId;
+
+      const device1 = {
+        deviceId: 'device-1',
+        uri: `${primaryDeviceServiceUrl}devices/device-1`,
+        status: 'active',
+        lastSeen: '2022-04-05T05:16:37Z',
+        addresses: ['sip:device-1@example.com'],
+        clientDeviceUri: webex.internal.device.url,
+      };
+      const device2 = {
+        deviceId: 'device-2',
+        uri: `${backupDeviceServiceUrl}devices/device-2`,
+        status: 'active',
+        lastSeen: '2022-04-05T05:16:37Z',
+        addresses: ['sip:device-2@example.com'],
+        clientDeviceUri: webex.internal.device.url,
+      };
+
+      webex.request = jest.fn(({uri, method}: any) => {
+        if (
+          method === HTTP_METHODS.GET &&
+          uri.includes('/calling/web/') &&
+          uri.includes('regionCode=')
+        ) {
+          return Promise.resolve({statusCode: 200, body: discoveryBody});
+        }
+        if (
+          method === HTTP_METHODS.GET &&
+          uri === `${primaryDeviceServiceUrl}devices?userid=${userId}`
+        ) {
+          return Promise.resolve({statusCode: 200, body: {userId, devices: [device1]}});
+        }
+        if (
+          method === HTTP_METHODS.GET &&
+          uri === `${backupDeviceServiceUrl}devices?userid=${userId}`
+        ) {
+          return Promise.resolve({statusCode: 200, body: {userId, devices: [device2]}});
+        }
+
+        return Promise.reject(new Error(`Unexpected request: ${method} ${uri}`));
+      });
+
+      const callingClient = await createClient(webex, {
+        discovery: {region: 'AP-SOUTHEAST', country: 'IN'},
+        logger: {level: LOGGER.INFO},
+      });
+
+      // Keep this test focused on device helpers (avoid default URL fallback adding extra calls)
+      callingClient['primaryMobiusUris'] = [primaryDeviceServiceUrl];
+      callingClient['backupMobiusUris'] = [backupDeviceServiceUrl];
+
+      const devices = await callingClient.getUserDevices();
+
+      expect(devices.map((d) => d.deviceId)).toEqual(
+        expect.arrayContaining(['device-1', 'device-2'])
+      );
+      expect(devices).toHaveLength(2);
+    });
+
+    it('deleteAllUserDevices deletes all returned devices', async () => {
+      const discoveryBody = getMobiusDiscoveryResponse();
+      const primaryDeviceServiceUrl = `${discoveryBody.primary.uris[0]}/calling/web/`;
+      const backupDeviceServiceUrl = `${discoveryBody.backup.uris[0]}/calling/web/`;
+      const userId = webex.internal.device.userId;
+
+      const device1 = {
+        deviceId: 'device-1',
+        uri: `${primaryDeviceServiceUrl}devices/device-1`,
+        status: 'active',
+        lastSeen: '2022-04-05T05:16:37Z',
+        addresses: ['sip:device-1@example.com'],
+        clientDeviceUri: webex.internal.device.url,
+      };
+      const device2 = {
+        deviceId: 'device-2',
+        uri: `${backupDeviceServiceUrl}devices/device-2`,
+        status: 'active',
+        lastSeen: '2022-04-05T05:16:37Z',
+        addresses: ['sip:device-2@example.com'],
+        clientDeviceUri: webex.internal.device.url,
+      };
+
+      webex.request = jest.fn(({uri, method}: any) => {
+        if (
+          method === HTTP_METHODS.GET &&
+          uri.includes('/calling/web/') &&
+          uri.includes('regionCode=')
+        ) {
+          return Promise.resolve({statusCode: 200, body: discoveryBody});
+        }
+        if (
+          method === HTTP_METHODS.GET &&
+          uri === `${primaryDeviceServiceUrl}devices?userid=${userId}`
+        ) {
+          return Promise.resolve({statusCode: 200, body: {userId, devices: [device1]}});
+        }
+        if (
+          method === HTTP_METHODS.GET &&
+          uri === `${backupDeviceServiceUrl}devices?userid=${userId}`
+        ) {
+          return Promise.resolve({statusCode: 200, body: {userId, devices: [device2]}});
+        }
+        if (method === HTTP_METHODS.DELETE && uri === device1.uri) {
+          return Promise.resolve({statusCode: 200, body: {deviceId: device1.deviceId}});
+        }
+        if (method === HTTP_METHODS.DELETE && uri === device2.uri) {
+          return Promise.resolve({statusCode: 200, body: {deviceId: device2.deviceId}});
+        }
+
+        return Promise.reject(new Error(`Unexpected request: ${method} ${uri}`));
+      });
+
+      const callingClient = await createClient(webex, {
+        discovery: {region: 'AP-SOUTHEAST', country: 'IN'},
+        logger: {level: LOGGER.INFO},
+      });
+
+      callingClient['primaryMobiusUris'] = [primaryDeviceServiceUrl];
+      callingClient['backupMobiusUris'] = [backupDeviceServiceUrl];
+
+      const result = await callingClient.deleteAllUserDevices();
+
+      expect(result).toEqual({
+        deleted: expect.arrayContaining(['device-1', 'device-2']),
+        failed: [],
+      });
+      expect(result.deleted).toHaveLength(2);
     });
   });
 });

@@ -29,6 +29,7 @@ import {
   MobiusServers,
   WebexRequestPayload,
   RegistrationStatus,
+  DeviceType,
   UploadLogsResponse,
 } from '../common/types';
 import {ICallingClient, CallingClientConfig} from './types';
@@ -40,6 +41,7 @@ import {
   CALLS_CLEARED_HANDLER_UTIL,
   CALLING_USER_AGENT,
   CISCO_DEVICE_URL,
+  DEVICES_ENDPOINT_RESOURCE,
   DISCOVERY_URL,
   GET_MOBIUS_SERVERS_UTIL,
   SPARK_USER_AGENT,
@@ -749,6 +751,129 @@ export class CallingClient extends Eventing<CallingClientEventTypes> implements 
     });
 
     return connectCall;
+  }
+
+  /**
+   * Fetches all Webex Calling devices for a user across the discovered Mobius servers.
+   *
+   * Primarily intended for automation/samples to clean up stale devices before registration.
+   */
+  public async getUserDevices(
+    userId: string = this.webex.internal.device.userId
+  ): Promise<DeviceType[]> {
+    const loggerContext = {
+      file: CALLING_CLIENT_FILE,
+      method: METHODS.GET_USER_DEVICES,
+    };
+
+    log.info(`${METHOD_START_MESSAGE} with userId: ${userId}`, loggerContext);
+
+    const mobiusUrls = Array.from(new Set([...this.primaryMobiusUris, ...this.backupMobiusUris]));
+    const devicesById = new Map<string, DeviceType>();
+    let hadSuccess = false;
+    let lastError: unknown;
+
+    for (const mobiusUrl of mobiusUrls) {
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        const response = <WebexRequestPayload>await this.webex.request({
+          uri: `${mobiusUrl}${DEVICES_ENDPOINT_RESOURCE}?userid=${encodeURIComponent(userId)}`,
+          method: HTTP_METHODS.GET,
+          service: ALLOWED_SERVICES.MOBIUS,
+          headers: {
+            [CISCO_DEVICE_URL]: this.webex.internal.device.url,
+            [SPARK_USER_AGENT]: CALLING_USER_AGENT,
+          },
+        });
+
+        hadSuccess = true;
+        const body = response?.body as {devices?: DeviceType[]};
+        const devices = Array.isArray(body?.devices) ? body.devices : [];
+
+        devices.forEach((device) => {
+          if (device?.deviceId) {
+            devicesById.set(device.deviceId, device);
+          }
+        });
+      } catch (error) {
+        lastError = error;
+        log.warn(
+          `Failed to fetch user devices from ${mobiusUrl}: ${
+            (error && typeof (error as any).message === 'string' && (error as any).message) ||
+            String(error)
+          }`,
+          loggerContext
+        );
+      }
+    }
+
+    if (!hadSuccess) {
+      throw new Error(
+        `Failed to fetch user devices for userId: ${userId}. Last error: ${
+          (lastError &&
+            typeof (lastError as any).message === 'string' &&
+            (lastError as any).message) ||
+          String(lastError)
+        }`
+      );
+    }
+
+    const devices = Array.from(devicesById.values());
+    log.log(`Fetched ${devices.length} device(s) for userId: ${userId}`, loggerContext);
+
+    return devices;
+  }
+
+  /**
+   * Deletes all Webex Calling devices for a user.
+   *
+   * Primarily intended for automation/samples to clean up stale devices before registration.
+   */
+  public async deleteAllUserDevices(
+    userId: string = this.webex.internal.device.userId
+  ): Promise<{deleted: string[]; failed: Array<{deviceId: string; reason: string}>}> {
+    const loggerContext = {
+      file: CALLING_CLIENT_FILE,
+      method: METHODS.DELETE_ALL_USER_DEVICES,
+    };
+
+    log.info(`${METHOD_START_MESSAGE} with userId: ${userId}`, loggerContext);
+
+    const devices = await this.getUserDevices(userId);
+    const deleted: string[] = [];
+    const failed: Array<{deviceId: string; reason: string}> = [];
+
+    for (const device of devices) {
+      if (device?.deviceId) {
+        try {
+          // eslint-disable-next-line no-await-in-loop
+          await this.webex.request({
+            uri: device.uri,
+            method: HTTP_METHODS.DELETE,
+            service: ALLOWED_SERVICES.MOBIUS,
+            headers: {
+              [CISCO_DEVICE_URL]: this.webex.internal.device.url,
+              [SPARK_USER_AGENT]: CALLING_USER_AGENT,
+            },
+          });
+
+          deleted.push(device.deviceId);
+        } catch (error) {
+          const reason =
+            (error && typeof (error as any).message === 'string' && (error as any).message) ||
+            String(error);
+          failed.push({deviceId: device.deviceId, reason});
+          log.warn(`Failed to delete deviceId: ${device.deviceId}. ${reason}`, loggerContext);
+        }
+      }
+    }
+
+    log.log(
+      `Deleted ${deleted.length}/${devices.length} device(s) for userId: ${userId}`,
+      loggerContext
+    );
+
+    return {deleted, failed};
   }
 
   /**

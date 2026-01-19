@@ -14,11 +14,10 @@ import {LoginOption, WebexSDK} from '../types';
 import {TIMEOUT_DURATION, WEB_CALLING_SERVICE_FILE} from '../constants';
 import LoggerProxy from '../logger-proxy';
 import {
-  DEFAULT_RTMS_DOMAIN,
-  POST_AUTH,
   WCC_CALLING_RTMS_DOMAIN,
   DEREGISTER_WEBCALLING_LINE_MSG,
   METHODS,
+  POST_AUTH,
 } from './constants';
 
 /**
@@ -131,29 +130,44 @@ export default class WebCallingService extends EventEmitter {
 
   /**
    * Retrieves the RTMS domain to use for WebRTC connections
-   * First tries to get it from the service catalog, then falls back to default
    * @private
    * @returns {Promise<string>} The RTMS domain to use
    */
   private async getRTMSDomain(): Promise<string> {
+    const loggerContext = {module: WEB_CALLING_SERVICE_FILE, method: METHODS.GET_RTMS_DOMAIN};
     await this.webex.internal.services.waitForCatalog(POST_AUTH);
 
     const rtmsURL = this.webex.internal.services.get(WCC_CALLING_RTMS_DOMAIN);
+    LoggerProxy.info(`u2c catalogue value for ${WCC_CALLING_RTMS_DOMAIN}: ${String(rtmsURL)}`, {
+      ...loggerContext,
+      data: {rtmsURLType: typeof rtmsURL},
+    });
+
+    if (typeof rtmsURL !== 'string' || !rtmsURL.trim()) {
+      throw new Error(`RTMS domain missing in service catalogue: ${WCC_CALLING_RTMS_DOMAIN}`);
+    }
+
+    const candidate = rtmsURL.trim();
+    const normalizedCandidate = candidate
+      .replace(/^sips?:\/\//i, 'https://')
+      .replace(/^sips?:/i, 'https://');
+    const urlToParse = normalizedCandidate.includes('://')
+      ? normalizedCandidate
+      : `https://${normalizedCandidate}`;
 
     try {
-      const url = new URL(rtmsURL);
+      const hostname = new URL(urlToParse).hostname;
+      if (!hostname) {
+        throw new Error('empty hostname');
+      }
 
-      return url.hostname;
+      return hostname;
     } catch (error) {
-      LoggerProxy.error(
-        `Invalid URL from u2c catalogue: ${rtmsURL} so falling back to default domain`,
-        {
-          module: WEB_CALLING_SERVICE_FILE,
-          method: METHODS.GET_RTMS_DOMAIN,
-        }
-      );
-
-      return DEFAULT_RTMS_DOMAIN;
+      LoggerProxy.error(`Invalid RTMS domain in service catalogue: ${candidate}`, {
+        ...loggerContext,
+        error,
+      });
+      throw new Error(`Invalid RTMS domain in service catalogue: ${candidate}`);
     }
   }
 
@@ -166,7 +180,14 @@ export default class WebCallingService extends EventEmitter {
    * @throws {Error} When registration times out
    */
   public async registerWebCallingLine(): Promise<void> {
+    const loggerContext = {
+      module: WEB_CALLING_SERVICE_FILE,
+      method: METHODS.REGISTER_WEB_CALLING_LINE,
+    };
+    LoggerProxy.info(`Starting WebCallingService registration`, loggerContext);
+
     const rtmsDomain = await this.getRTMSDomain(); // get the RTMS domain from the u2c catalogue
+    LoggerProxy.info(`Using RTMS domain: ${rtmsDomain}`, loggerContext);
 
     const callingClientConfig = {
       logger: {
@@ -178,8 +199,22 @@ export default class WebCallingService extends EventEmitter {
       },
     };
 
-    this.callingClient = await createClient(this.webex as any, callingClientConfig);
-    this.line = Object.values(this.callingClient.getLines())[0];
+    try {
+      this.callingClient = await createClient(this.webex as any, callingClientConfig);
+    } catch (error) {
+      const message =
+        (error && typeof (error as any).message === 'string' && (error as any).message) ||
+        String(error);
+      throw new Error(
+        `WebCallingService: Failed to initialize CallingClient (rtmsDomain: ${rtmsDomain}): ${message}`
+      );
+    }
+    this.line = Object.values(this.callingClient.getLines?.() ?? {})[0];
+    if (!this.line) {
+      throw new Error(
+        `WebCallingService: No calling line available from CallingClient (rtmsDomain: ${rtmsDomain})`
+      );
+    }
 
     this.line.on(LINE_EVENTS.UNREGISTERED, () => {
       LoggerProxy.log(`WxCC-SDK: Desktop unregistered successfully`, {
@@ -195,19 +230,47 @@ export default class WebCallingService extends EventEmitter {
     });
 
     return new Promise<void>((resolve, reject) => {
+      const line = this.line;
       const timeout = setTimeout(() => {
-        reject(new Error('WebCallingService Registration timed out'));
+        reject(new Error(`WebCallingService Registration timed out (rtmsDomain: ${rtmsDomain})`));
       }, TIMEOUT_DURATION);
 
-      this.line.on(LINE_EVENTS.REGISTERED, (deviceInfo: ILine) => {
+      let onRegistered: (deviceInfo: ILine) => void;
+      let onError: (lineError: any) => void;
+
+      const cleanup = () => {
+        line.off(LINE_EVENTS.REGISTERED, onRegistered);
+        line.off(LINE_EVENTS.ERROR, onError);
+      };
+
+      onRegistered = (deviceInfo: ILine) => {
         clearTimeout(timeout);
+        cleanup();
         LoggerProxy.log(
           `WxCC-SDK: Desktop registered successfully, mobiusDeviceId: ${deviceInfo.mobiusDeviceId}`,
           {module: WEB_CALLING_SERVICE_FILE, method: METHODS.REGISTER_WEB_CALLING_LINE}
         );
         resolve();
-      });
-      this.line.register();
+      };
+
+      onError = (lineError: any) => {
+        clearTimeout(timeout);
+        cleanup();
+        const message =
+          (lineError && typeof lineError.message === 'string' && lineError.message) ||
+          String(lineError);
+        const errorMessage = `WebCallingService registration failed: ${message} (rtmsDomain: ${rtmsDomain})`;
+        reject(new Error(errorMessage));
+      };
+
+      line.on(LINE_EVENTS.REGISTERED, onRegistered);
+      line.on(LINE_EVENTS.ERROR, onError);
+
+      try {
+        line.register();
+      } catch (error) {
+        onError(error);
+      }
     });
   }
 

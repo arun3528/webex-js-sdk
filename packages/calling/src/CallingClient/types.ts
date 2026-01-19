@@ -3,7 +3,7 @@ import {LOGGER} from '../Logger/types';
 import {ISDKConnector} from '../SDKConnector/types';
 import {Eventing} from '../Events/impl';
 import {CallingClientEventTypes} from '../Events/types';
-import {ServiceData} from '../common/types';
+import {DeviceType, ServiceData} from '../common/types';
 import {ICall} from './calling/types';
 import {CallingClientError} from '../Errors';
 import {ILine} from './line/types';
@@ -121,4 +121,24 @@ export interface ICallingClient extends Eventing<CallingClientEventTypes> {
    * The `connectedCall` object will be the Call object of the connected call with the client
    */
   getConnectedCall(): ICall | undefined;
+
+  /**
+   * Fetches all Webex Calling devices for a user across the discovered Mobius servers.
+   *
+   * Primarily intended for automation/samples to clean up stale devices before registration.
+   *
+   * @param userId - Webex userId to fetch devices for. Defaults to the current user.
+   */
+  getUserDevices(userId?: string): Promise<DeviceType[]>;
+
+  /**
+   * Deletes all Webex Calling devices for a user.
+   *
+   * Primarily intended for automation/samples to clean up stale devices before registration.
+   *
+   * @param userId - Webex userId to delete devices for. Defaults to the current user.
+   */
+  deleteAllUserDevices(
+    userId?: string
+  ): Promise<{deleted: string[]; failed: Array<{deviceId: string; reason: string}>}>;
 }

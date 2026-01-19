@@ -129,14 +129,15 @@ describe('Utils', () => {
     });
 
     it('should handle null or undefined error object gracefully', () => {
-      // This should throw an error because the function tries to access error.details
-      expect(() => {
-        Utils.getErrorDetails(null, methodName, moduleName);
-      }).toThrow(TypeError);
+      expect(Utils.getErrorDetails(null, methodName, moduleName)).toEqual({
+        error: new Error(`Error while performing ${methodName}`),
+        reason: `Error while performing ${methodName}`,
+      });
 
-      expect(() => {
-        Utils.getErrorDetails(undefined, methodName, moduleName);
-      }).toThrow(TypeError);
+      expect(Utils.getErrorDetails(undefined, methodName, moduleName)).toEqual({
+        error: new Error(`Error while performing ${methodName}`),
+        reason: `Error while performing ${methodName}`,
+      });
     });
 
     it('should handle error objects with unexpected structure', () => {
@@ -148,15 +149,15 @@ describe('Utils', () => {
 
       const result = Utils.getErrorDetails(unexpectedError, methodName, moduleName);
 
-      // Should use default error message when structure is unexpected
+      // Should fall back to error.message when structure is unexpected
       expect(result).toEqual({
-        error: new Error(`Error while performing ${methodName}`),
-        reason: `Error while performing ${methodName}`,
+        error: new Error('Unexpected error structure'),
+        reason: 'Unexpected error structure',
       });
 
       // Should not throw when accessing properties with optional chaining
       expect(LoggerProxy.error).toHaveBeenCalledWith(
-        `${methodName} failed with reason: Error while performing ${methodName}`,
+        `${methodName} failed with reason: Unexpected error structure`,
         {module: moduleName, method: methodName, trackingId: undefined}
       );
     });
@@ -186,6 +187,23 @@ describe('Utils', () => {
       // Check if uploadLogs uses the trackingId from the details level
       expect(WebexRequest.getInstance().uploadLogs).toHaveBeenCalledWith({
         correlationId: detailsTrackingId,
+      });
+    });
+
+    it('should expose stationLogin non-AQM errors via err.data', () => {
+      const stationLoginError: any = new Error('WebCallingService Registration timed out');
+      stationLoginError.loginOption = LoginOption.BROWSER;
+
+      const result = Utils.getErrorDetails(stationLoginError, 'stationLogin', moduleName);
+
+      expect(result).toEqual({
+        error: new Error('WebCallingService Registration timed out'),
+        reason: 'WebCallingService Registration timed out',
+      });
+      // @ts-ignore - custom property used by SDK consumers
+      expect((result.error as any).data).toEqual({
+        message: 'WebCallingService Registration timed out',
+        fieldName: LoginOption.BROWSER,
       });
     });
   });

@@ -229,4 +229,6 @@ export const METHODS = {
   UPLOAD_LOGS: 'uploadLogs',
   GET_SDK_CONNECTOR: 'getSDKConnector',
   GET_CONNECTED_CALL: 'getConnectedCall',
+  GET_USER_DEVICES: 'getUserDevices',
+  DELETE_ALL_USER_DEVICES: 'deleteAllUserDevices',
 };
